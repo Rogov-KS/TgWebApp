@@ -1,7 +1,12 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import relationship
+from typing import TYPE_CHECKING
+
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.database import Base
+
+if TYPE_CHECKING:
+    from backend.models.user import User
 
 
 class TelegramWebAppData(Base):
@@ -9,15 +14,15 @@ class TelegramWebAppData(Base):
 
     __tablename__ = "telegram_webapp_data"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    init_data = Column(Text, nullable=False)  # данные инициализации
-    query_id = Column(String(255), nullable=True)  # для платежей
-    auth_date = Column(DateTime(timezone=True), nullable=False)
-    hash = Column(String(255), nullable=False)  # для проверки подлинности
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    init_data: Mapped[str] = mapped_column(Text)  # данные инициализации
+    query_id: Mapped[str | None] = mapped_column(String(255))  # для платежей
+    auth_date: Mapped[DateTime] = mapped_column(DateTime(timezone=True))
+    hash: Mapped[str] = mapped_column(String(255))  # для проверки подлинности
 
     # Связь с пользователем
-    user = relationship("User", back_populates="webapp_data")
+    user: Mapped["User"] = relationship("User", back_populates="webapp_data")
 
     def __repr__(self) -> str:
         return (
