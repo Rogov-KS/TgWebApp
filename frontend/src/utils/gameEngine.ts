@@ -149,16 +149,18 @@ export const getRandomFoodType = (): keyof typeof FOOD_TYPES => {
 
 export const calculateScore = (baseScore: number, level: number, speed: number): number => {
   const levelMultiplier = 1 + (level - 1) * 0.1;
-  const speedMultiplier = 1 + (GAME_CONFIG.maxSpeed - speed) / GAME_CONFIG.maxSpeed * 0.5;
-
+  const speedMultiplier = 1 + 3 * (GAME_CONFIG.maxSpeed / speed);
   return Math.floor(baseScore * levelMultiplier * speedMultiplier);
 };
 
 export const updateGameSpeed = (currentSpeed: number, score: number): number => {
+  console.log('in def updateGameSpeed: currentSpeed=', currentSpeed, 'score=', score)
+  const newPossibleSpeed = GAME_CONFIG.initialSpeed - Math.floor(score / 100) * GAME_CONFIG.speedIncrement
+  console.log('in def updateGameSpeed: newPossibleSpeed=', newPossibleSpeed)
   const newSpeed = Math.max(
     GAME_CONFIG.maxSpeed,
-    GAME_CONFIG.initialSpeed - Math.floor(score / 100) * GAME_CONFIG.speedIncrement
+    newPossibleSpeed
   );
-
+  console.log('in def updateGameSpeed: newSpeed=', newSpeed)
   return newSpeed;
 };

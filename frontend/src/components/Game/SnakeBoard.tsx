@@ -127,7 +127,8 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
     if (checkFoodCollision(newSnake, gameState.food)) {
       newSnake = growSnake(newSnake);
       const newFood = createFood(newSnake, gameState.obstacles);
-      const newScore = gameState.score + calculateScore(gameState.food.value, 1, gameState.gameSpeed);
+      const foodScore = calculateScore(gameState.food.value, 1, gameState.gameSpeed)
+      const newScore = gameState.score + foodScore;
       const newSpeed = updateGameSpeed(gameState.gameSpeed, newScore);
 
       onGameStateChange({
