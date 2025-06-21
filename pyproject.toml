@@ -46,7 +46,14 @@ target-version = ['py312']
 [tool.ruff]
 target-version = "py312"
 select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "EXE", "FA", "ICN", "INP", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
-ignore = ["E501", "B008", "C901", "RUF002", "RUF003"]
+ignore = ["E501", "B008", "C901", "RUF002", "RUF003", "PGH004"]
+
+# Настройки для сортировки импортов
+[tool.ruff.isort]
+known-first-party = ["app"]
+known-third-party = ["fastapi", "uvicorn", "pydantic", "sqlalchemy", "alembic", "redis", "httpx", "telegram", "asyncpg"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+force-sort-within-sections = true
 
 [tool.mypy]
 python_version = "3.12"
