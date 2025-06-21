@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { GameState, Level } from '../../types/game';
 import { GAME_CONFIG } from '../../constants/game';
-import { LEVELS, getLevelById } from '../../constants/levels';
+import { LEVELS, getLevelById, getNextLevel, unlockLevel } from '../../constants/levels';
 import { createSnake, createFood } from '../../utils/gameEngine';
 import { SnakeBoard } from './SnakeBoard';
 
@@ -38,11 +38,8 @@ export const Game: React.FC = () => {
     // Проверяем, нужно ли разблокировать следующий уровень
     const currentLevel = getLevelById(currentLevelId);
     if (currentLevel && finalScore >= currentLevel.maxScore) {
-      const nextLevel = LEVELS.find(level => level.id === currentLevelId);
-      const nextLevelIndex = LEVELS.findIndex(level => level.id === currentLevelId);
-      if (nextLevelIndex < LEVELS.length - 1) {
-        LEVELS[nextLevelIndex + 1].isUnlocked = true;
-      }
+      const nextLevel = getNextLevel(currentLevelId);
+      unlockLevel(nextLevel!.id);
     }
   }, [currentLevelId]);
 
