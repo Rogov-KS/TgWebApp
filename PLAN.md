@@ -12,7 +12,7 @@
 ## 1. Общая дорожная карта
 1. Сбор требований и дизайн UX/UI.
 2. Подготовка репозитория, базовой структуры каталогов, linters/formatters.
-3. Настройка окружений (Miniconda/Mamba, env `tg_snake_web_app` + uv, npm, pre-commit).
+3. Настройка окружений (Miniconda/Mamba, env `tg_web_app` + uv, npm, pre-commit).
 4. Реализация минимального вертикального среза:
    - пустой React-SPA, отдаваемый FastAPI (или nginx).
    - базовый эндпоинт `/health` на бэкенде.
@@ -32,7 +32,7 @@
 - Установка зависимостей: `telegram-web-app`, `react-router-dom`, `zustand`/`redux`, `axios`, `classnames`.
 - Настройка ESLint, Prettier, Husky, lint-staged.
 
-### 2.2. Архитектура
+### 2.2. Архитектура фронта
 - `src/
   ├─ assets/
   ├─ components/
