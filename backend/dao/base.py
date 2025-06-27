@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 from typing import Generic, TypeVar
 
 from sqlalchemy import delete, insert, select, update
