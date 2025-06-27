@@ -1,51 +1,69 @@
 from typing import Generic, TypeVar
 
-from sqlalchemy import delete, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.exc import SQLAlchemyError
 
-from backend.core.database import Base
+from backend.core.database import Base, async_session_maker
+from backend.logger import get_logger
 
 ModelType = TypeVar("ModelType", bound=Base)
+
+logger = get_logger(__name__)
 
 
 class BaseDAO(Generic[ModelType]):
     """Базовый класс для работы с базой данных."""
 
-    def __init__(self, model: type[ModelType]):
-        self.model = model
+    model: type[ModelType]
 
-    async def get_all(self, session: AsyncSession) -> list[ModelType]:
+    @classmethod
+    async def get_all(cls, **filter_by) -> list[ModelType]:
         """Получить все записи."""
-        query = select(self.model)
-        result = await session.execute(query)
-        return result.scalars().all()
+        async with async_session_maker() as session:
+            query = select(cls.model).filter_by(**filter_by)
+            result = await session.execute(query)
+            return result.scalars().all()
 
-    async def get_by_id(self, session: AsyncSession, obj_id: int) -> ModelType | None:
+    @classmethod
+    async def get_one_or_none(cls, **filter_by) -> ModelType | None:
         """Получить запись по ID."""
-        query = select(self.model).where(self.model.id == obj_id)
-        result = await session.execute(query)
-        return result.scalar_one_or_none()
+        async with async_session_maker() as session:
+            query = select(cls.model).filter_by(**filter_by)
+            result = await session.execute(query)
+            return result.scalar_one_or_none()
 
-    async def create(self, session: AsyncSession, **kwargs) -> ModelType:
+    @classmethod
+    async def create(cls, **data) -> ModelType:
         """Создать новую запись."""
-        instance = self.model(**kwargs)
-        session.add(instance)
-        await session.commit()
-        await session.refresh(instance)
-        return instance
+        try:
+            query = insert(cls.model).values(**data).returning(cls.model.id)
+            async with async_session_maker() as session:
+                result = await session.execute(query)
+                await session.commit()
+                return result.mappings().first()
+        except (SQLAlchemyError, Exception) as e:
+            if isinstance(e, SQLAlchemyError):
+                msg = "Database Exc: Cannot insert data into table"
+            elif isinstance(e, Exception):
+                msg = "Unknown Exc: Cannot insert data into table"
 
-    async def update(
-        self, session: AsyncSession, obj_id: int, **kwargs
-    ) -> ModelType | None:
+            logger.exception(msg, extra={"table": cls.model.__tablename__})
+            return None
+
+    @classmethod
+    async def update(cls, **kwargs) -> ModelType | None:
         """Обновить запись."""
-        query = update(self.model).where(self.model.id == obj_id).values(**kwargs)
-        await session.execute(query)
-        await session.commit()
-        return await self.get_by_id(session, obj_id)
+        async with async_session_maker() as session:
+            query = update(cls.model).values(**kwargs)
+            await session.execute(query)
+            await session.commit()
+            return await cls.get_one_or_none(session, **kwargs)
 
-    async def delete(self, session: AsyncSession, obj_id: int) -> bool:
+    @classmethod
+    async def delete(cls, **filter_by) -> bool:
         """Удалить запись."""
-        query = delete(self.model).where(self.model.id == obj_id)
-        result = await session.execute(query)
-        await session.commit()
-        return result.rowcount > 0
+        async with async_session_maker() as session:
+            query = delete(cls.model).filter_by(**filter_by)
+            result = await session.execute(query)
+            await session.commit()
+            return bool(result.rowcount > 0)
