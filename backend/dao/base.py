@@ -34,14 +34,15 @@ class BaseDAO(Generic[ModelType]):
             return result.scalar_one_or_none()
 
     @classmethod
-    async def create(cls, **data) -> ModelType:
+    async def create(cls, **data) -> ModelType | None:
         """Создать новую запись."""
         try:
-            query = insert(cls.model).values(**data).returning(cls.model.id)
+            query = insert(cls.model).values(**data).returning(cls.model)
             async with async_session_maker() as session:
                 result = await session.execute(query)
                 await session.commit()
-                return result.mappings().first()
+                # return result.mappings().first() # noqa
+                return result.scalar_one_or_none()
         except (SQLAlchemyError, Exception) as e:
             if isinstance(e, SQLAlchemyError):
                 msg = "Database Exc: Cannot insert data into table"

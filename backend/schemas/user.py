@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class User(BaseModel):
     id: int
     telegram_id: int
+    hashed_password: str
     username: str | None = None
     first_name: str
     last_name: str | None = None
@@ -18,3 +19,11 @@ class User(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserAuth(BaseModel):
+    telegram_id: int
+    username: str
+    password: str
+    first_name: str
+    last_name: str | None = None
