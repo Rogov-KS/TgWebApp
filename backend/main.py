@@ -2,7 +2,7 @@ import sys
 
 from fastapi import FastAPI
 
-from backend.api.endpoints import auth, game_sessions, users
+from backend.api.endpoints import auth, game_sessions, leaderboard, users
 from backend.logger import get_logger, setup_logging
 
 # Создаем экземпляр FastAPI
@@ -12,6 +12,7 @@ app = FastAPI(title="TgWebApp API", version="1.0.0")
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(game_sessions.router)
+app.include_router(leaderboard.router)
 
 logger = get_logger(__name__)
 
