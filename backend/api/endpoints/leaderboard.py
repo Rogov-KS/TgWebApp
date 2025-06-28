@@ -1,7 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from backend.core.dependecies import get_current_user
+from backend.dao.game_session import GameSessionDAO
 from backend.dao.utils import get_db_leaderboard
 from backend.schemas.leaderboard import LeaderboardPlace
+from backend.schemas.user import User
 
 router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
 
@@ -15,3 +18,12 @@ async def get_leaderboard(
     """Получить топ игроков в рейтинге."""
     top_scores = await get_db_leaderboard(limit, offset, sort_order)
     return top_scores
+
+
+@router.get("/my_max_score")
+async def get_my_max_score(
+    user: User = Depends(get_current_user),
+) -> int | None:
+    """Получить максимальный счет пользователя."""
+    max_score = await GameSessionDAO.get_max_score(user.id)
+    return max_score
