@@ -1,7 +1,7 @@
 # mypy: ignore-errors
 from typing import Generic, TypeVar
 
-from sqlalchemy import delete, insert, select, update, and_
+from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.exc import SQLAlchemyError
 
 from backend.core.database import Base, async_session_maker
@@ -76,13 +76,18 @@ class BaseDAO(Generic[ModelType]):
         :raises ValueError: Если фильтры или данные обновления пусты.
         """
         if not filters or not update_data:
-            raise ValueError("Фильтры и данные обновления не могут быть пустыми")
+            msg = "Filters and update data cannot be empty"
+            logger.error(msg)
+            raise ValueError(msg)
 
         async with async_session_maker() as session:
             try:
                 # Формируем условие WHERE из фильтров
                 where_clause = and_(
-                    *[getattr(cls.model, key) == value for key, value in filters.items()]
+                    *[
+                        getattr(cls.model, key) == value
+                        for key, value in filters.items()
+                    ]
                 )
 
                 # Выполняем обновление
@@ -90,15 +95,19 @@ class BaseDAO(Generic[ModelType]):
                     update(cls.model)
                     .where(where_clause)
                     .values(**update_data)
-                    .returning(cls.model)  # Возвращаем обновленную запись (если СУБД поддерживает)
+                    .returning(
+                        cls.model
+                    )  # Возвращаем обновленную запись (если СУБД поддерживает)
                 )
 
                 result = await session.execute(query)
                 updated_record = result.scalar_one_or_none()
 
                 await session.commit()
-                return updated_record
+                return updated_record  # noqa
 
             except SQLAlchemyError as e:
                 await session.rollback()
-                raise ValueError(f"Ошибка при обновлении записи: {e}")
+                msg = "Error updating record"
+                logger.exception(msg, extra={"table": cls.model.__tablename__})
+                raise ValueError(msg) from e

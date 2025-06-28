@@ -2,7 +2,7 @@ import sys
 
 from fastapi import FastAPI
 
-from backend.api.endpoints import auth, users, game_sessions
+from backend.api.endpoints import auth, game_sessions, users
 from backend.logger import get_logger, setup_logging
 
 # Создаем экземпляр FastAPI

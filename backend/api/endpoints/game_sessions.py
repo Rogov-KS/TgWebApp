@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -9,7 +9,6 @@ from backend.schemas.game_session import (
     GameSessionCreate,
     GameSessionUpdate,
 )
-
 
 router = APIRouter(prefix="/game_sessions", tags=["Game Sessions"])
 
@@ -40,72 +39,56 @@ async def get_game_session(game_session_id: int) -> GameSession:
 async def get_user_game_sessions(user_id: int) -> list[GameSession]:
     """Получить все игровые сессии пользователя."""
     game_sessions = await GameSessionDAO.get_all(user_id=user_id)
-    logger.info(
-        "Retrieved %d game sessions for user %d",
-        len(game_sessions),
-        user_id
-    )
+    logger.info("Retrieved %d game sessions for user %d", len(game_sessions), user_id)
     return game_sessions
 
 
 @router.post("/", response_model=GameSession)
-async def create_game_session(
-    game_session_data: GameSessionCreate
-) -> GameSession:
+async def create_game_session(game_session_data: GameSessionCreate) -> GameSession:
     """Создать новую игровую сессию."""
-    logger.info(f"Creating game session: {game_session_data.model_dump()}")
+    logger.info("Creating game session: %s", game_session_data.model_dump())
     try:
         game_session = await GameSessionDAO.create(**game_session_data.model_dump())
     except Exception as e:
-        logger.error(f"Error creating game session: {e}")
+        logger.exception("Error creating game session")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create game session",
-        )
+        ) from e
 
     if not game_session:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create game session",
         )
-    logger.info(
-        "Created game session %s",
-        game_session
-    )
+    logger.info("Created game session %s", game_session)
     return game_session
 
 
 @router.put("/{game_session_id}/complete", response_model=GameSession)
 async def complete_game_session(
-    game_session_id: int,
-    game_session_data: GameSessionUpdate
+    game_session_id: int, game_session_data: GameSessionUpdate
 ) -> GameSession:
     """Завершить игровую сессию."""
-    logger.info(f"Updating game session: {game_session_data.model_dump()}")
-    ended_at = datetime.now(timezone.utc)
+    logger.info("Updating game session: %s", game_session_data.model_dump())
+    ended_at = datetime.now(UTC)
     try:
         game_session = await GameSessionDAO.update(
             filters={"id": game_session_id},
-            update_data={
-                "ended_at": ended_at,
-                **game_session_data.model_dump()
-            }
+            update_data={"ended_at": ended_at, **game_session_data.model_dump()},
         )
     except Exception as e:
-        logger.error(f"Error updating game session: {e}")
+        logger.exception("Error updating game session")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update game session",
-        )
+        ) from e
     if not game_session:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Game session not found",
         )
-    logger.info(
-        "Completed game session: %s",
-        game_session
-    )
+    logger.info("Completed game session: %s", game_session)
     return game_session
 
 

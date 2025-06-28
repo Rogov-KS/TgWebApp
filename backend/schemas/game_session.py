@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class GameSessionBase(BaseModel):
     """Базовая схема игровой сессии."""
+
     user_id: int
     level: int = 1
     score: int = 0
@@ -20,6 +21,7 @@ class GameSessionCreate(GameSessionBase):
 
 class GameSessionUpdate(BaseModel):
     """Схема для обновления игровой сессии."""
+
     score: int
     duration: int
     is_completed: bool
@@ -28,6 +30,7 @@ class GameSessionUpdate(BaseModel):
 
 class GameSession(GameSessionBase):
     """Схема игровой сессии для ответов."""
+
     id: int
     started_at: datetime
     ended_at: datetime | None = None
