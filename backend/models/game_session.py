@@ -17,7 +17,6 @@ class GameSession(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    game_type: Mapped[str] = mapped_column(String(50))  # "snake", "tetris", etc.
     score: Mapped[int] = mapped_column(Integer, default=0)
     duration: Mapped[int] = mapped_column(Integer, default=0)  # в секундах
     level: Mapped[int] = mapped_column(Integer, default=1)
@@ -36,5 +35,7 @@ class GameSession(Base):
     def __repr__(self) -> str:
         return (
             f"<GameSession(id={self.id}, user_id={self.user_id}, "
-            f"game_type={self.game_type}, score={self.score})>"
+            f"score={self.score}, duration={self.duration}, "
+            f"level={self.level}, started_at={self.started_at}, "
+            f"ended_at={self.ended_at}, is_completed={self.is_completed})>"
         )

@@ -1,7 +1,7 @@
 # mypy: ignore-errors
 from typing import Generic, TypeVar
 
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import delete, insert, select, update, and_
 from sqlalchemy.exc import SQLAlchemyError
 
 from backend.core.database import Base, async_session_maker
@@ -53,15 +53,6 @@ class BaseDAO(Generic[ModelType]):
             return None
 
     @classmethod
-    async def update(cls, **kwargs) -> ModelType | None:
-        """Обновить запись."""
-        async with async_session_maker() as session:
-            query = update(cls.model).values(**kwargs)
-            await session.execute(query)
-            await session.commit()
-            return await cls.get_one_or_none(session, **kwargs)
-
-    @classmethod
     async def delete(cls, **filter_by) -> bool:
         """Удалить запись."""
         async with async_session_maker() as session:
@@ -69,3 +60,45 @@ class BaseDAO(Generic[ModelType]):
             result = await session.execute(query)
             await session.commit()
             return bool(result.rowcount > 0)
+
+    @classmethod
+    async def update(
+        cls,
+        filters: dict,  # Условия для выбора записи (например, {"id": 1})
+        update_data: dict,  # Данные для обновления (например, {"name": "New Name"})
+    ) -> ModelType | None:
+        """
+        Обновляет запись по фильтру и возвращает обновленный объект.
+
+        :param filters: Условия выборки (обычно по PK, например, {"id": 1}).
+        :param update_data: Данные для обновления.
+        :return: Обновленная запись или None, если запись не найдена.
+        :raises ValueError: Если фильтры или данные обновления пусты.
+        """
+        if not filters or not update_data:
+            raise ValueError("Фильтры и данные обновления не могут быть пустыми")
+
+        async with async_session_maker() as session:
+            try:
+                # Формируем условие WHERE из фильтров
+                where_clause = and_(
+                    *[getattr(cls.model, key) == value for key, value in filters.items()]
+                )
+
+                # Выполняем обновление
+                query = (
+                    update(cls.model)
+                    .where(where_clause)
+                    .values(**update_data)
+                    .returning(cls.model)  # Возвращаем обновленную запись (если СУБД поддерживает)
+                )
+
+                result = await session.execute(query)
+                updated_record = result.scalar_one_or_none()
+
+                await session.commit()
+                return updated_record
+
+            except SQLAlchemyError as e:
+                await session.rollback()
+                raise ValueError(f"Ошибка при обновлении записи: {e}")
