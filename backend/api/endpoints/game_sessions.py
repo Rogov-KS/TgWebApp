@@ -1,7 +1,8 @@
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from backend.core.dependecies import get_current_user
 from backend.dao.game_session import GameSessionDAO
 from backend.logger import get_logger
 from backend.schemas.game_session import (
@@ -9,6 +10,7 @@ from backend.schemas.game_session import (
     GameSessionCreate,
     GameSessionUpdate,
 )
+from backend.schemas.user import User
 
 router = APIRouter(prefix="/game_sessions", tags=["Game Sessions"])
 
@@ -35,17 +37,27 @@ async def get_game_session(game_session_id: int) -> GameSession:
     return game_session
 
 
-@router.get("/user/{user_id}", response_model=list[GameSession])
-async def get_user_game_sessions(user_id: int) -> list[GameSession]:
+@router.get("/user", response_model=list[GameSession])
+async def get_user_game_sessions(
+    user: User = Depends(get_current_user),
+) -> list[GameSession]:
     """Получить все игровые сессии пользователя."""
-    game_sessions = await GameSessionDAO.get_all(user_id=user_id)
-    logger.info("Retrieved %d game sessions for user %d", len(game_sessions), user_id)
+    game_sessions = await GameSessionDAO.get_all(user_id=user.id)
+    logger.info("Retrieved %d game sessions for user %d", len(game_sessions), user.id)
     return game_sessions
 
 
 @router.post("/", response_model=GameSession)
-async def create_game_session(game_session_data: GameSessionCreate) -> GameSession:
+async def create_game_session(
+    game_session_data: GameSessionCreate,
+    user: User = Depends(get_current_user),
+) -> GameSession:
     """Создать новую игровую сессию."""
+    if game_session_data.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to create this game session",
+        )
     logger.info("Creating game session: %s", game_session_data.model_dump())
     try:
         game_session = await GameSessionDAO.create(**game_session_data.model_dump())
@@ -65,11 +77,18 @@ async def create_game_session(game_session_data: GameSessionCreate) -> GameSessi
     return game_session
 
 
-@router.put("/{game_session_id}/complete", response_model=GameSession)
+@router.put("/{game_session_id}", response_model=GameSession)
 async def complete_game_session(
-    game_session_id: int, game_session_data: GameSessionUpdate
+    game_session_id: int,
+    game_session_data: GameSessionUpdate,
+    user: User = Depends(get_current_user),
 ) -> GameSession:
     """Завершить игровую сессию."""
+    if game_session_data.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to update this game session",
+        )
     logger.info("Updating game session: %s", game_session_data.model_dump())
     ended_at = datetime.now(UTC)
     try:
@@ -93,9 +112,12 @@ async def complete_game_session(
 
 
 @router.delete("/{game_session_id}")
-async def delete_game_session(game_session_id: int) -> dict[str, str]:
+async def delete_game_session(
+    game_session_id: int,
+    user: User = Depends(get_current_user),
+) -> dict[str, str]:
     """Удалить игровую сессию."""
-    deleted = await GameSessionDAO.delete(id=game_session_id)
+    deleted = await GameSessionDAO.delete(id=game_session_id, user_id=user.id)
     if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
