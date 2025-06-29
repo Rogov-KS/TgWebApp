@@ -25,28 +25,6 @@ async def get_game_sessions() -> list[GameSession]:
     return game_sessions
 
 
-@router.get("/{game_session_id}", response_model=GameSession)
-async def get_game_session(game_session_id: int) -> GameSession:
-    """Получить конкретную игровую сессию."""
-    game_session = await GameSessionDAO.get_one_or_none(id=game_session_id)
-    if not game_session:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Game session not found",
-        )
-    return game_session
-
-
-@router.get("/user", response_model=list[GameSession])
-async def get_user_game_sessions(
-    user: User = Depends(get_current_user),
-) -> list[GameSession]:
-    """Получить все игровые сессии пользователя."""
-    game_sessions = await GameSessionDAO.get_all(user_id=user.id)
-    logger.info("Retrieved %d game sessions for user %d", len(game_sessions), user.id)
-    return game_sessions
-
-
 @router.post("/", response_model=GameSession)
 async def create_game_session(
     game_session_data: GameSessionCreate,
@@ -77,24 +55,61 @@ async def create_game_session(
     return game_session
 
 
+@router.get("/user_game_sessions", response_model=list[GameSession])
+async def get_user_game_sessions(
+    user: User = Depends(get_current_user),
+) -> list[GameSession]:
+    """Получить все игровые сессии."""
+    game_sessions = await GameSessionDAO.get_all(user_id=user.id)
+    logger.info("Retrieved %d game sessions", len(game_sessions))
+    return game_sessions
+
+
+@router.get("/{game_session_id}", response_model=GameSession)
+async def get_game_session(
+    game_session_id: int,
+    user: User = Depends(get_current_user),
+) -> GameSession:
+    """Получить конкретную игровую сессию."""
+    logger.info("Retrieving game session %d for user %s", game_session_id, user)
+    game_session = await GameSessionDAO.get_one_or_none(id=game_session_id)
+    if not game_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game session not found",
+        )
+    if game_session.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to access this game session",
+        )
+    return game_session
+
+
 @router.put("/{game_session_id}", response_model=GameSession)
 async def complete_game_session(
     game_session_id: int,
-    game_session_data: GameSessionUpdate,
+    game_session_update: GameSessionUpdate,
     user: User = Depends(get_current_user),
 ) -> GameSession:
     """Завершить игровую сессию."""
-    if game_session_data.user_id != user.id:
+    game_session = await GameSessionDAO.get_one_or_none(id=game_session_id)
+    if not game_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game session not found",
+        )
+    if game_session.user_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not allowed to update this game session",
         )
-    logger.info("Updating game session: %s", game_session_data.model_dump())
+    logger.info("Updating game session: %s", game_session_update.model_dump())
     ended_at = datetime.now(UTC)
     try:
         game_session = await GameSessionDAO.update(
             filters={"id": game_session_id},
-            update_data={"ended_at": ended_at, **game_session_data.model_dump()},
+            update_data={"ended_at": ended_at, **game_session_update.model_dump()},
         )
     except Exception as e:
         logger.exception("Error updating game session")
