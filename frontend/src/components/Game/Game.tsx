@@ -4,9 +4,14 @@ import { GAME_CONFIG } from '../../constants/game';
 import { LEVELS, getLevelById, getNextLevel, unlockLevel } from '../../constants/levels';
 import { createSnake, createFood } from '../../utils/gameEngine';
 import { SnakeBoard } from './SnakeBoard';
+import { useHelloWorld } from '../../api/hooks';
 
 export const Game: React.FC = () => {
   const [currentLevelId, setCurrentLevelId] = useState<string>('level-1');
+
+  // React Query хук для тестового запроса
+  const { data: helloWorldData, isLoading, error, refetch } = useHelloWorld();
+
   const [gameState, setGameState] = useState<GameState>(() => {
     const level = getLevelById('level-1')!;
     const snake = createSnake();
@@ -64,6 +69,14 @@ export const Game: React.FC = () => {
   }, []);
 
   const handleRestart = useCallback(() => {
+    // Тестовый запрос к API при рестарте игры
+    console.log('🔄 Restarting game...');
+    refetch().then(() => {
+      console.log('✅ API test completed:', helloWorldData);
+    }).catch((error) => {
+      console.error('❌ API test failed:', error);
+    });
+
     const level = getLevelById(currentLevelId)!;
     const snake = createSnake();
     const food = createFood(snake, level.obstacles);
@@ -78,7 +91,7 @@ export const Game: React.FC = () => {
       isPaused: false,
       gameSpeed: level.speed,
     });
-  }, [currentLevelId]);
+  }, [currentLevelId, refetch, helloWorldData]);
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
@@ -129,6 +142,18 @@ export const Game: React.FC = () => {
           <div>Уровень: {gameState.level.name}</div>
           <div>Цель: {gameState.level.maxScore} очков</div>
           <div>Скорость: {Math.round(1000 / gameState.gameSpeed)} FPS</div>
+
+          {/* Индикатор состояния API */}
+          <div style={{
+            marginTop: '10px',
+            padding: '5px',
+            borderRadius: '4px',
+            backgroundColor: error ? '#f44336' : isLoading ? '#ff9800' : '#4caf50',
+            fontSize: '12px'
+          }}>
+            API Status: {error ? 'Error' : isLoading ? 'Loading...' : 'Connected'}
+            {helloWorldData && <div style={{ fontSize: '10px', opacity: 0.8 }}>Response: {helloWorldData}</div>}
+          </div>
         </div>
       </div>
 

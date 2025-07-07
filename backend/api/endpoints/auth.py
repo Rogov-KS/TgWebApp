@@ -9,7 +9,11 @@ from backend.core.exception import (
 from backend.dao.user import UserDAO
 from backend.logger import get_logger
 from backend.schemas.user import User, UserAuth
-from backend.utils.auth import authenticate_user, create_access_token, get_password_hash
+from backend.utils.auth import (
+    authenticate_user,
+    create_access_token,
+    get_password_hash,
+)
 
 logger = get_logger(__name__)
 
@@ -21,7 +25,9 @@ router = APIRouter(
 
 @router.post("/register")
 async def register(user_data: UserAuth) -> User:
-    existing_user = await UserDAO.get_one_or_none(telegram_id=user_data.telegram_id)
+    existing_user = await UserDAO.get_one_or_none(
+        telegram_id=user_data.telegram_id
+    )
     if existing_user:
         logger.info("User already exists: %s", user_data)
         raise UserAlreadyExistsException
@@ -51,7 +57,10 @@ async def login(response: Response, user_data: UserAuth) -> dict[str, str]:
 
     access_token = create_access_token(data={"sub": str(user.telegram_id)})
     response.set_cookie(
-        settings.AUTH_COOKIE_NAME, access_token, httponly=True, samesite="strict"
+        settings.AUTH_COOKIE_NAME,
+        access_token,
+        httponly=True,
+        samesite="strict",
     )
     logger.info("Access token: %s", access_token)
     return {"access_token": access_token, "token_type": "bearer"}
@@ -66,3 +75,8 @@ async def logout(response: Response) -> dict[str, str]:
 @router.get("/me")
 async def me(user: User = Depends(get_current_user)) -> User:
     return user
+
+
+@router.get("/hello_world")
+async def hello_world() -> str:
+    return "hello world"

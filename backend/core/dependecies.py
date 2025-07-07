@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from fastapi import Depends, Request
 from jose import JWTError, jwt
@@ -38,7 +38,7 @@ async def get_current_user(token: str = Depends(get_token)) -> User:
 
     expire = payload.get("exp")
     logger.info("expire: %s", expire)
-    if not expire or (int(expire) < int(datetime.now(UTC).timestamp())):
+    if not expire or (int(expire) < int(datetime.now(timezone.utc).timestamp())):
         raise TokenExpiredException
 
     telegram_id = payload.get("sub")

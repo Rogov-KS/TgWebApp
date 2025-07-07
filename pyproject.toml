@@ -5,10 +5,7 @@ description = "Backend for Telegram Snake Web App"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
-    "pydantic>=2.5.0",
-    "pydantic-settings>=2.1.0",
     "python-multipart>=0.0.6",
     "python-jose[cryptography]>=3.3.0",
     "passlib[bcrypt]>=1.7.4",
@@ -20,6 +17,9 @@ dependencies = [
     "python-telegram-bot>=20.7",
     "asyncpg>=0.30.0",
     "cfgv>=3.4.0",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
+    "fastapi>=0.116.0",
 ]
 
 [project.optional-dependencies]
