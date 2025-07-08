@@ -6,13 +6,11 @@ import { createSnake, createFood } from '../../utils/gameEngine';
 import { SnakeBoard } from './SnakeBoard';
 import { useHelloWorld } from '../../api/hooks';
 import { useAuth } from '../../contexts/AuthContext';
-import { AuthModal } from '../Auth/AuthModal';
-import { UserInfo } from '../Auth/UserInfo';
+import { ProfileIcon } from '../Auth/ProfileIcon';
 import { gameAPI } from '../../api/client';
 
 export const Game: React.FC = () => {
   const [currentLevelId, setCurrentLevelId] = useState<string>('level-1');
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [guestBestScore, setGuestBestScore] = useState(() => {
     return parseInt(localStorage.getItem('guestBestScore') || '0');
@@ -129,19 +127,24 @@ export const Game: React.FC = () => {
 
   const handleGuestPlay = useCallback(() => {
     setIsGuestMode(true);
-    setIsAuthModalOpen(false);
-  }, []);
-
-  const handleAuthModalClose = useCallback(() => {
-    setIsAuthModalOpen(false);
   }, []);
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      {/* Информация о пользователе */}
-      {isAuthenticated && user && (
-        <UserInfo />
-      )}
+      {/* Заголовок с иконкой профиля */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '20px'
+      }}>
+        <h2 style={{ color: '#FFFFFF', margin: 0 }}>
+          Snake Game
+        </h2>
+
+        {/* Иконка профиля */}
+        <ProfileIcon onGuestPlay={handleGuestPlay} />
+      </div>
 
       {/* Индикатор режима игры */}
       {isGuestMode && (
@@ -161,49 +164,6 @@ export const Game: React.FC = () => {
       )}
 
       <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ textAlign: 'center', color: '#FFFFFF', marginBottom: '10px' }}>
-          Snake Game
-        </h2>
-
-        {/* Кнопки авторизации */}
-        {!isAuthenticated && !isGuestMode && (
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '20px'
-          }}>
-            <button
-              onClick={() => setIsAuthModalOpen(true)}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '600',
-                marginRight: '10px'
-              }}
-            >
-              Войти / Зарегистрироваться
-            </button>
-            <button
-              onClick={handleGuestPlay}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '600'
-              }}
-            >
-              Играть как гость
-            </button>
-          </div>
-        )}
 
         {/* Выбор уровня */}
         <div style={{
@@ -343,12 +303,6 @@ export const Game: React.FC = () => {
         </div>
       </div>
 
-      {/* Модальное окно авторизации */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={handleAuthModalClose}
-        onGuestPlay={handleGuestPlay}
-      />
     </div>
   );
 };
