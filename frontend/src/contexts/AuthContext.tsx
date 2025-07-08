@@ -106,14 +106,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-    // Регистрация
+      // Регистрация
   const register = async (data: UserAuth) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
 
+      // Регистрируем пользователя
       await authAPI.register(data);
-      await checkAuth(); // Проверяем авторизацию после регистрации (включая max_score)
+
+      // Автоматически входим в аккаунт после регистрации
+      await authAPI.login(data);
+
+      // Проверяем авторизацию (включая max_score)
+      await checkAuth();
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || 'Ошибка регистрации';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
