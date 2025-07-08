@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { Direction } from '../types/game';
 import { KEYS } from '../constants/game';
+import { useModal } from '../contexts/ModalContext';
 
 interface UseInputProps {
   onDirectionChange: (direction: Direction) => void;
@@ -11,7 +12,13 @@ interface UseInputProps {
 }
 
 export const useInput = ({ onDirectionChange, onPause, onRestart, isPaused, isGameOver }: UseInputProps) => {
+  const { isModalOpen } = useModal();
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    // Если открыто модальное окно, не обрабатываем клавиши управления игрой
+    if (isModalOpen) {
+      return;
+    }
+
     const key = event.code;
 
     // Направления
@@ -40,7 +47,7 @@ export const useInput = ({ onDirectionChange, onPause, onRestart, isPaused, isGa
       event.preventDefault();
       onRestart();
     }
-  }, [onDirectionChange, onPause, onRestart]);
+  }, [onDirectionChange, onPause, onRestart, isModalOpen]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

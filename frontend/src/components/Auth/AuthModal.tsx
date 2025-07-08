@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useModal } from '../../contexts/ModalContext';
 import type { UserAuth } from '../../types/auth';
 import './AuthModal.css';
 
@@ -11,6 +12,7 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
   const { login, register, isLoading, error, clearError } = useAuth();
+  const { setIsModalOpen } = useModal();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState<UserAuth>({
     telegram_id: 0,
@@ -61,6 +63,28 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
       password: '',
     }));
   };
+
+  // Уведомляем контекст о состоянии модального окна
+  useEffect(() => {
+    setIsModalOpen(isOpen);
+  }, [isOpen, setIsModalOpen]);
+
+  // Обработка клавиши Escape для закрытия модального окна
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

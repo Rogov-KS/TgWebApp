@@ -1,14 +1,17 @@
 import React from 'react';
 import { Game } from './components/Game/Game';
 import { AuthProvider } from './contexts/AuthContext';
+import { ModalProvider } from './contexts/ModalContext';
 import './App.css';
 
 function App() {
   return (
     <AuthProvider>
-      <div className="App">
-        <Game />
-      </div>
+      <ModalProvider>
+        <div className="App">
+          <Game />
+        </div>
+      </ModalProvider>
     </AuthProvider>
   );
 }
