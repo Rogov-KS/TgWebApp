@@ -59,3 +59,8 @@ export const gameAPI = {
   createSession: (data: { user_id: number; score: number; level: number }) =>
     apiClient.post('/game_sessions/', data),
 };
+
+// API для лидерборда
+export const leaderboardAPI = {
+  getMyMaxScore: () => apiClient.get<{ max_score: number }>('/leaderboard/my_max_score'),
+};

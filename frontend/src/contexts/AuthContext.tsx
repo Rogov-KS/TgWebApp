@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { authAPI } from '../api/client';
+import { authAPI, leaderboardAPI } from '../api/client';
 import type { User, UserAuth, AuthState } from '../types/auth';
 
 // Типы действий
@@ -50,6 +50,7 @@ interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   clearError: () => void;
+  updateUserMaxScore: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,7 +68,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await authAPI.me();
-      dispatch({ type: 'SET_USER', payload: response.data });
+
+      // Получаем актуальный max_score
+      try {
+        const maxScoreResponse = await leaderboardAPI.getMyMaxScore();
+        const userWithUpdatedScore = {
+          ...response.data,
+          max_score: maxScoreResponse.data.max_score,
+        };
+        dispatch({ type: 'SET_USER', payload: userWithUpdatedScore });
+      } catch (maxScoreError) {
+        console.warn('Failed to get max score, using default:', maxScoreError);
+        dispatch({ type: 'SET_USER', payload: response.data });
+      }
     } catch (error) {
       console.log('🔐 User not authenticated');
       dispatch({ type: 'SET_USER', payload: null });
@@ -76,14 +89,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Вход
+    // Вход
   const login = async (data: UserAuth) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
 
       await authAPI.login(data);
-      await checkAuth(); // Проверяем авторизацию после входа
+      await checkAuth(); // Проверяем авторизацию после входа (включая max_score)
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || 'Ошибка входа';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -93,14 +106,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Регистрация
+    // Регистрация
   const register = async (data: UserAuth) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
 
       await authAPI.register(data);
-      await checkAuth(); // Проверяем авторизацию после регистрации
+      await checkAuth(); // Проверяем авторизацию после регистрации (включая max_score)
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || 'Ошибка регистрации';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -124,6 +137,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Очистка ошибки
   const clearError = () => {
     dispatch({ type: 'SET_ERROR', payload: null });
+  };
+
+    // Обновление max_score пользователя
+  const updateUserMaxScore = async () => {
+    if (!state.isAuthenticated || !state.user) return;
+
+    try {
+      const maxScoreResponse = await leaderboardAPI.getMyMaxScore();
+      const updatedUser = {
+        ...state.user,
+        max_score: maxScoreResponse.data,
+      };
+      dispatch({ type: 'SET_USER', payload: updatedUser });
+    } catch (error) {
+      console.warn('Failed to update max score:', error);
+    }
   };
 
   // Проверяем авторизацию при загрузке приложения
@@ -150,6 +179,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     checkAuth,
     clearError,
+    updateUserMaxScore,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

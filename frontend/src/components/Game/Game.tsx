@@ -20,7 +20,7 @@ export const Game: React.FC = () => {
   const { data: helloWorldData, isLoading, error, refetch } = useHelloWorld();
 
   // Auth context
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, updateUserMaxScore } = useAuth();
 
   const [gameState, setGameState] = useState<GameState>(() => {
     const level = getLevelById('level-1')!;
@@ -67,6 +67,10 @@ export const Game: React.FC = () => {
           level: parseInt(currentLevelId.replace('level-', '')),
         });
         console.log('✅ Game session saved to database');
+
+        // Обновляем max_score пользователя
+        await updateUserMaxScore();
+        console.log('✅ User max score updated');
       } catch (error) {
         console.error('❌ Failed to save game session:', error);
       }
