@@ -1,16 +1,28 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { GameState, Level } from '../../types/game';
 import { GAME_CONFIG } from '../../constants/game';
 import { LEVELS, getLevelById, getNextLevel, unlockLevel } from '../../constants/levels';
 import { createSnake, createFood } from '../../utils/gameEngine';
 import { SnakeBoard } from './SnakeBoard';
 import { useHelloWorld } from '../../api/hooks';
+import { useAuth } from '../../contexts/AuthContext';
+import { AuthModal } from '../Auth/AuthModal';
+import { UserInfo } from '../Auth/UserInfo';
+import { gameAPI } from '../../api/client';
 
 export const Game: React.FC = () => {
   const [currentLevelId, setCurrentLevelId] = useState<string>('level-1');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isGuestMode, setIsGuestMode] = useState(false);
+  const [guestBestScore, setGuestBestScore] = useState(() => {
+    return parseInt(localStorage.getItem('guestBestScore') || '0');
+  });
 
   // React Query хук для тестового запроса
   const { data: helloWorldData, isLoading, error, refetch } = useHelloWorld();
+
+  // Auth context
+  const { user, isAuthenticated } = useAuth();
 
   const [gameState, setGameState] = useState<GameState>(() => {
     const level = getLevelById('level-1')!;
@@ -33,7 +45,7 @@ export const Game: React.FC = () => {
     setGameState(newState);
   }, []);
 
-  const handleGameOver = useCallback((finalScore: number) => {
+  const handleGameOver = useCallback(async (finalScore: number) => {
     setGameState(prev => ({
       ...prev,
       isGameOver: true,
@@ -46,7 +58,29 @@ export const Game: React.FC = () => {
       const nextLevel = getNextLevel(currentLevelId);
       unlockLevel(nextLevel!.id);
     }
-  }, [currentLevelId]);
+
+    // Сохраняем результат
+    if (isAuthenticated && user) {
+      try {
+        // Сохраняем в БД для авторизованных пользователей
+        await gameAPI.createSession({
+          user_id: user.id,
+          score: finalScore,
+          level: parseInt(currentLevelId.replace('level-', '')),
+        });
+        console.log('✅ Game session saved to database');
+      } catch (error) {
+        console.error('❌ Failed to save game session:', error);
+      }
+    } else if (isGuestMode) {
+      // Сохраняем локально для гостей
+      if (finalScore > guestBestScore) {
+        setGuestBestScore(finalScore);
+        localStorage.setItem('guestBestScore', finalScore.toString());
+        console.log('✅ Guest best score updated:', finalScore);
+      }
+    }
+  }, [currentLevelId, isAuthenticated, user, isGuestMode, guestBestScore]);
 
   const handleLevelChange = useCallback((levelId: string) => {
     const level = getLevelById(levelId);
@@ -93,12 +127,83 @@ export const Game: React.FC = () => {
     });
   }, [currentLevelId, refetch, helloWorldData]);
 
+  const handleGuestPlay = useCallback(() => {
+    setIsGuestMode(true);
+    setIsAuthModalOpen(false);
+  }, []);
+
+  const handleAuthModalClose = useCallback(() => {
+    setIsAuthModalOpen(false);
+  }, []);
+
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      {/* Информация о пользователе */}
+      {isAuthenticated && user && (
+        <UserInfo />
+      )}
+
+      {/* Индикатор режима игры */}
+      {isGuestMode && (
+        <div style={{
+          backgroundColor: '#ff9800',
+          color: 'white',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          marginBottom: '16px',
+          textAlign: 'center',
+          fontSize: '14px'
+        }}>
+          🎮 Гостевой режим - результаты не сохраняются в БД
+          <br />
+          Лучший результат: {guestBestScore} очков
+        </div>
+      )}
+
       <div style={{ marginBottom: '20px' }}>
         <h2 style={{ textAlign: 'center', color: '#FFFFFF', marginBottom: '10px' }}>
           Snake Game
         </h2>
+
+        {/* Кнопки авторизации */}
+        {!isAuthenticated && !isGuestMode && (
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '20px'
+          }}>
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '600',
+                marginRight: '10px'
+              }}
+            >
+              Войти / Зарегистрироваться
+            </button>
+            <button
+              onClick={handleGuestPlay}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '600'
+              }}
+            >
+              Играть как гость
+            </button>
+          </div>
+        )}
 
         {/* Выбор уровня */}
         <div style={{
@@ -142,6 +247,13 @@ export const Game: React.FC = () => {
           <div>Уровень: {gameState.level.name}</div>
           <div>Цель: {gameState.level.maxScore} очков</div>
           <div>Скорость: {Math.round(1000 / gameState.gameSpeed)} FPS</div>
+
+          {/* Информация о рекордах */}
+          {isAuthenticated && user && (
+            <div style={{ marginTop: '8px', color: '#4caf50' }}>
+              Ваш рекорд: {user.max_score} очков
+            </div>
+          )}
 
           {/* Индикатор состояния API */}
           <div style={{
@@ -230,6 +342,13 @@ export const Game: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Модальное окно авторизации */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={handleAuthModalClose}
+        onGuestPlay={handleGuestPlay}
+      />
     </div>
   );
 };

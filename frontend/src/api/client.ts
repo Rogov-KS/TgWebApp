@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { User, UserAuth, LoginResponse, LogoutResponse } from '../types/auth';
 
 // Создаем экземпляр axios с базовой конфигурацией
 export const apiClient = axios.create({
@@ -22,7 +23,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Интерцептор для логирования ответов
+// Интерцептор для логирования ответов и обработки ошибок авторизации
 apiClient.interceptors.response.use(
   (response) => {
     console.log('✅ API Response:', response.status, response.config.url, "response.data: ", response.data);
@@ -30,6 +31,16 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     console.error('❌ API Response Error:', error.response?.status, error.config?.url);
+
+    // Обработка 401 ошибки для автоматического logout
+    if (error.response?.status === 401) {
+      console.log('🔐 Unauthorized - triggering logout');
+      // Удаляем cookie вручную, так как AuthContext может быть недоступен
+      document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      // Можно также отправить событие для уведомления AuthContext
+      window.dispatchEvent(new CustomEvent('auth:logout'));
+    }
+
     return Promise.reject(error);
   }
 );
@@ -37,10 +48,14 @@ apiClient.interceptors.response.use(
 // API функции
 export const authAPI = {
   helloWorld: () => apiClient.get<string>('/auth/hello_world'),
-  login: (data: { telegram_id: string; password: string; username?: string; first_name?: string; last_name?: string }) =>
-    apiClient.post('/auth/login', data),
-  register: (data: { telegram_id: string; password: string; username?: string; first_name?: string; last_name?: string }) =>
-    apiClient.post('/auth/register', data),
-  logout: () => apiClient.post('/auth/logout'),
-  me: () => apiClient.get('/auth/me'),
+  login: (data: UserAuth) => apiClient.post<LoginResponse>('/auth/login', data),
+  register: (data: UserAuth) => apiClient.post<User>('/auth/register', data),
+  logout: () => apiClient.post<LogoutResponse>('/auth/logout'),
+  me: () => apiClient.get<User>('/auth/me'),
+};
+
+// API для игровых сессий
+export const gameAPI = {
+  createSession: (data: { user_id: number; score: number; level: number }) =>
+    apiClient.post('/game_sessions/', data),
 };
