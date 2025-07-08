@@ -10,6 +10,7 @@ from backend.logger import get_logger, setup_logging
 # Создаем экземпляр FastAPI
 app = FastAPI(title="TgWebApp API", version="1.0.0")
 
+print(settings.CORS_ALLOW_METHODS)
 # Настраиваем CORS
 app.add_middleware(
     CORSMiddleware,
