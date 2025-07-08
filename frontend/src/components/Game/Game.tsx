@@ -7,11 +7,13 @@ import { SnakeBoard } from './SnakeBoard';
 import { useHelloWorld } from '../../api/hooks';
 import { useAuth } from '../../contexts/AuthContext';
 import { ProfileIcon } from '../Auth/ProfileIcon';
+import { LeaderboardModal } from '../Leaderboard/LeaderboardModal';
 import { gameAPI } from '../../api/client';
 
 export const Game: React.FC = () => {
   const [currentLevelId, setCurrentLevelId] = useState<string>('level-1');
   const [isGuestMode, setIsGuestMode] = useState(false);
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
   const [guestBestScore, setGuestBestScore] = useState(() => {
     return parseInt(localStorage.getItem('guestBestScore') || '0');
   });
@@ -133,9 +135,17 @@ export const Game: React.FC = () => {
     setIsGuestMode(true);
   }, []);
 
+  const handleLeaderboardOpen = useCallback(() => {
+    setIsLeaderboardOpen(true);
+  }, []);
+
+  const handleLeaderboardClose = useCallback(() => {
+    setIsLeaderboardOpen(false);
+  }, []);
+
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      {/* Заголовок с иконкой профиля */}
+            {/* Заголовок с иконкой профиля и кнопкой лидерборда */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -146,8 +156,43 @@ export const Game: React.FC = () => {
           Snake Game
         </h2>
 
-        {/* Иконка профиля */}
-        <ProfileIcon onGuestPlay={handleGuestPlay} />
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          {/* Кнопка лидерборда */}
+          <button
+            onClick={handleLeaderboardOpen}
+            style={{
+              background: 'none',
+              border: '2px solid #ffffff',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              color: '#ffffff',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '600',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+              e.currentTarget.style.color = '#333333';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#ffffff';
+            }}
+          >
+            🏆 Лидеры
+          </button>
+
+          {/* Иконка профиля */}
+          <ProfileIcon onGuestPlay={handleGuestPlay} />
+        </div>
       </div>
 
       {/* Индикатор режима игры */}
@@ -307,6 +352,11 @@ export const Game: React.FC = () => {
         </div>
       </div>
 
+      {/* Модальное окно таблицы лидеров */}
+      <LeaderboardModal
+        isOpen={isLeaderboardOpen}
+        onClose={handleLeaderboardClose}
+      />
     </div>
   );
 };

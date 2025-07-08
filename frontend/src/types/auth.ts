@@ -36,3 +36,9 @@ export interface LoginResponse {
 export interface LogoutResponse {
   message: string;
 }
+
+export interface LeaderboardEntry {
+  user_id: number;
+  max_score: number;
+  place: number;
+}

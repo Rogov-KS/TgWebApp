@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { User, UserAuth, LoginResponse, LogoutResponse } from '../types/auth';
+import type { User, UserAuth, LoginResponse, LogoutResponse, LeaderboardEntry } from '../types/auth';
 
 // Создаем экземпляр axios с базовой конфигурацией
 export const apiClient = axios.create({
@@ -63,4 +63,5 @@ export const gameAPI = {
 // API для лидерборда
 export const leaderboardAPI = {
   getMyMaxScore: () => apiClient.get<{ max_score: number }>('/leaderboard/my_max_score'),
+  getLeaderboard: () => apiClient.get<LeaderboardEntry[]>('/leaderboard/'),
 };
