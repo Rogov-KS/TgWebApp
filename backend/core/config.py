@@ -1,4 +1,3 @@
-import json
 from typing import Annotated
 
 from pydantic import field_validator
@@ -46,7 +45,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        # case_sensitive=False,  # Позволяет использовать переменные в любом регистре
         extra="ignore",  # Игнорирует неизвестные переменные
     )
 
@@ -57,7 +55,3 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
-# settings = Settings()
-
-if __name__ == "__main__":
-    print(json.dumps(settings.model_dump(), indent=4))

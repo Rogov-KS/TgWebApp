@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -105,7 +105,7 @@ async def complete_game_session(
             detail="You are not allowed to update this game session",
         )
     logger.info("Updating game session: %s", game_session_update.model_dump())
-    ended_at = datetime.now(timezone.utc)
+    ended_at = datetime.now(UTC)
     try:
         game_session = await GameSessionDAO.update(
             filters={"id": game_session_id},

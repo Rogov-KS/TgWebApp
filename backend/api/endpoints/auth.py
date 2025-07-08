@@ -24,10 +24,8 @@ router = APIRouter(
 
 
 @router.post("/register")
-async def register(user_data: UserAuth) -> User:
-    existing_user = await UserDAO.get_one_or_none(
-        telegram_id=user_data.telegram_id
-    )
+async def register(user_data: UserAuth) -> User | None:
+    existing_user = await UserDAO.get_one_or_none(telegram_id=user_data.telegram_id)
     if existing_user:
         logger.info("User already exists: %s", user_data)
         raise UserAlreadyExistsException
