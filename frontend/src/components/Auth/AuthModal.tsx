@@ -26,7 +26,15 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        await login(formData);
+        // Для входа используем только telegram_id и пароль
+        const loginData = {
+          telegram_id: formData.telegram_id,
+          password: formData.password,
+          username: '', // Пустые значения для обязательных полей
+          first_name: '',
+          last_name: null,
+        };
+        await login(loginData);
       } else {
         await register(formData);
       }
@@ -47,13 +55,11 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
   const handleModeToggle = () => {
     setIsLogin(!isLogin);
     clearError();
-    setFormData({
-      telegram_id: 0,
-      username: '',
+    // При переключении режима очищаем только пароль, остальные поля оставляем
+    setFormData(prev => ({
+      ...prev,
       password: '',
-      first_name: '',
-      last_name: null,
-    });
+    }));
   };
 
   if (!isOpen) return null;
@@ -90,19 +96,6 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="username">Имя пользователя:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              required
-              placeholder="Введите имя пользователя"
-            />
-          </div>
-
-          <div className="form-group">
             <label htmlFor="password">Пароль:</label>
             <input
               type="password"
@@ -115,30 +108,48 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="first_name">Имя:</label>
-            <input
-              type="text"
-              id="first_name"
-              name="first_name"
-              value={formData.first_name}
-              onChange={handleInputChange}
-              required
-              placeholder="Введите ваше имя"
-            />
-          </div>
+          {/* Дополнительные поля только для регистрации */}
+          {!isLogin && (
+            <>
+              <div className="form-group">
+                <label htmlFor="username">Имя пользователя:</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Введите имя пользователя"
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="last_name">Фамилия (необязательно):</label>
-            <input
-              type="text"
-              id="last_name"
-              name="last_name"
-              value={formData.last_name || ''}
-              onChange={handleInputChange}
-              placeholder="Введите вашу фамилию"
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="first_name">Имя:</label>
+                <input
+                  type="text"
+                  id="first_name"
+                  name="first_name"
+                  value={formData.first_name}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Введите ваше имя"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="last_name">Фамилия (необязательно):</label>
+                <input
+                  type="text"
+                  id="last_name"
+                  name="last_name"
+                  value={formData.last_name || ''}
+                  onChange={handleInputChange}
+                  placeholder="Введите вашу фамилию"
+                />
+              </div>
+            </>
+          )}
 
           {error && (
             <div className="auth-error">
