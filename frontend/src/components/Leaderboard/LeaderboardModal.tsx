@@ -19,6 +19,23 @@ export function LeaderboardModal({ isOpen, onClose }: LeaderboardModalProps) {
     }
   }, [isOpen]);
 
+  // Обработка клавиши Escape для закрытия модального окна
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
+
   const loadLeaderboard = async () => {
     setIsLoading(true);
     setError(null);
