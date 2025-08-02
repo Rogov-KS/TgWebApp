@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Проверяем, был ли PYTHONPATH экспортирован
+if [ -z "${PYTHONPATH:-}" ]; then
+    export PYTHONPATH=$(pwd)
+fi
+
+# Проверяем, содержится ли текущий путь в PYTHONPATH
+if [[ ":$PYTHONPATH:" != *":$(pwd):"* ]]; then
+    export PYTHONPATH=$PYTHONPATH:$(pwd)
+fi
+
+clear
+
+python backend/main.py
