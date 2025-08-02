@@ -1,9 +1,9 @@
+from datetime import UTC, datetime
 import hashlib
 import hmac
 import json
+from typing import Any
 import urllib.parse
-from datetime import datetime, timezone
-from typing import Any, Dict
 
 from backend.core.config import settings
 from backend.core.exception import (
@@ -27,16 +27,10 @@ def create_telegram_hash(data_string: str) -> str:
         raise TelegramValidationException()
 
     secret_key = hmac.new(
-        b"WebAppData",
-        settings.TELEGRAM_BOT_TOKEN.encode(),
-        hashlib.sha256
+        b"WebAppData", settings.TELEGRAM_BOT_TOKEN.encode(), hashlib.sha256
     ).digest()
 
-    return hmac.new(
-        secret_key,
-        data_string.encode(),
-        hashlib.sha256
-    ).hexdigest()
+    return hmac.new(secret_key, data_string.encode(), hashlib.sha256).hexdigest()
 
 
 def validate_auth_date(auth_date: int) -> None:
@@ -49,12 +43,12 @@ def validate_auth_date(auth_date: int) -> None:
     Raises:
         TelegramAuthExpiredException: Если время истекло
     """
-    current_time = datetime.now(timezone.utc).timestamp()
+    current_time = datetime.now(UTC).timestamp()
     if current_time - auth_date > settings.TELEGRAM_AUTH_TIMEOUT:
         raise TelegramAuthExpiredException()
 
 
-def extract_user_data(parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+def extract_user_data(parsed_data: dict[str, Any]) -> dict[str, Any]:
     """
     Извлекает данные пользователя из распарсенных данных.
 
@@ -88,7 +82,7 @@ def extract_user_data(parsed_data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def validate_telegram_init_data(init_data: str) -> Dict[str, Any]:
+def validate_telegram_init_data(init_data: str) -> dict[str, Any]:
     """
     Валидирует initData от Telegram Web App.
 
@@ -147,14 +141,19 @@ def validate_telegram_init_data(init_data: str) -> Dict[str, Any]:
     except (ValueError, KeyError):
         raise InvalidTelegramDataException()
     except Exception as e:
-        if isinstance(e, (InvalidTelegramDataException,
-                         TelegramAuthExpiredException,
-                         TelegramValidationException)):
+        if isinstance(
+            e,
+            (
+                InvalidTelegramDataException,
+                TelegramAuthExpiredException,
+                TelegramValidationException,
+            ),
+        ):
             raise
         raise InvalidTelegramDataException()
 
 
-def parse_telegram_init_data(init_data: str) -> Dict[str, Any]:
+def parse_telegram_init_data(init_data: str) -> dict[str, Any]:
     """
     Парсит initData и возвращает структурированные данные.
 

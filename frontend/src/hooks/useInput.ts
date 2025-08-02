@@ -12,14 +12,27 @@ interface UseInputProps {
 }
 
 export const useInput = ({ onDirectionChange, onPause, onRestart, isPaused, isGameOver }: UseInputProps) => {
-  const { isModalOpen } = useModal();
+  const { isAnyModalOpen } = useModal();
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    // Если открыто модальное окно, не обрабатываем клавиши управления игрой
-    if (isModalOpen) {
+    // Если открыто модальное окно, не обрабатываем никакие клавиши
+    if (isAnyModalOpen) {
       return;
     }
 
     const key = event.code;
+
+    // Проверяем, является ли клавиша игровой
+    const isGameKey = KEYS.UP.includes(key) ||
+                     KEYS.DOWN.includes(key) ||
+                     KEYS.LEFT.includes(key) ||
+                     KEYS.RIGHT.includes(key) ||
+                     KEYS.PAUSE.includes(key) ||
+                     KEYS.RESTART.includes(key);
+
+    // Если это не игровая клавиша, не обрабатываем её
+    if (!isGameKey) {
+      return;
+    }
 
     // Направления
     if (KEYS.UP.includes(key)) {
@@ -47,7 +60,7 @@ export const useInput = ({ onDirectionChange, onPause, onRestart, isPaused, isGa
       event.preventDefault();
       onRestart();
     }
-  }, [onDirectionChange, onPause, onRestart, isModalOpen]);
+  }, [onDirectionChange, onPause, onRestart, isAnyModalOpen]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -59,6 +72,11 @@ export const useInput = ({ onDirectionChange, onPause, onRestart, isPaused, isGa
 
   // Обработка свайпов для мобильных устройств
   const handleTouchStart = useCallback((event: TouchEvent) => {
+    // Если открыто модальное окно, не обрабатываем свайпы
+    if (isAnyModalOpen) {
+      return;
+    }
+
     const touch = event.touches[0];
     const startX = touch.clientX;
     const startY = touch.clientY;
@@ -96,7 +114,7 @@ export const useInput = ({ onDirectionChange, onPause, onRestart, isPaused, isGa
     };
 
     document.addEventListener('touchend', handleTouchEnd);
-  }, [onDirectionChange]);
+  }, [onDirectionChange, isAnyModalOpen]);
 
   useEffect(() => {
     document.addEventListener('touchstart', handleTouchStart);

@@ -118,7 +118,7 @@ async def telegram_auth(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Telegram authentication failed: {str(e)}",
+            detail=f"Telegram authentication failed: {e!s}",
         )
 
 

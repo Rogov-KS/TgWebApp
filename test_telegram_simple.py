@@ -3,26 +3,18 @@
 Упрощенный тест валидации Telegram initData без зависимости от настроек.
 """
 
-import json
-import time
 import hashlib
 import hmac
+import json
+import time
 import urllib.parse
 
 
 def create_telegram_hash(data_string: str, bot_token: str) -> str:
     """Создает HMAC-SHA256 хеш для проверки подлинности данных Telegram."""
-    secret_key = hmac.new(
-        b"WebAppData",
-        bot_token.encode(),
-        hashlib.sha256
-    ).digest()
+    secret_key = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
 
-    return hmac.new(
-        secret_key,
-        data_string.encode(),
-        hashlib.sha256
-    ).hexdigest()
+    return hmac.new(secret_key, data_string.encode(), hashlib.sha256).hexdigest()
 
 
 def validate_telegram_init_data(init_data: str, bot_token: str) -> dict:
@@ -80,7 +72,7 @@ def create_valid_init_data(user_data: dict, bot_token: str = "test_bot_token") -
     """Создает валидный initData с правильным хешем."""
 
     # Кодируем данные пользователя
-    user_json = json.dumps(user_data, separators=(',', ':'))
+    user_json = json.dumps(user_data, separators=(",", ":"))
     user_encoded = urllib.parse.quote(user_json)
 
     # Создаем auth_date (текущее время)
@@ -115,7 +107,7 @@ def test_validation():
             "username": "johndoe",
             "language_code": "en",
             "is_premium": True,
-            "photo_url": "https://t.me/i/userpic/320/johndoe.jpg"
+            "photo_url": "https://t.me/i/userpic/320/johndoe.jpg",
         },
         {
             "id": 987654321,
@@ -124,7 +116,7 @@ def test_validation():
             "username": "alicesmith",
             "language_code": "ru",
             "is_premium": False,
-            "photo_url": None
+            "photo_url": None,
         },
         {
             "id": 555666777,
@@ -133,8 +125,8 @@ def test_validation():
             "username": "ivanpetrov",
             "language_code": "ru",
             "is_premium": True,
-            "photo_url": None
-        }
+            "photo_url": None,
+        },
     ]
 
     # Тест 1: Валидные данные
@@ -170,14 +162,16 @@ def test_validation():
         # Создаем данные с прошлым временем
         old_user_data = {"id": 123456789, "first_name": "John"}
         old_auth_date = int(time.time()) - 86401  # Более 24 часов назад
-        user_json = json.dumps(old_user_data, separators=(',', ':'))
+        user_json = json.dumps(old_user_data, separators=(",", ":"))
         user_encoded = urllib.parse.quote(user_json)
 
         # Создаем хеш для старых данных
         data_string = f"auth_date={old_auth_date}\nuser={user_encoded}"
         hash_value = create_telegram_hash(data_string, bot_token)
 
-        expired_data = f"user={user_encoded}&auth_date={old_auth_date}&hash={hash_value}"
+        expired_data = (
+            f"user={user_encoded}&auth_date={old_auth_date}&hash={hash_value}"
+        )
         validate_telegram_init_data(expired_data, bot_token)
         print("   ❌ Ожидалась ошибка истекшего времени, но валидация прошла успешно")
     except ValueError as e:

@@ -6,10 +6,8 @@ Telegram бот для тестирования интеграции с Web App.
 """
 
 import asyncio
-import json
 import logging
 import os
-from typing import Any, Dict
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
@@ -25,8 +23,7 @@ load_dotenv()
 
 # Настройка логирования
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -66,16 +63,10 @@ async def cmd_start(message: types.Message) -> None:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🎮 Начать игру",
-                    web_app=WebAppInfo(url=WEBAPP_URL)
+                    text="🎮 Начать игру", web_app=WebAppInfo(url=WEBAPP_URL)
                 )
             ],
-            [
-                InlineKeyboardButton(
-                    text="ℹ️ Информация",
-                    callback_data="info"
-                )
-            ]
+            [InlineKeyboardButton(text="ℹ️ Информация", callback_data="info")],
         ]
     )
 

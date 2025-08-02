@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { leaderboardAPI } from '../../api/client';
+import { useModal, ModalType } from '../../contexts/ModalContext';
 import type { LeaderboardEntry } from '../../types/auth';
 import './LeaderboardModal.css';
 
@@ -9,6 +10,7 @@ interface LeaderboardModalProps {
 }
 
 export function LeaderboardModal({ isOpen, onClose }: LeaderboardModalProps) {
+  const { setCurrentModal } = useModal();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +20,11 @@ export function LeaderboardModal({ isOpen, onClose }: LeaderboardModalProps) {
       loadLeaderboard();
     }
   }, [isOpen]);
+
+  // Уведомляем контекст о состоянии модального окна
+  useEffect(() => {
+    setCurrentModal(isOpen ? ModalType.LEADERBOARD : ModalType.NONE);
+  }, [isOpen, setCurrentModal]);
 
   // Обработка клавиши Escape для закрытия модального окна
   useEffect(() => {

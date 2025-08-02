@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useModal, ModalType } from '../../contexts/ModalContext';
 import { AuthModal } from './AuthModal';
 import './ProfileIcon.css';
 
@@ -9,7 +10,7 @@ interface ProfileIconProps {
 
 export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
   const { user, isAuthenticated, logout } = useAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { currentModal, setCurrentModal } = useModal();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleProfileClick = () => {
@@ -18,7 +19,7 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
       setIsDropdownOpen(!isDropdownOpen);
     } else {
       // Если не авторизован, открываем модальное окно
-      setIsModalOpen(true);
+      setCurrentModal(ModalType.AUTH);
     }
   };
 
@@ -32,7 +33,7 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false);
+    setCurrentModal(ModalType.NONE);
   };
 
   const handleGuestPlay = () => {
@@ -97,7 +98,7 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
           <div className="profile-actions">
             <button
               className="profile-action-btn login-btn"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setCurrentModal(ModalType.AUTH)}
             >
               Войти в аккаунт
             </button>
@@ -107,7 +108,7 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
 
       {/* Модальное окно авторизации */}
       <AuthModal
-        isOpen={isModalOpen}
+        isOpen={currentModal === ModalType.AUTH}
         onClose={handleModalClose}
         onGuestPlay={handleGuestPlay}
       />
