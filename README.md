@@ -1,8 +1,14 @@
 # TgSnakeWebApp
 
 
-Для запуска backend части использовать команду `./start_scripts/start_backend.sh`, находясь в корне (в папке `TgWebApp`)
+## Как запустить приложение?
 
-Для запуска фрона использовать `./start_scripts/start_frontend.sh`, находясь в корне (в папке `TgWebApp`)
+Есть два способа:
 
-Для запуска tg бота использовать `./start_scripts/start_tg_bot.sh`, находясь в корне (в папке `TgWebApp`)
+1. Просто запустить `start_scripts/start_all_with_ngrok.sh`, находясь в корне (в папке `TgWebApp`)
+
+2. Более многоступенчатый:
+
+    - Сначала запустить `ngrok start --all`
+    - Потом обновить переменные `VITE_NGROK_FRONTEND_URL` и `VITE_NGROK_BACKEND_URL` в соотвествии с выходом ngrok (порт 8000 для бекенда, а порт 5173 для фронтенда)
+    - А затем уже запустить `start_scripts/start_app.sh`, находясь в корне (в папке `TgWebApp`)
