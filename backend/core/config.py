@@ -48,6 +48,14 @@ class Settings(BaseSettings):
         extra="ignore",  # Игнорирует неизвестные переменные
     )
 
+    def get_cors_attrs(self) -> dict:
+        return {
+            "allow_origins": self.CORS_ORIGINS,
+            "allow_credentials": self.CORS_ALLOW_CREDENTIALS,
+            "allow_methods": self.CORS_ALLOW_METHODS,
+            "allow_headers": self.CORS_ALLOW_HEADERS,
+        }
+
 
 def get_settings() -> Settings:
     """Получение настроек с кэшированием"""

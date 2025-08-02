@@ -1,4 +1,5 @@
 import sys
+import json
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +14,7 @@ app = FastAPI(title="TgWebApp API", version="1.0.0")
 # Настраиваем CORS
 app.add_middleware(
     CORSMiddleware,
+    # allow_origins=["http://localhost:3000", "http://localhost:5173", "https://mammal-vast-arguably.ngrok-free.app"],
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
     allow_methods=settings.CORS_ALLOW_METHODS,
@@ -29,7 +31,8 @@ logger = get_logger(__name__)
 
 if __name__ == "__main__":
     setup_logging()
-    logger.info("sys.path: %s", sys.path)
+    # logger.info("sys.path: %s", sys.path)
+    logger.info("settings config[CORS]: %s", json.dumps(settings.get_cors_attrs(), indent=4))
 
     logger.info("Starting the application...")
     import uvicorn
