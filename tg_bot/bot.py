@@ -1,13 +1,7 @@
-#!/usr/bin/env python3
-"""
-Telegram бот для тестирования интеграции с Web App.
-
-Использует aiogram для создания бота с кнопкой для запуска Web App.
-"""
-
 import asyncio
 import logging
 import os
+from dotenv import load_dotenv
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
@@ -16,10 +10,10 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     WebAppInfo,
 )
-from dotenv import load_dotenv
 
 # Загружаем переменные окружения
 load_dotenv()
+
 
 # Настройка логирования
 logging.basicConfig(
@@ -28,14 +22,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Получаем токен бота из переменных окружения
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
 if not BOT_TOKEN:
     logger.error("TELEGRAM_BOT_TOKEN не найден в переменных окружения!")
     exit(1)
 
 # URL вашего Web App (замените на реальный URL)
-WEBAPP_URL = os.getenv("TELEGRAM_WEBAPP_URL", "https://your-domain.com")
-
+WEBAPP_URL = os.getenv("VITE_NGROK_FRONTEND_URL", "https://localhost:5173")
 # Создаем экземпляры бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()

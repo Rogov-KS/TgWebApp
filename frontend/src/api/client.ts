@@ -1,9 +1,34 @@
 import axios from 'axios';
 import type { User, UserAuth, LoginResponse, LogoutResponse, LeaderboardEntry } from '../types/auth';
 
+
+// Динамический baseURL в зависимости от окружения
+const getBaseURL = () => {
+  // Используем Vite environment variable
+
+  // Если есть переменная окружения, используем её
+  console.log('import.meta.env:', import.meta.env);
+  const backendUrl = import.meta.env.VITE_NGROK_BACKEND_URL;
+  if (backendUrl) {
+    console.log('env.BACKEND_URL:', backendUrl);
+    return backendUrl;
+  }
+
+  // // Для разработки: если мы не на localhost, используем текущий хост
+  // if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+  //   // Предполагаем, что API работает на том же хосте, но на порту 8000
+  //   console.log('🚀 window.location.hostname:', `${window.location.protocol}//${window.location.hostname}:8000`);
+  //   return `${window.location.protocol}//${window.location.hostname}:8000`;
+  // }
+
+  // По умолчанию localhost
+  console.log('🚀 default baseURL: http://localhost:8000');
+  return 'http://localhost:8000';
+};
+
 // Создаем экземпляр axios с базовой конфигурацией
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: getBaseURL(),
   timeout: 10000,
   withCredentials: true, // Для работы с куками
   headers: {

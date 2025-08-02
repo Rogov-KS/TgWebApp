@@ -1,6 +1,8 @@
 # TgSnakeWebApp
 
 
-Для запуска backend части использовать команду `uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload`, находясь в корне (в папке `TgWebApp`)
+Для запуска backend части использовать команду `./start_backend.sh`, находясь в корне (в папке `TgWebApp`)
 
-Для запуска фрона использовать `npm run dev` находясь в папке `frontend`
+Для запуска фрона использовать `./start_frontend.sh`, находясь в корне (в папке `TgWebApp`)
+
+Для запуска tg бота использовать `./start_tg_bot.sh`, находясь в корне (в папке `TgWebApp`)

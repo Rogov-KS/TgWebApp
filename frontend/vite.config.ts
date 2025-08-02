@@ -10,7 +10,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  envDir: '../',
   server: {
-    allowedHosts: ['mammal-vast-arguably.ngrok-free.app'],
+    allowedHosts: ["ab9785da7379.ngrok-free.app"],
   },
 })
