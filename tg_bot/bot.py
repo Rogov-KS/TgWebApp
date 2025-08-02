@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from dotenv import load_dotenv
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
@@ -9,7 +10,6 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     WebAppInfo,
 )
-from dotenv import load_dotenv
 
 # Загружаем переменные окружения
 load_dotenv()
