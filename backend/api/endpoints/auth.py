@@ -63,7 +63,6 @@ async def login(response: Response, user_data: UserAuth) -> dict[str, str]:
         # samesite="strict",
         samesite="none",
         secure=True,
-
     )
     logger.info("Access token: %s", access_token)
     return {"access_token": access_token, "token_type": "bearer"}
