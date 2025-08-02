@@ -13,9 +13,15 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
     ALGORITHM: str
+
+    # Access token настройки
+    ACCESS_TOKEN_COOKIE_NAME: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    AUTH_COOKIE_NAME: str
+    # Refresh token настройки
+    REFRESH_TOKEN_EXPIRE_DAYS: int
+    REFRESH_TOKEN_COOKIE_NAME: str
+    MAX_REFRESH_TOKENS_PER_USER: int
 
     # CORS настройки
     CORS_ORIGINS: Annotated[list[str], NoDecode]

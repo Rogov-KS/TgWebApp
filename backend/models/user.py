@@ -8,6 +8,7 @@ from backend.core.database import Base
 if TYPE_CHECKING:
     from backend.models.game_session import GameSession
     from backend.models.game_settings import GameSettings
+    from backend.models.refresh_token import RefreshToken
     from backend.models.telegram_webapp_data import TelegramWebAppData
     from backend.models.user_achievements import UserAchievement
 
@@ -48,6 +49,9 @@ class User(Base):
     )
     webapp_data: Mapped[list["TelegramWebAppData"]] = relationship(
         "TelegramWebAppData", back_populates="user"
+    )
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+        "RefreshToken", back_populates="user"
     )
 
     def __repr__(self) -> str:

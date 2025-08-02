@@ -5,6 +5,7 @@ from backend.models.game_settings import GameSettings
 from backend.models.telegram_webapp_data import TelegramWebAppData
 from backend.models.user import User
 from backend.models.user_achievements import UserAchievement
+from backend.models.refresh_token import RefreshToken
 
 __all__ = [
     "Achievement",
@@ -13,4 +14,5 @@ __all__ = [
     "TelegramWebAppData",
     "User",
     "UserAchievement",
+    "RefreshToken",
 ]

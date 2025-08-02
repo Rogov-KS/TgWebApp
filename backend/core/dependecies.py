@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 
 
 def get_token(request: Request) -> str:
-    token = request.cookies.get(settings.AUTH_COOKIE_NAME)
+    token = request.cookies.get(settings.ACCESS_TOKEN_COOKIE_NAME)
     if not token:
         raise TokenAbsentException
     return str(token)

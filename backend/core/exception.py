@@ -47,3 +47,8 @@ class TokenAbsentException(TgWebAppException):
 class IncorrectTokenFormatException(TgWebAppException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Incorrect token format"
+
+
+class InvalidRefreshTokenException(TgWebAppException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Invalid refresh token"

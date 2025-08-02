@@ -90,7 +90,7 @@ async def telegram_auth(
 
         # Устанавливаем токен в cookies
         response.set_cookie(
-            settings.AUTH_COOKIE_NAME,
+            settings.ACCESS_TOKEN_COOKIE_NAME,
             access_token,
             httponly=True,
             secure=True,  # Для HTTPS
