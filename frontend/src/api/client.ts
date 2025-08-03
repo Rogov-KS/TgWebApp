@@ -1,6 +1,5 @@
 import axios from 'axios';
-import type { User, UserAuth, LoginResponse, LogoutResponse, LeaderboardEntry } from '../types/auth';
-
+import type { User, UserAuth, LoginResponse, LogoutResponse, LeaderboardEntry, RefreshResponse } from '../types/auth';
 
 // Динамический baseURL в зависимости от окружения
 const getBaseURL = () => {
@@ -36,6 +35,87 @@ export const apiClient = axios.create({
   },
 });
 
+// Состояние для управления обновлением токенов
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value: any) => void;
+  reject: (error: any) => void;
+}> = [];
+
+// Функция для обработки очереди неудачных запросов
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
+// Функция для добавления запроса в очередь ожидания
+const addToFailedQueue = (originalRequest: any) => {
+  console.log('⏳ Token refresh already in progress, adding request to queue:', originalRequest.url);
+  return new Promise((resolve, reject) => {
+    failedQueue.push({ resolve, reject });
+  }).then(() => {
+    console.log('✅ Request from queue executed after token refresh:', originalRequest.url);
+    return apiClient(originalRequest);
+  }).catch((err) => {
+    console.error('❌ Request from queue failed after token refresh:', originalRequest.url, err);
+    return Promise.reject(err);
+  });
+};
+
+// Функция для выполнения обновления токена
+const performTokenRefresh = async (originalRequest: any) => {
+  console.log('🔄 Starting token refresh process...');
+  originalRequest._retry = true;
+  isRefreshing = true;
+
+  try {
+    // Пытаемся обновить токен
+    console.log('📡 Sending refresh token request...');
+    const refreshResponse = await authAPI.refresh();
+
+    console.log('✅ Token refresh successful, processing queue...');
+    // Обрабатываем успешное обновление
+    processQueue(null, refreshResponse.data.access_token);
+
+    // Повторяем оригинальный запрос
+    console.log('🔄 Retrying original request after token refresh:', originalRequest.url);
+    return apiClient(originalRequest);
+  } catch (refreshError) {
+    console.error('❌ Token refresh failed:', refreshError);
+    // Обрабатываем ошибку обновления токена
+    processQueue(refreshError, null);
+
+    console.log('🔐 Refresh token failed - triggering logout');
+
+    // Отправляем событие для уведомления AuthContext
+    window.dispatchEvent(new CustomEvent('auth:logout'));
+
+    return Promise.reject(refreshError);
+  } finally {
+    isRefreshing = false;
+    console.log('🏁 Token refresh process finished');
+  }
+};
+
+// Функция для обработки обновления токенов
+const handleTokenRefresh = async (originalRequest: any) => {
+  console.log('🔍 Handling token refresh for request:', originalRequest.url);
+
+  if (isRefreshing) {
+    // Если уже идет обновление токена, добавляем запрос в очередь
+    return addToFailedQueue(originalRequest);
+  }
+
+  return performTokenRefresh(originalRequest);
+};
+
 // Интерцептор для логирования запросов
 apiClient.interceptors.request.use(
   (config) => {
@@ -54,16 +134,16 @@ apiClient.interceptors.response.use(
     console.log('✅ API Response:', response.status, response.config.url, "response.data: ", response.data);
     return response;
   },
-  (error) => {
+  async (error) => {
     console.error('❌ API Response Error:', error.response?.status, error.config?.url);
 
-    // Обработка 401 ошибки для автоматического logout
-    if (error.response?.status === 401) {
-      console.log('🔐 Unauthorized - triggering logout');
-      // Удаляем cookie вручную, так как AuthContext может быть недоступен
-      document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      // Можно также отправить событие для уведомления AuthContext
-      window.dispatchEvent(new CustomEvent('auth:logout'));
+    const originalRequest = error.config;
+
+    // Обработка 401 ошибки для автоматического обновления токенов
+    // Исключаем запросы на обновление токена, чтобы избежать бесконечного цикла
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+      console.log('🔐 401 error detected, attempting token refresh...');
+      return handleTokenRefresh(originalRequest);
     }
 
     return Promise.reject(error);
@@ -77,6 +157,7 @@ export const authAPI = {
   register: (data: UserAuth) => apiClient.post<User>('/auth/register', data),
   logout: () => apiClient.post<LogoutResponse>('/auth/logout'),
   me: () => apiClient.get<User>('/auth/me'),
+  refresh: () => apiClient.post<RefreshResponse>('/auth/refresh'),
 };
 
 // API для игровых сессий

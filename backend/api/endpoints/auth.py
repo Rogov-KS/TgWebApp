@@ -82,6 +82,7 @@ async def login(response: Response, user_data: UserAuth) -> dict[str, str]:
         httponly=True,
         samesite="none",
         secure=True,
+        path="/auth/refresh",
     )
 
     logger.info("Access token: %s", access_token)
@@ -137,6 +138,7 @@ async def refresh(
         httponly=True,
         samesite="none",
         secure=True,
+        path="/auth/refresh",
     )
 
     logger.info(
