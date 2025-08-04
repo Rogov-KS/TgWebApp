@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.api.endpoints import auth, game_sessions, leaderboard
 from backend.core.config import settings
 from backend.logger import get_logger, setup_logging
+from backend.oauth2 import router as oauth2_router
 
 # Создаем экземпляр FastAPI
 app = FastAPI(title="TgWebApp API", version="1.0.0")
@@ -22,6 +23,7 @@ app.add_middleware(
 )
 
 # Подключаем роутеры
+app.include_router(oauth2_router)
 app.include_router(auth.router)
 # app.include_router(users.router) # noqa
 app.include_router(game_sessions.router)

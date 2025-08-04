@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_COOKIE_NAME: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
+    # OAuth2 настройки
+
+    OATH_GOOGLE_WEB_CLIENT1_SECRET: str
+    OATH_GOOGLE_WEB_CLIENT1_ID: str
+
     # Refresh token настройки
     REFRESH_TOKEN_EXPIRE_DAYS: int
     REFRESH_TOKEN_COOKIE_NAME: str
