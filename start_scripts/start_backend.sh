@@ -12,4 +12,4 @@ fi
 
 clear
 
-python backend/main.py
+python3 backend/main.py

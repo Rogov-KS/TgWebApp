@@ -1,5 +1,5 @@
 import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -29,7 +29,7 @@ async def authenticate_user(telegram_id: int, password: str) -> User | None:
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.now(UTC) + timedelta(
+    expire = datetime.utcnow() + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({"exp": expire})
@@ -45,7 +45,7 @@ def create_refresh_token(user_id: int) -> tuple[str, datetime]:
     token = secrets.token_urlsafe(32)
 
     # Вычисляем время истечения
-    expire = datetime.now(UTC) + timedelta(
+    expire = datetime.utcnow() + timedelta(
         days=settings.REFRESH_TOKEN_EXPIRE_DAYS
     )
 
@@ -60,7 +60,7 @@ async def verify_refresh_token(token: str) -> User | None:
         return None
 
     # Проверяем, что токен не отозван и не истек
-    if refresh_token.is_revoked or refresh_token.expires_at <= datetime.now(UTC):
+    if refresh_token.is_revoked or refresh_token.expires_at <= datetime.utcnow():
         return None
 
     # Получаем пользователя
