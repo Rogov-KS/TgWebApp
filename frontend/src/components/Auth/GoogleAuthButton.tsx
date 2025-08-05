@@ -13,7 +13,10 @@ export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
+      console.log("Try to handleGoogleAuth")
       const response = await googleOAuthAPI.getAuthUrl();
+      console.log("Success handleGoogleAuth", response)
+      console.log("Try to redirect to", response.data.url)
       // Перенаправляем пользователя на страницу авторизации Google
       window.location.href = response.data.url;
     } catch (error) {
