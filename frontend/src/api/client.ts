@@ -175,7 +175,8 @@ export const leaderboardAPI = {
 
 // API для Google OAuth
 export const googleOAuthAPI = {
-  getAuthUrl: () => `${getBaseURL() + import.meta.env.VITE_BACKEND_GOOGLE_OAUTH2_PATH}`,
+  google_url_path: '/oauth2/google',
+  getAuthUrl: () => `${getBaseURL()}${googleOAuthAPI.google_url_path}/url`,
   handleCallback: (code: string, state: string) =>
-    apiClient.post('/oauth2/google/callback', { code, state }),
+    apiClient.post(`${googleOAuthAPI.google_url_path}/callback`, { code, state }),
 };

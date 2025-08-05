@@ -20,8 +20,11 @@ class Settings(BaseSettings):
 
     # OAuth2 настройки
 
-    OATH_GOOGLE_WEB_CLIENT1_SECRET: str
-    OATH_GOOGLE_WEB_CLIENT1_ID: str
+    OATH_GOOGLE_WEB_CLIENT_SECRET: str
+    OATH_GOOGLE_WEB_CLIENT_ID: str
+
+    OATH_YANDEX_WEB_CLIENT_SECRET: str
+    OATH_YANDEX_WEB_CLIENT_ID: str
 
     # Refresh token настройки
     REFRESH_TOKEN_EXPIRE_DAYS: int

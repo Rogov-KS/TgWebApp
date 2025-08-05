@@ -1,15 +1,15 @@
-from typing import Annotated
+from typing import Annotated, Any
 from fastapi import APIRouter, Body
 from fastapi.responses import RedirectResponse
 
 import aiohttp
 import jwt
-# from jose import jwt
 
 # from state_storage import state_storage
 from backend.oauth2.google.utils import generate_google_oauth_redirect_uri
 from backend.core.config import settings
 from backend.logger import get_logger
+
 
 router = APIRouter(
     prefix="/google",
@@ -20,20 +20,31 @@ logger = get_logger(__name__)
 
 
 @router.get("/url")
-def get_google_oauth_redirect_uri():
+def get_google_oauth_redirect_uri() -> RedirectResponse:
+    '''
+    Get Google OAuth redirect URI
+
+    Returns:
+        RedirectResponse: Redirect to Google OAuth redirect URI
+    '''
     uri = generate_google_oauth_redirect_uri()
-    logger.info(f"get_google_oauth_redirect_uri into {uri}")
+    logger.info("get_google_oauth_redirect_uri into %s", uri)
     return RedirectResponse(url=uri, status_code=302)
 
 
 @router.post("/callback")
 async def handle_code(
-    # code: str,
-    # state: str,
     code: Annotated[str, Body()],
     state: Annotated[str, Body()],
-):
-    logger.info(f"handle_code into {code=} {state=}")
+) -> dict[str, Any]:
+    '''
+    Handle Google OAuth callback
+
+    Args:
+        code: Authorization code
+        state: State
+    '''
+    logger.info("handle_code into %s %s", code, state)
     # if state not in state_storage:
     #     raise
     # else:
@@ -45,8 +56,8 @@ async def handle_code(
         async with session.post(
             url=google_token_url,
             data={
-                "client_id": settings.OATH_GOOGLE_WEB_CLIENT1_ID,
-                "client_secret": settings.OATH_GOOGLE_WEB_CLIENT1_SECRET,
+                "client_id": settings.OATH_GOOGLE_WEB_CLIENT_ID,
+                "client_secret": settings.OATH_GOOGLE_WEB_CLIENT_SECRET,
                 "grant_type": "authorization_code",
                 "redirect_uri": redirect_uri,
                 "code": code,

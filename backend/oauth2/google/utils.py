@@ -5,12 +5,18 @@ from backend.core.config import settings
 # from backend.core.state_storage import state_storage
 
 
-def generate_google_oauth_redirect_uri():
+def generate_google_oauth_redirect_uri() -> str:
+    '''
+    Generate Google OAuth redirect URI
+
+    Returns:
+        str: Google OAuth redirect URI
+    '''
     random_state = secrets.token_urlsafe(16)
     # state_storage.add(random_state)
 
     query_params = {
-        "client_id": settings.OATH_GOOGLE_WEB_CLIENT1_ID,
+        "client_id": settings.OATH_GOOGLE_WEB_CLIENT_ID,
         "redirect_uri": "http://localhost:5173/auth/google",
         "response_type": "code",
         "scope": " ".join([
