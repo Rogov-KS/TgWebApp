@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { User, UserAuth, LoginResponse, LogoutResponse, LeaderboardEntry, RefreshResponse } from '../types/auth';
 
+
 // Динамический baseURL в зависимости от окружения
 const getBaseURL = () => {
   // Используем Vite environment variable
@@ -8,7 +9,7 @@ const getBaseURL = () => {
   // Если есть переменная окружения, используем её
   console.log('import.meta.env:', import.meta.env);
   const backendUrl = import.meta.env.VITE_NGROK_BACKEND_URL;
-  if (backendUrl) {
+  if (backendUrl && backendUrl !== '') {
     console.log('env.BACKEND_URL:', backendUrl);
     return backendUrl;
   }
@@ -174,7 +175,7 @@ export const leaderboardAPI = {
 
 // API для Google OAuth
 export const googleOAuthAPI = {
-  getAuthUrl: () => apiClient.get<{url: string}>('/oauth2/google/url'),
+  getAuthUrl: () => `${getBaseURL() + import.meta.env.VITE_BACKEND_GOOGLE_OAUTH2_PATH}`,
   handleCallback: (code: string, state: string) =>
     apiClient.post('/oauth2/google/callback', { code, state }),
 };

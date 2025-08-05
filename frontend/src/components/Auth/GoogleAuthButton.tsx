@@ -2,6 +2,7 @@ import React from 'react';
 import { googleOAuthAPI } from '../../api/client';
 import './GoogleAuthButton.css';
 
+
 interface GoogleAuthButtonProps {
   onSuccess?: () => void;
   onError?: (error: string) => void;
@@ -13,12 +14,9 @@ export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      console.log("Try to handleGoogleAuth")
-      const response = await googleOAuthAPI.getAuthUrl();
-      console.log("Success handleGoogleAuth", response)
-      console.log("Try to redirect to", response.data.url)
       // Перенаправляем пользователя на страницу авторизации Google
-      window.location.href = response.data.url;
+      const redirectUrl = googleOAuthAPI.getAuthUrl();
+      window.location.href = redirectUrl;
     } catch (error) {
       console.error('Ошибка при получении URL для Google OAuth:', error);
       onError?.('Не удалось инициировать авторизацию через Google');
