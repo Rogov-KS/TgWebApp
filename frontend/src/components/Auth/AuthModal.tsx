@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal, ModalType } from '../../contexts/ModalContext';
+import { GoogleAuthButton } from './GoogleAuthButton';
 import type { UserAuth } from '../../types/auth';
 import './AuthModal.css';
 
@@ -106,6 +107,18 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
+          {/* Google OAuth кнопка */}
+          <GoogleAuthButton
+            onError={(error) => {
+              // Показываем ошибку в существующем error state
+              console.error('Google OAuth error:', error);
+            }}
+          />
+
+          <div className="auth-divider">
+            <span>или</span>
+          </div>
+
           <div className="form-group">
             <label htmlFor="telegram_id">Telegram ID:</label>
             <input

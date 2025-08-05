@@ -1,5 +1,7 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Game } from './components/Game/Game';
+import { GoogleAuthCallback } from './components/Auth/GoogleAuthCallback';
 import { AuthProvider } from './contexts/AuthContext';
 import { ModalProvider } from './contexts/ModalContext';
 import './App.css';
@@ -8,9 +10,14 @@ function App() {
   return (
     <AuthProvider>
       <ModalProvider>
-        <div className="App">
-          <Game />
-        </div>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<Game />} />
+              <Route path="/auth/google" element={<GoogleAuthCallback />} />
+            </Routes>
+          </div>
+        </Router>
       </ModalProvider>
     </AuthProvider>
   );

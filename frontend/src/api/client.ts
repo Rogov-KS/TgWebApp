@@ -171,3 +171,10 @@ export const leaderboardAPI = {
   getMyMaxScore: () => apiClient.get<{ max_score: number }>('/leaderboard/my_max_score'),
   getLeaderboard: () => apiClient.get<LeaderboardEntry[]>('/leaderboard/'),
 };
+
+// API для Google OAuth
+export const googleOAuthAPI = {
+  getAuthUrl: () => apiClient.get<{url: string}>('/oauth2/google/url'),
+  handleCallback: (code: string, state: string) =>
+    apiClient.post('/oauth2/google/callback', { code, state }),
+};
