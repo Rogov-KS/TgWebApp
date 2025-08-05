@@ -3,8 +3,8 @@ from fastapi import APIRouter, Body
 from fastapi.responses import RedirectResponse
 
 import aiohttp
-# import jwt
-from jose import jwt
+import jwt
+# from jose import jwt
 
 # from state_storage import state_storage
 from backend.oauth2.google.utils import generate_google_oauth_redirect_uri
@@ -18,11 +18,11 @@ router = APIRouter(
 
 logger = get_logger(__name__)
 
+
 @router.get("/url")
 def get_google_oauth_redirect_uri():
     uri = generate_google_oauth_redirect_uri()
     logger.info(f"get_google_oauth_redirect_uri into {uri}")
-    # return uri
     return RedirectResponse(url=uri, status_code=302)
 
 
@@ -60,7 +60,7 @@ async def handle_code(
             access_token = res["access_token"]
             user_data = jwt.decode(
                 id_token,
-                key="",
+                # key="",
                 algorithms=["RS256"],
                 options={"verify_signature": False},
             )
@@ -73,12 +73,11 @@ async def handle_code(
             },
             ssl=False,
         ) as response:
-            res = await response.json()
-            print(f"{res=}")
-            files = [item["name"] for item in res["files"]]
+            res2 = await response.json()
+            print(f"{res2=}")
+            files = [item["name"] for item in res2["files"]]
 
     return {
-        "res": res,
         "user": user_data,
         "files": files,
     }

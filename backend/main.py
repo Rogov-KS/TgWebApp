@@ -34,7 +34,7 @@ logger = get_logger(__name__)
 if __name__ == "__main__":
     setup_logging()
     # logger.info("sys.path: %s", sys.path)
-    logger.info("settings config[CORS]: %s", json.dumps(settings.get_cors_attrs(), indent=4))
+    # logger.info("settings config[CORS]: %s", json.dumps(settings.get_cors_attrs(), indent=4))
 
     logger.info("Starting the application...")
     import uvicorn
