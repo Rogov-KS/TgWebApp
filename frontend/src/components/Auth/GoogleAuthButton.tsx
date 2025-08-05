@@ -11,7 +11,10 @@ interface GoogleAuthButtonProps {
 export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) {
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleGoogleAuth = async () => {
+  const handleGoogleAuth = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Предотвращаем отправку формы
+    e.stopPropagation(); // Останавливаем всплытие события
+
     setIsLoading(true);
     try {
       // Перенаправляем пользователя на страницу авторизации Google
@@ -27,6 +30,7 @@ export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) 
 
   return (
     <button
+      type="button"
       className="google-auth-btn"
       onClick={handleGoogleAuth}
       disabled={isLoading}
