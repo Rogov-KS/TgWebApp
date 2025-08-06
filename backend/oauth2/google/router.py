@@ -67,8 +67,9 @@ async def handle_code(
         ) as response:
             res = await response.json()
             print(f"{res=}")
-            id_token = res["id_token"]
-            access_token = res["access_token"]
+            id_token = res.get("id_token")
+            access_token = res.get("access_token")
+            refresh_token = res.get("refresh_token")
             user_data = jwt.decode(
                 id_token,
                 # key="",

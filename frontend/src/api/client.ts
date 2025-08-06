@@ -180,3 +180,11 @@ export const googleOAuthAPI = {
   handleCallback: (code: string, state: string) =>
     apiClient.post(`${googleOAuthAPI.google_url_path}/callback`, { code, state }),
 };
+
+// API для Яндекс OAuth
+export const yandexOAuthAPI = {
+  yandex_url_path: '/oauth2/yandex',
+  getAuthUrl: () => `${getBaseURL()}${yandexOAuthAPI.yandex_url_path}/url`,
+  handleCallback: (code: string, state: string) =>
+    apiClient.post(`${yandexOAuthAPI.yandex_url_path}/callback`, { code, state }),
+};

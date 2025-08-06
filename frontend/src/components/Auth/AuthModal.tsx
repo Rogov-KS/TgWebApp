@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal, ModalType } from '../../contexts/ModalContext';
 import { GoogleAuthButton } from './GoogleAuthButton';
+import { YandexAuthButton } from './YandexAuthButton';
 import type { UserAuth } from '../../types/auth';
 import './AuthModal.css';
 
@@ -107,13 +108,22 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {/* Google OAuth кнопка */}
-          <GoogleAuthButton
-            onError={(error) => {
-              // Показываем ошибку в существующем error state
-              console.error('Google OAuth error:', error);
-            }}
-          />
+          {/* OAuth кнопки */}
+          <div className="oauth-buttons">
+            <GoogleAuthButton
+              onError={(error) => {
+                // Показываем ошибку в существующем error state
+                console.error('Google OAuth error:', error);
+              }}
+            />
+
+            <YandexAuthButton
+              onError={(error) => {
+                // Показываем ошибку в существующем error state
+                console.error('Yandex OAuth error:', error);
+              }}
+            />
+          </div>
 
           <div className="auth-divider">
             <span>или</span>

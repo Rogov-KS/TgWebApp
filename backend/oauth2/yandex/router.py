@@ -1,9 +1,9 @@
 from typing import Annotated, Any
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import RedirectResponse
 
 import aiohttp
-from jose import jwt
+import jwt
 
 # from state_storage import state_storage
 from backend.oauth2.yandex.utils import generate_yandex_oauth_redirect_uri
@@ -32,12 +32,54 @@ def get_yandex_oauth_redirect_uri() -> RedirectResponse:
     return RedirectResponse(url=uri, status_code=303)
 
 
+async def get_yandex_user_data(access_token: str) -> dict[str, Any]:
+    '''
+    Get user data from Yandex using their recommended API endpoint
+
+    Args:
+        access_token: OAuth access token from Yandex
+
+    Returns:
+        dict: User data from Yandex
+
+    Raises:
+        HTTPException: If failed to get user data
+    '''
+    yandex_user_info_url = "https://login.yandex.ru/info"
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            url=yandex_user_info_url,
+            headers={
+                "Authorization": f"OAuth {access_token}",
+                "Content-Type": "application/json"
+            },
+            params={"format": "json"},
+            ssl=False,
+        ) as response:
+            if response.status != 200:
+                error_text = await response.text()
+                logger.error(
+                    "Failed to get Yandex user data. Status: %d, Response: %s",
+                    response.status, error_text
+                )
+                raise HTTPException(
+                    status_code=response.status,
+                    detail=f"Failed to get user data from Yandex: "
+                           f"{error_text}"
+                )
+
+            user_data = await response.json()
+            logger.info(
+                "Successfully retrieved user data from Yandex: %s", user_data
+            )
+            return user_data
+
+
 @router.post("/callback")
 async def handle_code(
-    code: str,
-    state: str,
-    # code: Annotated[str, Body()],
-    # state: Annotated[str, Body()],
+    code: Annotated[str, Body()],
+    state: Annotated[str, Body()],
 ) -> dict[str, Any]:
     '''
     Handle Yandex OAuth callback
@@ -46,12 +88,12 @@ async def handle_code(
         code: Authorization code
         state: State
     '''
-    logger.info("handle_code into %s %s", code, state)
+    logger.info("handle_code from Yandex\nCode: %s\nState: %s", code, state)
     # if state not in state_storage:
     #     raise
     # else:
     #     print("Стейт корректный")
-    yandex_token_url = "https://oauth.yandex.ru/"
+    yandex_token_url = "https://oauth.yandex.ru/token"
     redirect_uri = "http://localhost:5173/auth/yandex"
 
     async with aiohttp.ClientSession() as session:
@@ -67,30 +109,47 @@ async def handle_code(
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             ssl=False,
         ) as response:
-            res = await response.json()
-            print(f"{res=}")
-            id_token = res["id_token"]
-            access_token = res["access_token"]
-            user_data = jwt.decode(
-                id_token,
-                # key="",
-                algorithms=["RS256"],
-                options={"verify_signature": False},
-            )
+            if response.status != 200:
+                error_text = await response.text()
+                logger.error(
+                    "Failed to get access token from Yandex. Status: %d, "
+                    "Response: %s",
+                    response.status, error_text
+                )
+                raise HTTPException(
+                    status_code=response.status,
+                    detail=f"Failed to get access token from Yandex: "
+                           f"{error_text}"
+                )
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-            url="https://www.googleapis.com/drive/v3/files",
-            headers={
-                "Authorization": f"Bearer {access_token}"
-            },
-            ssl=False,
-        ) as response:
-            res2 = await response.json()
-            print(f"{res2=}")
-            files = [item["name"] for item in res2["files"]]
+            res = await response.json()
+            logger.info("Token response from Yandex: %s", res)
+            access_token = res.get("access_token")
+            refresh_token = res.get("refresh_token")
+
+            if not access_token:
+                raise HTTPException(
+                    status_code=400,
+                    detail="No access token received from Yandex"
+                )
+
+            # Get user data using the access token
+            try:
+                user_data = await get_yandex_user_data(access_token)
+            except HTTPException:
+                raise
+            except Exception as e:
+                logger.error(
+                    "Unexpected error while getting user data: %s", str(e)
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to get user data: {str(e)}"
+                )
 
     return {
-        "user": user_data,
-        "files": files,
+        "code": code,
+        "state": state,
+        "res": res,
+        "user_data": user_data,
     }

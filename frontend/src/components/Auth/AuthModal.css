@@ -73,6 +73,13 @@
   margin-bottom: 24px;
 }
 
+.oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 .form-group {
   margin-bottom: 16px;
 }
