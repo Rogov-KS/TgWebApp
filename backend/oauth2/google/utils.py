@@ -5,14 +5,18 @@ from backend.core.config import settings
 # from backend.core.state_storage import state_storage
 
 
-def generate_google_oauth_redirect_uri() -> str:
+def generate_google_oauth_redirect_uri(state: str = None) -> str:
     '''
     Generate Google OAuth redirect URI
+
+    Args:
+        state: OAuth state parameter (если не передан, генерируется случайный)
 
     Returns:
         str: Google OAuth redirect URI
     '''
-    random_state = secrets.token_urlsafe(16)
+    if state is None:
+        state = secrets.token_urlsafe(16)
     # state_storage.add(random_state)
 
     query_params = {
@@ -27,7 +31,7 @@ def generate_google_oauth_redirect_uri() -> str:
             "email",
         ]),
         "access_type": "offline",
-        "state": random_state,
+        "state": state,
     }
 
     query_string = urllib.parse.urlencode(query_params, quote_via=urllib.parse.quote)

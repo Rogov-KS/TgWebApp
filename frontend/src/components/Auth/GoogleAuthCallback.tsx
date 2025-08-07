@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { googleOAuthAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
@@ -10,9 +10,16 @@ export function GoogleAuthCallback() {
   const { login } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const hasProcessedRef = useRef(false);
 
   useEffect(() => {
     const handleCallback = async () => {
+      // Защита от повторных запросов
+      if (hasProcessedRef.current) {
+        return;
+      }
+      hasProcessedRef.current = true;
+
       try {
         const code = searchParams.get('code');
         const state = searchParams.get('state');

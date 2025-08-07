@@ -8,6 +8,7 @@ from backend.api.endpoints import auth, game_sessions, leaderboard
 from backend.core.config import settings
 from backend.logger import get_logger, setup_logging
 from backend.oauth2 import router as oauth2_router
+from backend.oauth2.cleanup import start_cleanup_task
 
 # Создаем экземпляр FastAPI
 app = FastAPI(title="TgWebApp API", version="1.0.0")
@@ -30,6 +31,14 @@ app.include_router(game_sessions.router)
 app.include_router(leaderboard.router)
 
 logger = get_logger(__name__)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Событие при запуске приложения"""
+    logger.info("Starting OAuth cleanup task...")
+    start_cleanup_task()
+
 
 if __name__ == "__main__":
     setup_logging()
