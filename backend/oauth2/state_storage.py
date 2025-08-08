@@ -1,6 +1,7 @@
 import secrets
 from typing import Dict
 from datetime import datetime, timedelta
+from fastapi import HTTPException
 from backend.logger import get_logger
 
 logger = get_logger(__name__)
@@ -69,6 +70,14 @@ class StateStorage:
         self._processing_states.discard(state)
 
         return True
+
+    def validate_state_or_raise(self, state: str, provider: str) -> None:
+        """Валидирует state, выбрасывает HTTPException при ошибке."""
+        if not self.validate_state(state, provider):
+            logger.error("Invalid state parameter: %s", state)
+            raise HTTPException(
+                status_code=400, detail="Invalid state parameter"
+            )
 
     def cleanup_expired_states(self) -> None:
         """Очищает истекшие state"""
