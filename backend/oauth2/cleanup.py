@@ -20,6 +20,6 @@ async def cleanup_oauth_data():
         await asyncio.sleep(300)
 
 
-def start_cleanup_task():
+def start_cleanup_task() -> None:
     """Запускает задачу очистки"""
     asyncio.create_task(cleanup_oauth_data())
