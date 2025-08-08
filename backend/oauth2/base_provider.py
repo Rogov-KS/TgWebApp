@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass
-import aiohttp
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Iterator
+from dataclasses import dataclass
+from typing import Any
 
-from backend.logger import get_logger
+import aiohttp
 from fastapi import HTTPException
 
+from backend.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -15,37 +15,40 @@ logger = get_logger(__name__)
 @dataclass
 class OAuth2UserData:
     """Стандартизированные данные пользователя от OAuth2 провайдера"""
+
     provider_id: str  # ID пользователя в системе провайдера
     email: str
     first_name: str
-    last_name: Optional[str] = None
-    username: Optional[str] = None
-    avatar_url: Optional[str] = None
+    last_name: str | None = None
+    username: str | None = None
+    avatar_url: str | None = None
     provider_name: str = ""
-    raw_data: Optional[Dict[str, Any]] = None
+    raw_data: dict[str, Any] | None = None
 
 
 @dataclass
 class OAuth2TokenData:
     """Данные токенов от OAuth2 провайдера"""
+
     access_token: str
-    refresh_token: Optional[str] = None
+    refresh_token: str | None = None
     token_type: str = "Bearer"
-    expires_in: Optional[int] = None
-    scope: Optional[str] = None
-    id_token: Optional[str] = None
-    raw_data: Optional[Dict[str, Any]] = None
+    expires_in: int | None = None
+    scope: str | None = None
+    id_token: str | None = None
+    raw_data: dict[str, Any] | None = None
 
 
 @dataclass
 class CloudFile:
     """Информация о файле в облачном хранилище"""
+
     name: str
-    id: Optional[str] = None
-    size: Optional[int] = None
-    mime_type: Optional[str] = None
-    modified_time: Optional[str] = None
-    download_url: Optional[str] = None
+    id: str | None = None
+    size: int | None = None
+    mime_type: str | None = None
+    modified_time: str | None = None
+    download_url: str | None = None
 
 
 class OAuth2Provider(ABC):
@@ -53,63 +56,53 @@ class OAuth2Provider(ABC):
 
     def __init__(self, provider_name: str):
         self.provider_name = provider_name
-        self._processing_requests: Dict[str, bool] = {}
+        self._processing_requests: dict[str, bool] = {}
 
     @property
     @abstractmethod
     def client_id(self) -> str:
         """Client ID провайдера"""
-        pass
 
     @property
     @abstractmethod
     def client_secret(self) -> str:
         """Client Secret провайдера"""
-        pass
 
     @property
     @abstractmethod
     def redirect_uri(self) -> str:
         """URI для перенаправления после авторизации"""
-        pass
 
     @property
     @abstractmethod
     def authorization_url(self) -> str:
         """URL для авторизации пользователя"""
-        pass
 
     @property
     @abstractmethod
     def token_url(self) -> str:
         """URL для получения токенов"""
-        pass
 
     @property
     @abstractmethod
     def user_info_url(self) -> str:
         """URL для получения информации о пользователе"""
-        pass
 
     @abstractmethod
-    def get_authorization_params(self, state: str) -> Dict[str, str]:
+    def get_authorization_params(self, state: str) -> dict[str, str]:
         """Параметры для URL авторизации"""
-        pass
 
     @abstractmethod
-    def get_token_params(self, code: str) -> Dict[str, str]:
+    def get_token_params(self, code: str) -> dict[str, str]:
         """Параметры для запроса токенов"""
-        pass
 
     @abstractmethod
-    def parse_user_data(self, raw_data: Dict[str, Any]) -> OAuth2UserData:
+    def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
         """Парсинг данных пользователя из ответа провайдера"""
-        pass
 
     @abstractmethod
-    async def get_cloud_files(self, access_token: str) -> List[CloudFile]:
+    async def get_cloud_files(self, access_token: str) -> list[CloudFile]:
         """Получение списка файлов из облачного хранилища провайдера"""
-        pass
 
     @contextmanager
     def _single_processing_request(self, request_key: str) -> Iterator[None]:
@@ -143,14 +136,16 @@ class OAuth2Provider(ABC):
                     logger.error(
                         "Failed to get access token from %s. "
                         "Status: %d, Response: %s",
-                        self.provider_name, response.status, error_text
+                        self.provider_name,
+                        response.status,
+                        error_text,
                     )
                     raise HTTPException(
                         status_code=response.status,
                         detail=(
                             f"Failed to get access token from "
                             f"{self.provider_name}: {error_text}"
-                        )
+                        ),
                     )
 
                 data = await response.json()
@@ -161,7 +156,7 @@ class OAuth2Provider(ABC):
                     expires_in=data.get("expires_in"),
                     scope=data.get("scope"),
                     id_token=data.get("id_token"),
-                    raw_data=data
+                    raw_data=data,
                 )
 
     async def get_user_data(self, access_token: str) -> OAuth2UserData:
@@ -188,16 +183,17 @@ class OAuth2Provider(ABC):
                 if response.status != 200:
                     error_text = await response.text()
                     logger.error(
-                        "Failed to get user data from %s. "
-                        "Status: %d, Response: %s",
-                        self.provider_name, response.status, error_text
+                        "Failed to get user data from %s. " "Status: %d, Response: %s",
+                        self.provider_name,
+                        response.status,
+                        error_text,
                     )
                     raise HTTPException(
                         status_code=response.status,
                         detail=(
                             f"Failed to get user data from "
                             f"{self.provider_name}: {error_text}"
-                        )
+                        ),
                     )
 
                 data = await response.json()
@@ -205,7 +201,7 @@ class OAuth2Provider(ABC):
 
     async def authenticate(
         self, code: str, state: str
-    ) -> tuple[OAuth2UserData, List[CloudFile]]:
+    ) -> tuple[OAuth2UserData, list[CloudFile]]:
         """Полный процесс аутентификации"""
         from backend.oauth2.state_storage import state_storage
 
@@ -230,8 +226,7 @@ class OAuth2Provider(ABC):
                 cloud_files = await self.get_cloud_files(token_data.access_token)
             except Exception as e:
                 logger.warning(
-                    "Failed to get cloud files from %s: %s",
-                    self.provider_name, e
+                    "Failed to get cloud files from %s: %s", self.provider_name, e
                 )
                 cloud_files = []
 

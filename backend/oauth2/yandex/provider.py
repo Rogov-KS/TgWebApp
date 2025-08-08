@@ -1,11 +1,10 @@
-from typing import Dict, Any, List
+from typing import Any
+
 import aiohttp
 
-from backend.oauth2.base_provider import (
-    OAuth2Provider, OAuth2UserData, CloudFile
-)
 from backend.core.config import settings
 from backend.logger import get_logger
+from backend.oauth2.base_provider import CloudFile, OAuth2Provider, OAuth2UserData
 
 logger = get_logger(__name__)
 
@@ -40,20 +39,22 @@ class YandexOAuth2Provider(OAuth2Provider):
     def user_info_url(self) -> str:
         return "https://login.yandex.ru/info"
 
-    def get_authorization_params(self, state: str) -> Dict[str, str]:
+    def get_authorization_params(self, state: str) -> dict[str, str]:
         return {
             "client_id": self.client_id,
             "redirect_uri": self.redirect_uri,
             "response_type": "code",
-            "scope": " ".join([
-                "login:email",
-                "login:info",
-                "cloud_api:disk.read",  # Доступ к Яндекс.Диску
-            ]),
+            "scope": " ".join(
+                [
+                    "login:email",
+                    "login:info",
+                    "cloud_api:disk.read",  # Доступ к Яндекс.Диску
+                ]
+            ),
             "state": state,
         }
 
-    def get_token_params(self, code: str) -> Dict[str, str]:
+    def get_token_params(self, code: str) -> dict[str, str]:
         return {
             "client_id": self.client_id,
             "client_secret": self.client_secret,
@@ -62,7 +63,7 @@ class YandexOAuth2Provider(OAuth2Provider):
             "code": code,
         }
 
-    def parse_user_data(self, raw_data: Dict[str, Any]) -> OAuth2UserData:
+    def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
         """Парсинг данных пользователя из ответа Yandex API"""
         return OAuth2UserData(
             provider_id=raw_data.get("id", ""),
@@ -75,16 +76,14 @@ class YandexOAuth2Provider(OAuth2Provider):
             raw_data=raw_data,
         )
 
-    def _get_avatar_url(self, user_data: Dict[str, Any]) -> str:
+    def _get_avatar_url(self, user_data: dict[str, Any]) -> str:
         """Формирует URL аватара пользователя"""
         avatar_id = user_data.get("default_avatar_id")
         if avatar_id:
             return f"https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200"
         return ""
 
-    async def get_cloud_files(
-        self, access_token: str
-    ) -> List[CloudFile]:
+    async def get_cloud_files(self, access_token: str) -> list[CloudFile]:
         """Получение файлов из Яндекс.Диска"""
         disk_url = "https://cloud-api.yandex.net/v1/disk/resources"
 
@@ -94,7 +93,7 @@ class YandexOAuth2Provider(OAuth2Provider):
                 params={
                     "path": "/",
                     "limit": 100,
-                    "fields": "name,size,mime_type,modified,file"
+                    "fields": "name,size,mime_type,modified,file",
                 },
                 headers={
                     "Authorization": f"OAuth {access_token}",
@@ -106,9 +105,9 @@ class YandexOAuth2Provider(OAuth2Provider):
                 if response.status != 200:
                     error_text = await response.text()
                     logger.error(
-                        "Failed to get Yandex.Disk files. "
-                        "Status: %d, Response: %s",
-                        response.status, error_text
+                        "Failed to get Yandex.Disk files. " "Status: %d, Response: %s",
+                        response.status,
+                        error_text,
                     )
                     return []
 
@@ -123,7 +122,7 @@ class YandexOAuth2Provider(OAuth2Provider):
                         size=item.get("size"),
                         mime_type=item.get("mime_type"),
                         modified_time=item.get("modified"),
-                        download_url=item.get("file")  # Прямая ссылка на скачивание
+                        download_url=item.get("file"),  # Прямая ссылка на скачивание
                     )
                     for item in items
                     if item.get("type") == "file"  # Только файлы, не папки

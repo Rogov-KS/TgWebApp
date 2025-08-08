@@ -1,12 +1,13 @@
-from typing import Annotated, Any, Dict
+from typing import Annotated, Any
+
 from fastapi import APIRouter, Body, HTTPException, Query
 from fastapi.responses import RedirectResponse
 
-from backend.oauth2.state_storage import state_storage
-from backend.oauth2.google.provider import google_provider
-from backend.oauth2.yandex.provider import yandex_provider
-from backend.oauth2.base_provider import OAuth2Provider
 from backend.logger import get_logger
+from backend.oauth2.base_provider import OAuth2Provider
+from backend.oauth2.google.provider import google_provider
+from backend.oauth2.state_storage import state_storage
+from backend.oauth2.yandex.provider import yandex_provider
 
 logger = get_logger(__name__)
 
@@ -16,19 +17,16 @@ router = APIRouter(
 )
 
 # Реестр провайдеров
-PROVIDERS: Dict[str, OAuth2Provider] = {
+PROVIDERS: dict[str, OAuth2Provider] = {
     "google": google_provider,
     "yandex": yandex_provider,
 }
 
 
 @router.get("/providers")
-def get_available_providers() -> Dict[str, Any]:
+def get_available_providers() -> dict[str, Any]:
     """Получить список доступных OAuth2 провайдеров"""
-    return {
-        "providers": list(PROVIDERS.keys()),
-        "count": len(PROVIDERS)
-    }
+    return {"providers": list(PROVIDERS.keys()), "count": len(PROVIDERS)}
 
 
 @router.get("/{provider}/url")
@@ -45,7 +43,7 @@ def get_oauth_redirect_uri(provider: str) -> RedirectResponse:
             detail=(
                 f"Provider '{provider}' not found. "
                 f"Available providers: {list(PROVIDERS.keys())}"
-            )
+            ),
         )
 
     oauth_provider = PROVIDERS[provider]
@@ -65,7 +63,7 @@ async def handle_oauth_callback(
     provider: str,
     code: Annotated[str, Body()],
     state: Annotated[str, Body()],
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Обработать callback от OAuth2 провайдера
 
@@ -80,7 +78,7 @@ async def handle_oauth_callback(
             detail=(
                 f"Provider '{provider}' not found. "
                 f"Available providers: {list(PROVIDERS.keys())}"
-            )
+            ),
         )
 
     logger.info("OAuth callback from %s\nCode: %s\nState: %s", provider, code, state)
@@ -116,22 +114,20 @@ async def handle_oauth_callback(
                 }
                 for file in cloud_files
             ],
-            "files_count": len(cloud_files)
+            "files_count": len(cloud_files),
         }
 
     except Exception as e:
         logger.error("OAuth authentication failed for %s: %s", provider, str(e))
         raise HTTPException(
-            status_code=400,
-            detail=f"OAuth authentication failed: {str(e)}"
+            status_code=400, detail=f"OAuth authentication failed: {e!s}"
         )
 
 
 @router.get("/{provider}/files")
 async def get_cloud_files(
-    provider: str,
-    access_token: Annotated[str, Query()]
-) -> Dict[str, Any]:
+    provider: str, access_token: Annotated[str, Query()]
+) -> dict[str, Any]:
     """
     Получить файлы из облачного хранилища провайдера
 
@@ -145,7 +141,7 @@ async def get_cloud_files(
             detail=(
                 f"Provider '{provider}' not found. "
                 f"Available providers: {list(PROVIDERS.keys())}"
-            )
+            ),
         )
 
     oauth_provider = PROVIDERS[provider]
@@ -166,14 +162,9 @@ async def get_cloud_files(
                 }
                 for file in cloud_files
             ],
-            "files_count": len(cloud_files)
+            "files_count": len(cloud_files),
         }
 
     except Exception as e:
-        logger.error(
-            "Failed to get cloud files from %s: %s", provider, str(e)
-        )
-        raise HTTPException(
-            status_code=400,
-            detail=f"Failed to get cloud files: {str(e)}"
-        )
+        logger.error("Failed to get cloud files from %s: %s", provider, str(e))
+        raise HTTPException(status_code=400, detail=f"Failed to get cloud files: {e!s}")
