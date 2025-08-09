@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { User, UserAuth, LoginResponse, LogoutResponse, LeaderboardEntry, RefreshResponse } from '../types/auth';
+import type { User, UserAuth, UserLogin, LoginResponse, LogoutResponse, LeaderboardEntry, RefreshResponse } from '../types/auth';
 
 
 // Динамический baseURL в зависимости от окружения
@@ -154,7 +154,7 @@ apiClient.interceptors.response.use(
 // API функции
 export const authAPI = {
   helloWorld: () => apiClient.get<string>('/auth/hello_world'),
-  login: (data: UserAuth) => apiClient.post<LoginResponse>('/auth/login', data),
+  login: (data: UserLogin) => apiClient.post<LoginResponse>('/auth/login', data),
   register: (data: UserAuth) => apiClient.post<User>('/auth/register', data),
   logout: () => apiClient.post<LogoutResponse>('/auth/logout'),
   me: () => apiClient.get<User>('/auth/me'),

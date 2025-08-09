@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Response, Request
+from pydantic import ValidationError
 
 from backend.core.config import settings
 from backend.core.dependecies import get_current_user
@@ -6,6 +7,7 @@ from backend.core.exception import (
     InvalidCredentialsException,
     UserAlreadyExistsException,
     InvalidRefreshTokenException,
+    InvalidEmailException,
 )
 from backend.dao.user import UserDAO
 from backend.logger import get_logger
@@ -18,6 +20,7 @@ from backend.utils.auth import (
     verify_refresh_token,
     revoke_user_refresh_tokens,
     revoke_refresh_token,
+    is_valid_email,
 )
 
 logger = get_logger(__name__)
@@ -32,38 +35,50 @@ router = APIRouter(
 async def register(user_data: UserAuth) -> User:
     logger.info("Registering user: %s", user_data)
 
-    # Проверяем, существует ли пользователь с таким username
-    existing_user = await UserDAO.get_one_or_none(username=user_data.username)
+    if not is_valid_email(user_data.email):
+        logger.info("Invalid email: %s", user_data.email)
+        raise InvalidEmailException
+
+    if user_data.username:
+        existing_user = await UserDAO.get_one_or_none(username=user_data.username)
+    else:
+        existing_user = await UserDAO.get_one_or_none(email=user_data.email)
+
     if existing_user:
-        logger.info("User with username already exists: %s", user_data.username)
+        logger.info(
+            "User with email or username already exists: %s",
+            user_data.email or user_data.username
+        )
         raise UserAlreadyExistsException
 
-    # Проверяем, существует ли пользователь с таким email
-    existing_user = await UserDAO.get_one_or_none(email=user_data.email)
-    if existing_user:
-        logger.info("User with email already exists: %s", user_data.email)
-        raise UserAlreadyExistsException
+    hashed_password = get_password_hash(user_data.password)
 
     logger.info("Creating user: %s", user_data)
-    hashed_password = get_password_hash(user_data.password)
-    logger.info("Hashed password: %s", hashed_password)
+
 
     user = await UserDAO.create(
         username=user_data.username,
         email=user_data.email,
         hashed_password=hashed_password,
-        first_name=user_data.first_name,
-        last_name=user_data.last_name,
     )
     logger.info("User created: %s", user)
 
-    return User.model_validate(user)
+    try:
+        model_user = User.model_validate(user)
+    except ValidationError as e:
+        logger.error("Validation error: %s", e)
+        await UserDAO.delete(id=user.id)
+        raise e
+
+    return model_user
 
 
 @router.post("/login")
 async def login(response: Response, user_data: UserLogin) -> dict[str, str]:
     logger.info("Logging in user: %s", user_data)
-    user = await authenticate_user(user_data.username_or_email, user_data.password)
+    user = await authenticate_user(
+        user_data.username_or_email, user_data.password
+    )
     if not user:
         logger.info("Invalid credentials: %s", user_data)
         raise InvalidCredentialsException

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { authAPI, leaderboardAPI } from '../api/client';
-import type { User, UserAuth, AuthState } from '../types/auth';
+import type { User, UserAuth, UserLogin, AuthState } from '../types/auth';
 
 // Типы действий
 type AuthAction =
@@ -45,7 +45,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 
 // Контекст
 interface AuthContextType extends AuthState {
-  login: (data: UserAuth) => Promise<void>;
+  login: (data: UserLogin) => Promise<void>;
   register: (data: UserAuth) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
     // Вход
-  const login = async (data: UserAuth) => {
+  const login = async (data: UserLogin) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
@@ -116,7 +116,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await authAPI.register(data);
 
       // Автоматически входим в аккаунт после регистрации
-      await authAPI.login(data);
+      const loginData: UserLogin = {
+        username_or_email: data.username,
+        password: data.password,
+      };
+      await authAPI.login(loginData);
 
       // Проверяем авторизацию (включая max_score)
       await checkAuth();

@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useModal, ModalType } from '../../contexts/ModalContext';
 import { GoogleAuthButton } from './GoogleAuthButton';
 import { YandexAuthButton } from './YandexAuthButton';
-import type { UserAuth } from '../../types/auth';
+import type { UserAuth, UserLogin } from '../../types/auth';
 import './AuthModal.css';
 
 interface AuthModalProps {
@@ -17,11 +17,9 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
   const { setCurrentModal } = useModal();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState<UserAuth>({
-    telegram_id: 0,
     username: '',
+    email: '',
     password: '',
-    first_name: '',
-    last_name: null,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,13 +28,10 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        // Для входа используем только telegram_id и пароль
-        const loginData = {
-          telegram_id: formData.telegram_id,
+        // Для входа используем username_or_email и пароль
+        const loginData: UserLogin = {
+          username_or_email: formData.username || formData.email,
           password: formData.password,
-          username: '', // Пустые значения для обязательных полей
-          first_name: '',
-          last_name: null,
         };
         await login(loginData);
       } else {
@@ -52,7 +47,7 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'telegram_id' ? parseInt(value) || 0 : value,
+      [name]: value,
     }));
   };
 
@@ -129,18 +124,58 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
             <span>или</span>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="telegram_id">Telegram ID:</label>
-            <input
-              type="number"
-              id="telegram_id"
-              name="telegram_id"
-              value={formData.telegram_id || ''}
-              onChange={handleInputChange}
-              required
-              placeholder="Введите ваш Telegram ID"
-            />
-          </div>
+          {isLogin ? (
+            // Форма входа
+            <div className="form-group">
+              <label htmlFor="username_or_email">Username или Email:</label>
+              <input
+                type="text"
+                id="username_or_email"
+                name="username_or_email"
+                value={formData.username || formData.email}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Определяем, что ввел пользователь - email или username
+                  if (value.includes('@')) {
+                    setFormData(prev => ({ ...prev, email: value, username: '' }));
+                  } else {
+                    setFormData(prev => ({ ...prev, username: value, email: '' }));
+                  }
+                }}
+                required
+                placeholder="Введите username или email"
+              />
+            </div>
+          ) : (
+            // Форма регистрации
+            <>
+              <div className="form-group">
+                <label htmlFor="username">Username:</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Введите username"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email:</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Введите ваш email"
+                />
+              </div>
+            </>
+          )}
 
           <div className="form-group">
             <label htmlFor="password">Пароль:</label>
@@ -154,49 +189,6 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
               placeholder="Введите пароль"
             />
           </div>
-
-          {/* Дополнительные поля только для регистрации */}
-          {!isLogin && (
-            <>
-              <div className="form-group">
-                <label htmlFor="username">Имя пользователя:</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Введите имя пользователя"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="first_name">Имя:</label>
-                <input
-                  type="text"
-                  id="first_name"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Введите ваше имя"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="last_name">Фамилия (необязательно):</label>
-                <input
-                  type="text"
-                  id="last_name"
-                  name="last_name"
-                  value={formData.last_name || ''}
-                  onChange={handleInputChange}
-                  placeholder="Введите вашу фамилию"
-                />
-              </div>
-            </>
-          )}
 
           {error && (
             <div className="auth-error">

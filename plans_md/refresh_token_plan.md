@@ -29,7 +29,7 @@
 
 ### 1.4. Создание DAO для RefreshToken
 **Файл: `backend/dao/refresh_token.py`**
-- Создать `RefreshTokenDAO` с методами:
+- Создать `Oauth2TokenDAO` с методами:
   - `create()`
   - `get_one_or_none()`
   - `get_many()`

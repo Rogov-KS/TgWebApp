@@ -41,6 +41,11 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
     setIsDropdownOpen(false);
   };
 
+  // Получаем отображаемое имя пользователя
+  const displayName = user?.first_name || user?.username || 'Пользователь';
+  const displayInitial = displayName.charAt(0).toUpperCase();
+  const displayUsername = user?.username ? `@${user.username}` : '';
+
   return (
     <div className="profile-icon-container">
       <button
@@ -50,7 +55,7 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
       >
         {isAuthenticated && user ? (
           <div className="profile-avatar">
-            {user.first_name.charAt(0).toUpperCase()}
+            {displayInitial}
           </div>
         ) : (
           <div className="profile-icon">
@@ -66,13 +71,15 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
         <div className="profile-dropdown">
           <div className="profile-info">
             <div className="profile-name">
-              {user?.first_name} {user?.last_name || ''}
+              {user?.first_name || ''} {user?.last_name || ''}
             </div>
-            <div className="profile-username">
-              @{user?.username}
-            </div>
+            {displayUsername && (
+              <div className="profile-username">
+                {displayUsername}
+              </div>
+            )}
             <div className="profile-score">
-              Рекорд: {user?.max_score} очков
+              Рекорд: {user?.max_score || 0} очков
             </div>
           </div>
           <div className="profile-actions">

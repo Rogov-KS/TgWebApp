@@ -25,19 +25,26 @@ export function UserInfo() {
     }
   };
 
+  // Получаем отображаемое имя пользователя
+  const displayName = user.first_name || user.username || 'Пользователь';
+  const displayInitial = displayName.charAt(0).toUpperCase();
+  const displayUsername = user.username ? `@${user.username}` : '';
+
   return (
     <div className="user-info">
       <div className="user-info-content">
         <div className="user-avatar">
-          {user.first_name.charAt(0).toUpperCase()}
+          {displayInitial}
         </div>
         <div className="user-details">
           <div className="user-name">
-            {user.first_name} {user.last_name || ''}
+            {user.first_name || ''} {user.last_name || ''}
           </div>
-          <div className="user-username">
-            @{user.username}
-          </div>
+          {displayUsername && (
+            <div className="user-username">
+              {displayUsername}
+            </div>
+          )}
           <div className="user-score">
             Лучший результат: {user.max_score}
           </div>

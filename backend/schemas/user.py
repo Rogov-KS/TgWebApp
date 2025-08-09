@@ -7,9 +7,9 @@ class User(BaseModel):
     id: int
     telegram_id: int | None = None
     email: str | None = None
-    username: str
+    username: str | None = None
     hashed_password: str
-    first_name: str
+    first_name: str | None = None
     last_name: str | None = None
     language_code: str | None = None
     is_bot: bool = False

@@ -1,9 +1,10 @@
 export interface User {
   id: number;
-  telegram_id: number;
-  hashed_password: string;
+  telegram_id: number | null;
+  email: string | null;
   username: string | null;
-  first_name: string;
+  hashed_password: string;
+  first_name: string | null;
   last_name: string | null;
   language_code: string | null;
   is_bot: boolean;
@@ -14,11 +15,14 @@ export interface User {
 }
 
 export interface UserAuth {
-  telegram_id: number;
   username: string;
+  email: string;
   password: string;
-  first_name: string;
-  last_name: string | null;
+}
+
+export interface UserLogin {
+  username_or_email: string;
+  password: string;
 }
 
 export interface AuthState {
