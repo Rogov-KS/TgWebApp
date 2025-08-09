@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from jose import jwt
 from passlib.context import CryptContext
+from pydantic import EmailStr, ValidationError
 
 from backend.core.config import settings
 from backend.dao.refresh_token import RefreshTokenDAO
@@ -20,8 +21,31 @@ def verify_password(password: str, hashed_password: str) -> bool:
     return bool(pwd_context.verify(password, hashed_password))
 
 
-async def authenticate_user(telegram_id: int, password: str) -> User | None:
-    user = await UserDAO.get_one_or_none(telegram_id=telegram_id)
+def is_valid_email(email: str) -> bool:
+    """Проверяет, является ли строка валидным email адресом."""
+    try:
+        EmailStr.validate(email)
+        return True
+    except ValidationError:
+        return False
+
+
+async def authenticate_user(username_or_email: str, password: str) -> User | None:
+    """Аутентификация пользователя по username или email."""
+    user = None
+
+    # Сначала проверяем, является ли введенная строка email
+    if is_valid_email(username_or_email):
+        # Если это email, ищем пользователя по email
+        user = await UserDAO.get_one_or_none(
+            email=username_or_email
+        )
+    else:
+        # Если это не email, ищем по username
+        user = await UserDAO.get_one_or_none(
+            username=username_or_email
+        )
+
     if not user or not verify_password(password, user.hashed_password):
         return None
     return user

@@ -3,13 +3,13 @@ from fastapi import APIRouter, Depends, Response, Request
 from backend.core.config import settings
 from backend.core.dependecies import get_current_user
 from backend.core.exception import (
-    InvalidTelegramIdOrPasswordException,
+    InvalidCredentialsException,
     UserAlreadyExistsException,
     InvalidRefreshTokenException,
 )
 from backend.dao.user import UserDAO
 from backend.logger import get_logger
-from backend.schemas.user import User, UserAuth
+from backend.schemas.user import User, UserAuth, UserLogin
 from backend.utils.auth import (
     authenticate_user,
     create_access_token,
@@ -31,11 +31,17 @@ router = APIRouter(
 @router.post("/register")
 async def register(user_data: UserAuth) -> User:
     logger.info("Registering user: %s", user_data)
-    existing_user = await UserDAO.get_one_or_none(
-        telegram_id=user_data.telegram_id
-    )
+
+    # Проверяем, существует ли пользователь с таким username
+    existing_user = await UserDAO.get_one_or_none(username=user_data.username)
     if existing_user:
-        logger.info("User already exists: %s", user_data)
+        logger.info("User with username already exists: %s", user_data.username)
+        raise UserAlreadyExistsException
+
+    # Проверяем, существует ли пользователь с таким email
+    existing_user = await UserDAO.get_one_or_none(email=user_data.email)
+    if existing_user:
+        logger.info("User with email already exists: %s", user_data.email)
         raise UserAlreadyExistsException
 
     logger.info("Creating user: %s", user_data)
@@ -43,8 +49,8 @@ async def register(user_data: UserAuth) -> User:
     logger.info("Hashed password: %s", hashed_password)
 
     user = await UserDAO.create(
-        telegram_id=user_data.telegram_id,
         username=user_data.username,
+        email=user_data.email,
         hashed_password=hashed_password,
         first_name=user_data.first_name,
         last_name=user_data.last_name,
@@ -55,15 +61,15 @@ async def register(user_data: UserAuth) -> User:
 
 
 @router.post("/login")
-async def login(response: Response, user_data: UserAuth) -> dict[str, str]:
+async def login(response: Response, user_data: UserLogin) -> dict[str, str]:
     logger.info("Logging in user: %s", user_data)
-    user = await authenticate_user(user_data.telegram_id, user_data.password)
+    user = await authenticate_user(user_data.username_or_email, user_data.password)
     if not user:
         logger.info("Invalid credentials: %s", user_data)
-        raise InvalidTelegramIdOrPasswordException
+        raise InvalidCredentialsException
 
     # Создаем access token
-    access_token = create_access_token(data={"sub": str(user.telegram_id)})
+    access_token = create_access_token(data={"sub": str(user.id)})
 
     # Создаем refresh token
     refresh_token = await create_user_refresh_token(user.id)
@@ -119,7 +125,7 @@ async def refresh(
     await revoke_refresh_token(refresh_token)
 
     # Создаем новый access token
-    access_token = create_access_token(data={"sub": str(user.telegram_id)})
+    access_token = create_access_token(data={"sub": str(user.id)})
 
     # Создаем новый refresh token (ротация)
     new_refresh_token = await create_user_refresh_token(user.id)

@@ -1,13 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class User(BaseModel):
     id: int
-    telegram_id: int
+    telegram_id: int | None = None
+    email: str | None = None
+    username: str
     hashed_password: str
-    username: str | None = None
     first_name: str
     last_name: str | None = None
     language_code: str | None = None
@@ -22,8 +23,11 @@ class User(BaseModel):
 
 
 class UserAuth(BaseModel):
-    telegram_id: int
     username: str
+    email: EmailStr
     password: str
-    first_name: str
-    last_name: str | None = None
+
+
+class UserLogin(BaseModel):
+    username_or_email: str
+    password: str

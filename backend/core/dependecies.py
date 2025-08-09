@@ -41,11 +41,11 @@ async def get_current_user(token: str = Depends(get_token)) -> User:
     if not expire or (int(expire) < int(datetime.utcnow().timestamp())):
         raise TokenExpiredException
 
-    telegram_id = payload.get("sub")
-    if not telegram_id:
+    user_id = payload.get("sub")
+    if not user_id:
         raise UserNotFoundException
 
-    user = await UserDAO.get_one_or_none(telegram_id=int(telegram_id))
+    user = await UserDAO.get_one_or_none(id=int(user_id))
     if not user:
         raise UserNotFoundException
 

@@ -24,6 +24,11 @@ class InvalidTelegramIdOrPasswordException(TgWebAppException):
     detail = "Invalid telegram id or password"
 
 
+class InvalidCredentialsException(TgWebAppException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Invalid credentials"
+
+
 class ForbiddenException(TgWebAppException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Forbidden"

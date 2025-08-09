@@ -11,17 +11,24 @@ if TYPE_CHECKING:
 
 
 class User(Base):
-    """Модель пользователя Telegram."""
+    """Модель пользователя."""
 
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True)
+    telegram_id: Mapped[int | None] = mapped_column(
+        BigInteger, unique=True, index=True, nullable=True
+    )
+    email: Mapped[str | None] = mapped_column(
+        String(255), unique=True, index=True, nullable=True
+    )
+    username: Mapped[str | None] = mapped_column(
+        String(255), unique=True, index=True, nullable=True
+    )
     hashed_password: Mapped[str] = mapped_column(String(255))
-    username: Mapped[str | None] = mapped_column(String(255))
-    first_name: Mapped[str] = mapped_column(String(255))
-    last_name: Mapped[str | None] = mapped_column(String(255))
-    language_code: Mapped[str | None] = mapped_column(String(10))
+    first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    last_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    language_code: Mapped[str | None] = mapped_column(String(10), nullable=True)
     is_bot: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     max_score: Mapped[int] = mapped_column(
@@ -44,6 +51,6 @@ class User(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<User(id={self.id}, telegram_id={self.telegram_id}, "
-            f"username={self.username})>"
+            f"<User(id={self.id}, username={self.username}, "
+            f"email={self.email}, telegram_id={self.telegram_id})>"
         )
