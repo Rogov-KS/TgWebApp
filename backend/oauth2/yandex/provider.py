@@ -85,15 +85,12 @@ class YandexOAuth2Provider(OAuth2Provider):
 
     async def get_cloud_files(self, access_token: str) -> list[CloudFile]:
         """Получение файлов из Яндекс.Диска"""
-        disk_url = "https://cloud-api.yandex.net/v1/disk/resources"
+        disk_url = "https://cloud-api.yandex.net/v1/disk/resources/files"
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url=disk_url,
                 params={
-                    "path": "/",
-                    "limit": 100,
-                    "fields": "name,size,mime_type,modified,file",
                 },
                 headers={
                     "Authorization": f"OAuth {access_token}",
@@ -112,8 +109,7 @@ class YandexOAuth2Provider(OAuth2Provider):
                     return []
 
                 data = await response.json()
-                embedded = data.get("_embedded", {})
-                items = embedded.get("items", [])
+                items = data.get("items", [])
 
                 return [
                     CloudFile(
