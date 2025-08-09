@@ -8,6 +8,7 @@ import aiohttp
 from fastapi import HTTPException
 
 from backend.logger import get_logger
+from backend.oauth2_integrations import CloudFile
 
 logger = get_logger(__name__)
 
@@ -37,18 +38,6 @@ class OAuth2TokenData:
     scope: str | None = None
     id_token: str | None = None
     raw_data: dict[str, Any] | None = None
-
-
-@dataclass
-class CloudFile:
-    """Информация о файле в облачном хранилище"""
-
-    name: str
-    id: str | None = None
-    size: int | None = None
-    mime_type: str | None = None
-    modified_time: str | None = None
-    download_url: str | None = None
 
 
 class OAuth2Provider(ABC):

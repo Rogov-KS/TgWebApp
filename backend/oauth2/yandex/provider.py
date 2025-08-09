@@ -1,10 +1,10 @@
 from typing import Any
 
-import aiohttp
-
 from backend.core.config import settings
 from backend.logger import get_logger
-from backend.oauth2.base_provider import CloudFile, OAuth2Provider, OAuth2UserData
+from backend.oauth2.base_provider import OAuth2Provider, OAuth2UserData
+from backend.oauth2_integrations.yandex.disk import YandexDiskIntegration
+from backend.oauth2_integrations import CloudFile
 
 logger = get_logger(__name__)
 
@@ -14,6 +14,7 @@ class YandexOAuth2Provider(OAuth2Provider):
 
     def __init__(self) -> None:
         super().__init__("yandex")
+        self._disk_integration = YandexDiskIntegration()
 
     @property
     def client_id(self) -> str:
@@ -80,49 +81,15 @@ class YandexOAuth2Provider(OAuth2Provider):
         """Формирует URL аватара пользователя"""
         avatar_id = user_data.get("default_avatar_id")
         if avatar_id:
-            return f"https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200"
+            return (
+                f"https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200"
+            )
         return ""
 
     async def get_cloud_files(self, access_token: str) -> list[CloudFile]:
-        """Получение файлов из Яндекс.Диска"""
-        disk_url = "https://cloud-api.yandex.net/v1/disk/resources/files"
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url=disk_url,
-                params={
-                },
-                headers={
-                    "Authorization": f"OAuth {access_token}",
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                ssl=False,
-            ) as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    logger.error(
-                        "Failed to get Yandex.Disk files. " "Status: %d, Response: %s",
-                        response.status,
-                        error_text,
-                    )
-                    return []
-
-                data = await response.json()
-                items = data.get("items", [])
-
-                return [
-                    CloudFile(
-                        name=item.get("name", ""),
-                        id=item.get("resource_id"),
-                        size=item.get("size"),
-                        mime_type=item.get("mime_type"),
-                        modified_time=item.get("modified"),
-                        download_url=item.get("file"),  # Прямая ссылка на скачивание
-                    )
-                    for item in items
-                    if item.get("type") == "file"  # Только файлы, не папки
-                ]
+        """Получение файлов из Яндекс.Диска через интеграцию"""
+        files = await self._disk_integration.get_files(access_token)
+        return files
 
 
 # Глобальный экземпляр
