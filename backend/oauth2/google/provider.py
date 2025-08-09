@@ -1,5 +1,7 @@
 from typing import Dict, Any, List
 import jwt
+import aiohttp
+import asyncio
 
 from backend.oauth2.base_provider import OAuth2Provider
 from backend.core.config import settings
@@ -16,6 +18,7 @@ class GoogleOAuth2Provider(OAuth2Provider):
     def __init__(self) -> None:
         super().__init__("google")
         self._drive_integration = GoogleDriveIntegration()
+        self._public_keys = None
 
     @property
     def client_id(self) -> str:
@@ -42,6 +45,72 @@ class GoogleOAuth2Provider(OAuth2Provider):
         # Google предоставляет данные пользователя через id_token
         return ""
 
+    async def _get_google_public_keys(self) -> Dict[str, Any]:
+        """Получить публичные ключи Google для проверки подписи id_token"""
+        if self._public_keys is None:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(
+                        "https://www.googleapis.com/oauth2/v1/certs",
+                        ssl=False
+                    ) as response:
+                        if response.status == 200:
+                            self._public_keys = await response.json()
+                        else:
+                            logger.error("Failed to fetch Google public keys")
+                            raise ValueError(
+                                "Failed to fetch Google public keys"
+                            )
+            except Exception as e:
+                logger.error("Error fetching Google public keys: %s", e)
+                raise ValueError(
+                    f"Error fetching Google public keys: {e}"
+                )
+
+        return self._public_keys
+
+    def _verify_google_id_token(self, id_token: str) -> Dict[str, Any]:
+        """Проверить подпись Google id_token"""
+        try:
+            # Декодируем заголовок токена для получения kid
+            header = jwt.get_unverified_header(id_token)
+            kid = header.get('kid')
+
+            if not kid:
+                raise ValueError("No 'kid' in token header")
+
+            # Получаем публичные ключи
+            public_keys = self._public_keys
+            if not public_keys or kid not in public_keys:
+                raise ValueError(
+                    f"Public key with kid '{kid}' not found"
+                )
+
+            # Получаем публичный ключ
+            public_key = public_keys[kid]
+
+            # Декодируем и проверяем подпись токена
+            payload = jwt.decode(
+                id_token,
+                public_key,
+                algorithms=["RS256"],
+                audience=self.client_id,  # Проверяем audience
+                issuer=(
+                    "https://accounts.google.com"  # Проверяем issuer
+                ),
+            )
+
+            return payload
+
+        except jwt.InvalidTokenError as e:
+            logger.error("Invalid Google id_token: %s", e)
+            raise ValueError(f"Invalid Google id_token: {e}")
+        except Exception as e:
+            logger.error("Error verifying Google id_token: %s", e)
+            raise ValueError(
+                f"Error verifying Google id_token: {e}"
+            )
+
     def get_authorization_params(self, state: str) -> Dict[str, str]:
         return {
             "client_id": self.client_id,
@@ -66,18 +135,22 @@ class GoogleOAuth2Provider(OAuth2Provider):
             "code": code,
         }
 
-    def parse_user_data(self, raw_data: Dict[str, Any]) -> OAuth2UserData:
+    async def parse_user_data(self, raw_data: Dict[str, Any]) -> OAuth2UserData | None:
         # Для Google, данные пользователя приходят в id_token
         id_token = raw_data.get("id_token")
         if not id_token:
             raise ValueError("No id_token in Google response")
 
-        # Декодируем id_token без проверки подписи (для демо)
-        user_info = jwt.decode(
-            id_token,
-            algorithms=["RS256"],
-            options={"verify_signature": False},
-        )
+        # Получаем публичные ключи Google (если еще не получены)
+        if self._public_keys is None:
+            await self._get_google_public_keys()
+
+        # Проверяем подпись id_token
+        try:
+            user_info = self._verify_google_id_token(id_token)
+        except Exception as e:
+            logger.error("Error verifying Google id_token: %s", e)
+            return None
 
         return OAuth2UserData(
             provider_id=user_info.get("sub", ""),

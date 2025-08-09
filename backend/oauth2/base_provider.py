@@ -122,7 +122,7 @@ class OAuth2Provider(ABC):
                     raw_data=data,
                 )
 
-    async def get_user_data(self, access_token: str) -> OAuth2UserData:
+    async def get_user_data(self, access_token: str) -> OAuth2UserData | None:
         """Получение данных пользователя через API провайдера"""
         if not self.user_info_url:
             raise NotImplementedError(
@@ -165,7 +165,7 @@ class OAuth2Provider(ABC):
 
     async def get_oauth2_user_data(
         self, code: str, state: str
-    ) -> OAuth2UserData:
+    ) -> OAuth2UserData | None:
         """Полный процесс аутентификации"""
         from backend.oauth2.state_storage import state_storage
 
@@ -204,9 +204,15 @@ class OAuth2Provider(ABC):
             return user_data
 
     async def authenticate_by_user_data(
-        self, user_data: OAuth2UserData, response: Response
+        self, user_data: OAuth2UserData | None, response: Response
     ) -> dict[str, str]:
         """Аутентификация пользователя"""
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="User data is not valid",
+            )
 
         # Проверяем есть ли пользователь в нашей базе данных
         user = await UserDAO.get_one_or_none(email=user_data.email)
