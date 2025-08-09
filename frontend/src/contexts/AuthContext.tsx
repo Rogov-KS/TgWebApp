@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useRef, useCallback } from 'react';
 import { authAPI, leaderboardAPI } from '../api/client';
 import type { User, UserAuth, UserLogin, AuthState } from '../types/auth';
 
@@ -64,27 +64,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const checkAuthInProgress = useRef(false);
   const lastCheckTime = useRef<number>(0);
+  const lastMeRequestTime = useRef<number>(0);
+  const authCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const currentAuthState = useRef<{ isAuthenticated: boolean; user: User | null }>({
+    isAuthenticated: false,
+    user: null
+  });
   const CHECK_AUTH_DEBOUNCE = 2000; // 2 секунды между запросами
+  const ME_REQUEST_INTERVAL = 5000; // 5 секунд между запросами /me для неавторизованных пользователей
+  const AUTH_CHECK_INTERVAL = 100; // 0.1 секунды для проверки состояния авторизации
+
+  // Обновляем ref при изменении состояния
+  useEffect(() => {
+    currentAuthState.current = {
+      isAuthenticated: state.isAuthenticated,
+      user: state.user,
+    };
+  }, [state.isAuthenticated, state.user]);
 
   // Проверка авторизации с дебаунсингом
-  const checkAuth = async () => {
-    // Если пользователь уже авторизован, не делаем повторные запросы
-    if (state.isAuthenticated && state.user) {
-      console.log('🔐 User already authenticated, skipping checkAuth');
-      return;
-    }
-
+  const checkAuth = useCallback(async () => {
     const now = Date.now();
 
     // Проверяем, не слишком ли часто вызывается функция
     if (checkAuthInProgress.current) {
-      console.log('⏳ Auth check already in progress, skipping...');
       return;
     }
 
     // Проверяем дебаунсинг
     if (now - lastCheckTime.current < CHECK_AUTH_DEBOUNCE) {
-      console.log('🔐 Auth check too frequent, skipping...');
       return;
     }
 
@@ -117,7 +125,54 @@ export function AuthProvider({ children }: AuthProviderProps) {
       dispatch({ type: 'SET_LOADING', payload: false });
       checkAuthInProgress.current = false;
     }
-  };
+  }, []);
+
+  // Проверка авторизации для неавторизованных пользователей
+  const checkAuthForUnauthenticated = useCallback(async () => {
+    // Если пользователь уже авторизован, не делаем запросы
+    if (currentAuthState.current.isAuthenticated && currentAuthState.current.user) {
+      return;
+    }
+
+    const now = Date.now();
+
+    // Проверяем, не слишком ли часто отправляем запросы /me
+    if (now - lastMeRequestTime.current < ME_REQUEST_INTERVAL) {
+      return;
+    }
+
+    // Проверяем, не идет ли уже проверка
+    if (checkAuthInProgress.current) {
+      return;
+    }
+
+    try {
+      checkAuthInProgress.current = true;
+      lastMeRequestTime.current = now;
+
+      console.log('🔐 Checking authentication for unauthenticated user...');
+      const response = await authAPI.me();
+
+      // Получаем актуальный max_score
+      try {
+        const maxScoreResponse = await leaderboardAPI.getMyMaxScore();
+        const userWithUpdatedScore = {
+          ...response.data,
+          max_score: maxScoreResponse.data.max_score,
+        };
+        dispatch({ type: 'SET_USER', payload: userWithUpdatedScore });
+        console.log('✅ User authenticated successfully');
+      } catch (maxScoreError) {
+        console.warn('Failed to get max score, using default:', maxScoreError);
+        dispatch({ type: 'SET_USER', payload: response.data });
+      }
+    } catch (error: any) {
+      console.log('🔐 User still not authenticated:', error.response?.status || error.message);
+      // Не устанавливаем пользователя в null, так как он уже null
+    } finally {
+      checkAuthInProgress.current = false;
+    }
+  }, []);
 
   // Вход
   const login = async (data: UserLogin) => {
@@ -174,6 +229,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Сбрасываем состояние проверки авторизации
       checkAuthInProgress.current = false;
       lastCheckTime.current = 0;
+      lastMeRequestTime.current = 0;
     }
   };
 
@@ -201,7 +257,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Проверяем авторизацию при загрузке приложения
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
+
+  // Периодическая проверка авторизации каждые 0.1 секунды
+  useEffect(() => {
+    // Очищаем предыдущий интервал
+    if (authCheckIntervalRef.current) {
+      clearInterval(authCheckIntervalRef.current);
+    }
+
+    // Создаем новый интервал
+    authCheckIntervalRef.current = setInterval(() => {
+      // Проверяем состояние авторизации каждые 0.1 секунды
+      if (!currentAuthState.current.isAuthenticated || !currentAuthState.current.user) {
+        // Если пользователь не авторизован, пытаемся отправить запрос /me каждые 5 секунд
+        checkAuthForUnauthenticated();
+      }
+    }, AUTH_CHECK_INTERVAL);
+
+    // Очистка при размонтировании
+    return () => {
+      if (authCheckIntervalRef.current) {
+        clearInterval(authCheckIntervalRef.current);
+        authCheckIntervalRef.current = null;
+      }
+    };
+  }, [checkAuthForUnauthenticated]);
 
   // Слушаем события logout из API клиента
   useEffect(() => {
@@ -211,6 +292,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Сбрасываем состояние проверки авторизации
       checkAuthInProgress.current = false;
       lastCheckTime.current = 0;
+      lastMeRequestTime.current = 0;
     };
 
     window.addEventListener('auth:logout', handleLogoutEvent);
