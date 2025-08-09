@@ -4,10 +4,12 @@ from contextlib import contextmanager
 from typing import Any
 
 import aiohttp
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 
+from backend.utils.auth import set_tokens_to_cookies
 from backend.logger import get_logger
 from backend.schemas import CloudFile, OAuth2TokenData, OAuth2UserData
+from backend.dao.user import UserDAO
 
 logger = get_logger(__name__)
 
@@ -161,9 +163,9 @@ class OAuth2Provider(ABC):
                 data = await response.json()
                 return self.parse_user_data(data)
 
-    async def authenticate(
+    async def get_oauth2_user_data(
         self, code: str, state: str
-    ) -> tuple[OAuth2UserData, list[CloudFile]]:
+    ) -> OAuth2UserData:
         """Полный процесс аутентификации"""
         from backend.oauth2.state_storage import state_storage
 
@@ -184,10 +186,13 @@ class OAuth2Provider(ABC):
                 user_data = await self.get_user_data(token_data.access_token)
 
             # Получаем файлы из облачного хранилища
+            # Чисто для примера, в будущем будет использоваться для получения файлов
+            # из облачного хранилища по сторонему АПИ и токену
             try:
                 cloud_files = await self.get_cloud_files(
                     token_data.access_token
                 )
+                logger.info("Found %d cloud files", len(cloud_files))
             except Exception as e:
                 logger.warning(
                     "Failed to get cloud files from %s: %s",
@@ -196,4 +201,25 @@ class OAuth2Provider(ABC):
                 )
                 cloud_files = []
 
-            return user_data, cloud_files
+            return user_data
+
+    async def authenticate_by_user_data(
+        self, user_data: OAuth2UserData, response: Response
+    ) -> dict[str, str]:
+        """Аутентификация пользователя"""
+
+        # Проверяем есть ли пользователь в нашей базе данных
+        user = await UserDAO.get_one_or_none(email=user_data.email)
+        if not user:
+            user = await UserDAO.create(
+                username=user_data.username,
+                email=user_data.email,
+                hashed_password=None,
+            )
+
+        access_token, refresh_token = await set_tokens_to_cookies(response, user)
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+        }

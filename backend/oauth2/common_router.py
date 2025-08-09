@@ -1,6 +1,6 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body, HTTPException, Query
+from fastapi import APIRouter, Body, HTTPException, Query, Response
 from fastapi.responses import RedirectResponse
 
 from backend.logger import get_logger
@@ -63,7 +63,8 @@ async def handle_oauth_callback(
     provider: str,
     code: Annotated[str, Body()],
     state: Annotated[str, Body()],
-) -> dict[str, Any]:
+    response: Response
+) -> dict[str, str]:
     """
     Обработать callback от OAuth2 провайдера
 
@@ -87,35 +88,11 @@ async def handle_oauth_callback(
 
     try:
         # Выполняем аутентификацию
-        user_data, cloud_files = await oauth_provider.authenticate(code, state)
+        user_data = await oauth_provider.get_oauth2_user_data(code, state)
 
         logger.info("Authentication successful for %s: %s", provider, user_data.email)
-        logger.info("Found %d cloud files", len(cloud_files))
 
-        return {
-            "provider": provider,
-            "user": {
-                "provider_id": user_data.provider_id,
-                "email": user_data.email,
-                "first_name": user_data.first_name,
-                "last_name": user_data.last_name,
-                "username": user_data.username,
-                "avatar_url": user_data.avatar_url,
-                "provider_name": user_data.provider_name,
-            },
-            "cloud_files": [
-                {
-                    "name": file.name,
-                    "id": file.id,
-                    "size": file.size,
-                    "mime_type": file.mime_type,
-                    "modified_time": file.modified_time,
-                    "download_url": file.download_url,
-                }
-                for file in cloud_files
-            ],
-            "files_count": len(cloud_files),
-        }
+        return await oauth_provider.authenticate_by_user_data(user_data, response)
 
     except Exception as e:
         logger.error("OAuth authentication failed for %s: %s", provider, str(e))

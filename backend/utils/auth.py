@@ -22,7 +22,9 @@ def get_password_hash(password: str) -> str:
     return str(pwd_context.hash(password))
 
 
-def verify_password(password: str, hashed_password: str) -> bool:
+def verify_password(password: str, hashed_password: str | None) -> bool:
+    if not hashed_password:
+        return False
     return bool(pwd_context.verify(password, hashed_password))
 
 

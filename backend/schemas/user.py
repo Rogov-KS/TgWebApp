@@ -8,10 +8,7 @@ class User(BaseModel):
     telegram_id: int | None = None
     email: str | None = None
     username: str | None = None
-    hashed_password: str
-    first_name: str | None = None
-    last_name: str | None = None
-    language_code: str | None = None
+    hashed_password: str | None = None
     is_bot: bool = False
     is_active: bool = True
     max_score: int = 0

@@ -26,10 +26,7 @@ class User(Base):
     username: Mapped[str | None] = mapped_column(
         String(255), unique=True, index=True, nullable=True
     )
-    hashed_password: Mapped[str] = mapped_column(String(255))
-    first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    last_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    language_code: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    hashed_password: Mapped[str | None] = mapped_column(String(255), nullable=True)
     is_bot: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     max_score: Mapped[int] = mapped_column(
