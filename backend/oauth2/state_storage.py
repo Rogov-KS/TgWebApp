@@ -1,6 +1,6 @@
 import secrets
 from typing import Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 from backend.logger import get_logger
 
@@ -20,7 +20,7 @@ class StateStorage:
         state = secrets.token_urlsafe(32)
         self._states[state] = {
             "provider": provider,
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
             "used": False
         }
         logger.info("Generated state for %s: %s", provider, state)
@@ -50,7 +50,7 @@ class StateStorage:
             return False
 
         # Проверяем время жизни (5 минут)
-        if datetime.utcnow() - state_data["created_at"] > timedelta(minutes=5):
+        if datetime.now(timezone.utc) - state_data["created_at"] > timedelta(minutes=5):
             logger.warning("State expired: %s", state)
             return False
 
@@ -81,7 +81,7 @@ class StateStorage:
 
     def cleanup_expired_states(self) -> None:
         """Очищает истекшие state"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         expired_states = [
             state for state, data in self._states.items()
             if now - data["created_at"] > timedelta(minutes=10)

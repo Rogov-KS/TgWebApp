@@ -12,9 +12,9 @@
 - Добавить `REFRESH_TOKEN_EXPIRE_DAYS: int = 30`
 - Добавить `REFRESH_TOKEN_COOKIE_NAME: str = "refresh_token"`
 
-### 1.2. Создание модели RefreshToken
+### 1.2. Создание модели OAuth2Token
 **Файл: `backend/models/refresh_token.py`**
-- Создать модель `RefreshToken` с полями:
+- Создать модель `OAuth2Token` с полями:
   - `id` (Integer, primary key)
   - `token` (String, unique, indexed)
   - `user_id` (Integer, ForeignKey к users.id)
@@ -24,12 +24,12 @@
 
 ### 1.3. Обновление модели User
 **Файл: `backend/models/user.py`**
-- Добавить связь `refresh_tokens: Mapped[list["RefreshToken"]]`
+- Добавить связь `refresh_tokens: Mapped[list["OAuth2Token"]]`
 - Добавить relationship с back_populates
 
-### 1.4. Создание DAO для RefreshToken
+### 1.4. Создание DAO для OAuth2Token
 **Файл: `backend/dao/refresh_token.py`**
-- Создать `Oauth2TokenDAO` с методами:
+- Создать `OAuth2TokenDAO` с методами:
   - `create()`
   - `get_one_or_none()`
   - `get_many()`
@@ -96,7 +96,7 @@
 - `setCookie(name: string, value: string)` - установка cookie
 
 #### Расширить authAPI:
-- Добавить метод `refresh(refreshToken: string)`
+- Добавить метод `refresh(OAuth2Token: string)`
 
 ### 2.3. Обновление AuthContext
 **Файл: `frontend/src/contexts/AuthContext.tsx`**
@@ -133,9 +133,9 @@
 
 ### Этап 1: Backend базовая функциональность
 1. Обновить конфигурацию
-2. Создать модель RefreshToken
+2. Создать модель OAuth2Token
 3. Обновить модель User
-4. Создать DAO для RefreshToken
+4. Создать DAO для OAuth2Token
 5. Добавить базовые функции в auth.py
 6. Создать миграцию
 

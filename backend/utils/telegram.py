@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 import hmac
 import json
@@ -43,7 +43,7 @@ def validate_auth_date(auth_date: int) -> None:
     Raises:
         TelegramAuthExpiredException: Если время истекло
     """
-    current_time = datetime.utcnow().timestamp()
+    current_time = datetime.now(timezone.utc).timestamp()
     if current_time - auth_date > settings.TELEGRAM_AUTH_TIMEOUT:
         raise TelegramAuthExpiredException()
 

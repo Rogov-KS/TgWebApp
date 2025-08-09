@@ -1,12 +1,13 @@
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from jose import jwt
 from passlib.context import CryptContext
 from pydantic import EmailStr
+from fastapi import Response
 
 from backend.core.config import settings
-from backend.dao.oauth2_token import Oauth2TokenDAO
+from backend.dao.refresh_token import RefreshTokenDAO
 from backend.dao.user import UserDAO
 from backend.models.user import User
 from backend.logger import get_logger
@@ -60,7 +61,7 @@ async def authenticate_user(
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(
+    expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({"exp": expire})
@@ -76,24 +77,53 @@ def create_refresh_token(user_id: int) -> tuple[str, datetime]:
     token = secrets.token_urlsafe(32)
 
     # Вычисляем время истечения
-    expire = datetime.utcnow() + timedelta(
+    expire = datetime.now(timezone.utc) + timedelta(
         days=settings.REFRESH_TOKEN_EXPIRE_DAYS
     )
 
     return token, expire
 
 
+async def set_tokens_to_cookies(response: Response, user: User) -> tuple[str, str]:
+    # Создаем access token
+    access_token = create_access_token(data={"sub": str(user.id)})
+
+    # Создаем refresh token
+    refresh_token = await create_user_refresh_token(user.id)
+
+    # Устанавливаем cookies
+    response.set_cookie(
+        settings.ACCESS_TOKEN_COOKIE_NAME,
+        access_token,
+        httponly=True,
+        samesite="none",
+        secure=True,
+    )
+    response.set_cookie(
+        settings.REFRESH_TOKEN_COOKIE_NAME,
+        refresh_token,
+        httponly=True,
+        samesite="none",
+        secure=True,
+        path="/auth/refresh",
+    )
+
+    logger.info("Access token: %s", access_token)
+    logger.info("Refresh token created for user: %s", user.id)
+
+    return access_token, refresh_token
+
+
 async def verify_refresh_token(token: str) -> User | None:
     """Проверить refresh token и вернуть пользователя."""
-    refresh_token = await Oauth2TokenDAO.get_by_token(token)
-
+    refresh_token = await RefreshTokenDAO.get_by_token(token)
+    logger.info("get info about refresh_token: %s", refresh_token)
     if not refresh_token:
         return None
 
     # Проверяем, что токен активен и не истек
-    if (not refresh_token.is_active or
-            refresh_token.expires_at is None or
-            refresh_token.expires_at <= datetime.utcnow()):
+    if (refresh_token.is_revoked or
+            refresh_token.expires_at <= datetime.now(timezone.utc)):
         return None
 
     # Получаем пользователя
@@ -103,36 +133,33 @@ async def verify_refresh_token(token: str) -> User | None:
 
 async def revoke_refresh_token(token: str) -> None:
     """Отозвать refresh token."""
-    await Oauth2TokenDAO.revoke_by_token(token)
+    await RefreshTokenDAO.revoke_by_token(token)
 
 
 async def revoke_user_refresh_tokens(user_id: int) -> None:
     """Отозвать все refresh токены пользователя."""
-    await Oauth2TokenDAO.revoke_all_by_user_id(user_id)
+    await RefreshTokenDAO.revoke_all_by_user_id(user_id)
 
 
 async def create_user_refresh_token(user_id: int) -> str:
     """Создать refresh token для пользователя с ограничением количества."""
     # Проверяем количество активных токенов
-    active_count = await Oauth2TokenDAO.count_active_by_user_id(user_id)
+    active_count = await RefreshTokenDAO.count_active_by_user_id(user_id)
 
     if active_count >= settings.MAX_REFRESH_TOKENS_PER_USER:
         # Удаляем самый старый токен
-        active_tokens = await Oauth2TokenDAO.get_active_by_user_id(user_id)
+        active_tokens = await RefreshTokenDAO.get_active_by_user_id(user_id)
         if active_tokens:
             oldest_token = min(active_tokens, key=lambda t: t.created_at)
-            if oldest_token.refresh_token:
-                await Oauth2TokenDAO.revoke_by_token(
-                    oldest_token.refresh_token
-                )
+            await RefreshTokenDAO.revoke_by_token(oldest_token.token)
 
     # Создаем новый токен
     token, expires_at = create_refresh_token(user_id)
 
     # Сохраняем в базу
-    await Oauth2TokenDAO.create_refresh_token(
+    await RefreshTokenDAO.create_refresh_token(
         user_id=user_id,
-        refresh_token=token,
+        token=token,
         expires_at=expires_at
     )
 

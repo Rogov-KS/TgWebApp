@@ -8,6 +8,7 @@ from backend.core.database import Base
 if TYPE_CHECKING:
     from backend.models.game_session import GameSession
     from backend.models.oauth2_token import OAuth2Token
+    from backend.models.refresh_token import RefreshToken
 
 
 class User(Base):
@@ -47,6 +48,9 @@ class User(Base):
     )
     oauth2_tokens: Mapped[list["OAuth2Token"]] = relationship(
         "OAuth2Token", back_populates="user"
+    )
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+        "RefreshToken", back_populates="user"
     )
 
     def __repr__(self) -> str:

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class OAuth2Token(Base):
-    """Модель для хранения OAuth2 токенов."""
+    """Модель для хранения OAuth2 токенов от сторонних провайдеров."""
 
     __tablename__ = "oauth2_tokens"
 
