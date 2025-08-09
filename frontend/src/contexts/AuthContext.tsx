@@ -110,7 +110,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const maxScoreResponse = await leaderboardAPI.getMyMaxScore();
         const userWithUpdatedScore = {
           ...response.data,
-          max_score: maxScoreResponse.data.max_score,
+          max_score: maxScoreResponse.data,
         };
         dispatch({ type: 'SET_USER', payload: userWithUpdatedScore });
         console.log('✅ User authenticated successfully');
@@ -158,7 +158,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const maxScoreResponse = await leaderboardAPI.getMyMaxScore();
         const userWithUpdatedScore = {
           ...response.data,
-          max_score: maxScoreResponse.data.max_score,
+          max_score: maxScoreResponse.data,
         };
         dispatch({ type: 'SET_USER', payload: userWithUpdatedScore });
         console.log('✅ User authenticated successfully');
@@ -239,20 +239,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   // Обновление max_score пользователя
-  const updateUserMaxScore = async () => {
-    if (!state.isAuthenticated || !state.user) return;
+  const updateUserMaxScore = useCallback(async () => {
+    if (!state.isAuthenticated || !state.user) {
+      console.log('🔐 Cannot update max score: user not authenticated');
+      return;
+    }
 
     try {
+      console.log('🔄 Updating user max score...');
       const maxScoreResponse = await leaderboardAPI.getMyMaxScore();
+
+      // Проверяем, что получили корректный ответ
+      if (maxScoreResponse === null || maxScoreResponse === undefined) {
+        console.warn('❌ Invalid max score response:', maxScoreResponse);
+        return;
+      }
+
+      const newMaxScore = maxScoreResponse.data;
+
+      // Проверяем, что max_score действительно изменился
+      if (state.user.max_score === newMaxScore) {
+        console.log('✅ Max score already up to date:', newMaxScore);
+        return;
+      }
+
       const updatedUser = {
         ...state.user,
-        max_score: maxScoreResponse.data.max_score,
+        max_score: newMaxScore,
       };
+
       dispatch({ type: 'SET_USER', payload: updatedUser });
+      console.log('✅ User max score updated successfully:', newMaxScore);
     } catch (error) {
-      console.warn('Failed to update max score:', error);
+      console.error('❌ Failed to update max score:', error);
     }
-  };
+  }, [state.isAuthenticated, state.user]);
 
   // Проверяем авторизацию при загрузке приложения
   useEffect(() => {

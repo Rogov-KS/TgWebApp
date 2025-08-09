@@ -169,7 +169,7 @@ export const gameAPI = {
 
 // API для лидерборда
 export const leaderboardAPI = {
-  getMyMaxScore: () => apiClient.get<{ max_score: number }>('/leaderboard/my_max_score'),
+  getMyMaxScore: () => apiClient.get<number>('/leaderboard/my_max_score'),
   getLeaderboard: () => apiClient.get<LeaderboardEntry[]>('/leaderboard/'),
 };
 
