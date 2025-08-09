@@ -3,6 +3,7 @@ from .game_session import (
     GameSessionBase,
     GameSessionCreate,
 )
+from .oauth2 import CloudFile, OAuth2TokenData, OAuth2UserData
 from .user import User, UserAuth
 
 __all__ = [
@@ -11,4 +12,7 @@ __all__ = [
     "GameSessionCreate",
     "User",
     "UserAuth",
+    "OAuth2UserData",
+    "OAuth2TokenData",
+    "CloudFile",
 ]

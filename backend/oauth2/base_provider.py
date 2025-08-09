@@ -1,43 +1,15 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass
 from typing import Any
 
 import aiohttp
 from fastapi import HTTPException
 
 from backend.logger import get_logger
-from backend.oauth2_integrations import CloudFile
+from backend.schemas import CloudFile, OAuth2TokenData, OAuth2UserData
 
 logger = get_logger(__name__)
-
-
-@dataclass
-class OAuth2UserData:
-    """Стандартизированные данные пользователя от OAuth2 провайдера"""
-
-    provider_id: str  # ID пользователя в системе провайдера
-    email: str
-    first_name: str
-    last_name: str | None = None
-    username: str | None = None
-    avatar_url: str | None = None
-    provider_name: str = ""
-    raw_data: dict[str, Any] | None = None
-
-
-@dataclass
-class OAuth2TokenData:
-    """Данные токенов от OAuth2 провайдера"""
-
-    access_token: str
-    refresh_token: str | None = None
-    token_type: str = "Bearer"
-    expires_in: int | None = None
-    scope: str | None = None
-    id_token: str | None = None
-    raw_data: dict[str, Any] | None = None
 
 
 class OAuth2Provider(ABC):
@@ -172,7 +144,8 @@ class OAuth2Provider(ABC):
                 if response.status != 200:
                     error_text = await response.text()
                     logger.error(
-                        "Failed to get user data from %s. " "Status: %d, Response: %s",
+                        "Failed to get user data from %s. "
+                        "Status: %d, Response: %s",
                         self.provider_name,
                         response.status,
                         error_text,
@@ -212,10 +185,14 @@ class OAuth2Provider(ABC):
 
             # Получаем файлы из облачного хранилища
             try:
-                cloud_files = await self.get_cloud_files(token_data.access_token)
+                cloud_files = await self.get_cloud_files(
+                    token_data.access_token
+                )
             except Exception as e:
                 logger.warning(
-                    "Failed to get cloud files from %s: %s", self.provider_name, e
+                    "Failed to get cloud files from %s: %s",
+                    self.provider_name,
+                    e,
                 )
                 cloud_files = []
 

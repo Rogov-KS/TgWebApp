@@ -4,7 +4,8 @@ import aiohttp
 from typing import List
 
 from backend.logger import get_logger
-from backend.oauth2_integrations.base import CloudIntegration, CloudFile
+from backend.oauth2_integrations.base import CloudIntegration
+from backend.schemas import CloudFile
 
 logger = get_logger(__name__)
 

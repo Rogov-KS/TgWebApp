@@ -4,7 +4,8 @@ import aiohttp
 from typing import List
 
 from backend.logger import get_logger
-from backend.oauth2_integrations.base import CloudIntegration, CloudFile
+from backend.oauth2_integrations.base import CloudIntegration
+from backend.schemas import CloudFile
 
 logger = get_logger(__name__)
 
@@ -48,10 +49,13 @@ class GoogleDriveIntegration(CloudIntegration):
                     CloudFile(
                         name=file.get("name", ""),
                         id=file.get("id"),
-                        size=int(file.get("size", 0)) if file.get("size") else None,
+                        size=(
+                            int(file.get("size", 0))
+                            if file.get("size") else None
+                        ),
                         mime_type=file.get("mimeType"),
                         modified_time=file.get("modifiedTime"),
-                        download_url=file.get("webViewLink")
+                        download_url=file.get("webViewLink"),
                     )
                     for file in files
                 ]
