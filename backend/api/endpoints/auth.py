@@ -55,12 +55,16 @@ async def register(user_data: UserAuth) -> User:
 
     logger.info("Creating user: %s", user_data)
 
+    try:
+        user = await UserDAO.create(
+            username=user_data.username,
+            email=user_data.email,
+            hashed_password=hashed_password,
+        )
+    except Exception as e:
+        logger.error("Error creating user: %s", e)
+        raise e
 
-    user = await UserDAO.create(
-        username=user_data.username,
-        email=user_data.email,
-        hashed_password=hashed_password,
-    )
     logger.info("User created: %s", user)
 
     try:
