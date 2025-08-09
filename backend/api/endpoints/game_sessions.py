@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from backend.core.dependecies import get_current_user
 from backend.dao.game_session import GameSessionDAO
+from backend.dao.user import UserDAO
 from backend.logger import get_logger
 from backend.schemas.game_session import (
     GameSession,
@@ -52,6 +53,14 @@ async def create_game_session(
             detail="Failed to create game session",
         )
     logger.info("Created game session %s", game_session)
+
+    # Update user max score
+    if game_session.score > user.max_score:
+        await UserDAO.update(
+            filters={"id": user.id},
+            update_data={"max_score": game_session.score},
+        )
+
     return game_session
 
 

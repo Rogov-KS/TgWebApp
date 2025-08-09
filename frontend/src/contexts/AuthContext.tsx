@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useRef } from 'react';
 import { authAPI, leaderboardAPI } from '../api/client';
 import type { User, UserAuth, UserLogin, AuthState } from '../types/auth';
 
@@ -62,11 +62,39 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const checkAuthInProgress = useRef(false);
+  const lastCheckTime = useRef<number>(0);
+  const CHECK_AUTH_DEBOUNCE = 2000; // 2 секунды между запросами
 
-  // Проверка авторизации при загрузке
+  // Проверка авторизации с дебаунсингом
   const checkAuth = async () => {
+    // Если пользователь уже авторизован, не делаем повторные запросы
+    if (state.isAuthenticated && state.user) {
+      console.log('🔐 User already authenticated, skipping checkAuth');
+      return;
+    }
+
+    const now = Date.now();
+
+    // Проверяем, не слишком ли часто вызывается функция
+    if (checkAuthInProgress.current) {
+      console.log('⏳ Auth check already in progress, skipping...');
+      return;
+    }
+
+    // Проверяем дебаунсинг
+    if (now - lastCheckTime.current < CHECK_AUTH_DEBOUNCE) {
+      console.log('🔐 Auth check too frequent, skipping...');
+      return;
+    }
+
     try {
+      checkAuthInProgress.current = true;
+      lastCheckTime.current = now;
+
       dispatch({ type: 'SET_LOADING', payload: true });
+      console.log('🔐 Checking authentication...');
+
       const response = await authAPI.me();
 
       // Получаем актуальный max_score
@@ -77,19 +105,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
           max_score: maxScoreResponse.data.max_score,
         };
         dispatch({ type: 'SET_USER', payload: userWithUpdatedScore });
+        console.log('✅ User authenticated successfully');
       } catch (maxScoreError) {
         console.warn('Failed to get max score, using default:', maxScoreError);
         dispatch({ type: 'SET_USER', payload: response.data });
       }
-    } catch (error) {
-      console.log('🔐 User not authenticated');
+    } catch (error: any) {
+      console.log('🔐 User not authenticated:', error.response?.status || error.message);
       dispatch({ type: 'SET_USER', payload: null });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
+      checkAuthInProgress.current = false;
     }
   };
 
-    // Вход
+  // Вход
   const login = async (data: UserLogin) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
@@ -106,7 +136,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-      // Регистрация
+  // Регистрация
   const register = async (data: UserAuth) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
@@ -141,6 +171,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('Error during logout:', error);
     } finally {
       dispatch({ type: 'LOGOUT' });
+      // Сбрасываем состояние проверки авторизации
+      checkAuthInProgress.current = false;
+      lastCheckTime.current = 0;
     }
   };
 
@@ -149,7 +182,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     dispatch({ type: 'SET_ERROR', payload: null });
   };
 
-    // Обновление max_score пользователя
+  // Обновление max_score пользователя
   const updateUserMaxScore = async () => {
     if (!state.isAuthenticated || !state.user) return;
 
@@ -157,7 +190,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const maxScoreResponse = await leaderboardAPI.getMyMaxScore();
       const updatedUser = {
         ...state.user,
-        max_score: maxScoreResponse.data,
+        max_score: maxScoreResponse.data.max_score,
       };
       dispatch({ type: 'SET_USER', payload: updatedUser });
     } catch (error) {
@@ -173,7 +206,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Слушаем события logout из API клиента
   useEffect(() => {
     const handleLogoutEvent = () => {
+      console.log('🔐 Logout event received from API client');
       dispatch({ type: 'LOGOUT' });
+      // Сбрасываем состояние проверки авторизации
+      checkAuthInProgress.current = false;
+      lastCheckTime.current = 0;
     };
 
     window.addEventListener('auth:logout', handleLogoutEvent);
