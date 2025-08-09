@@ -60,7 +60,7 @@ class OAuth2Provider(ABC):
         """Параметры для запроса токенов"""
 
     @abstractmethod
-    def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
+    async def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
         """Парсинг данных пользователя из ответа провайдера"""
 
     @abstractmethod
@@ -161,7 +161,7 @@ class OAuth2Provider(ABC):
                     )
 
                 data = await response.json()
-                return self.parse_user_data(data)
+                return await self.parse_user_data(data)
 
     async def get_oauth2_user_data(
         self, code: str, state: str
@@ -180,7 +180,7 @@ class OAuth2Provider(ABC):
             # Получаем данные пользователя
             if self.provider_name == "google" and token_data.id_token:
                 # Для Google используем id_token
-                user_data = self.parse_user_data(token_data.raw_data or {})
+                user_data = await self.parse_user_data(token_data.raw_data or {})
             else:
                 # Для других провайдеров делаем запрос к API
                 user_data = await self.get_user_data(token_data.access_token)

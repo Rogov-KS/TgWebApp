@@ -64,7 +64,7 @@ class YandexOAuth2Provider(OAuth2Provider):
             "code": code,
         }
 
-    def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
+    async def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
         """Парсинг данных пользователя из ответа Yandex API"""
         return OAuth2UserData(
             provider_id=raw_data.get("id", ""),

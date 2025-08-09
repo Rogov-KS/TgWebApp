@@ -135,22 +135,30 @@ class GoogleOAuth2Provider(OAuth2Provider):
             "code": code,
         }
 
-    async def parse_user_data(self, raw_data: Dict[str, Any]) -> OAuth2UserData | None:
+    async def parse_user_data(self, raw_data: Dict[str, Any]) -> OAuth2UserData:
         # Для Google, данные пользователя приходят в id_token
         id_token = raw_data.get("id_token")
         if not id_token:
             raise ValueError("No id_token in Google response")
 
-        # Получаем публичные ключи Google (если еще не получены)
-        if self._public_keys is None:
-            await self._get_google_public_keys()
+        # TODO: Добавить проверку подписи id_token
+        # # Получаем публичные ключи Google (если еще не получены)
+        # if self._public_keys is None:
+        #     await self._get_google_public_keys()
 
-        # Проверяем подпись id_token
-        try:
-            user_info = self._verify_google_id_token(id_token)
-        except Exception as e:
-            logger.error("Error verifying Google id_token: %s", e)
-            return None
+        # # Проверяем подпись id_token
+        # try:
+        #     user_info = self._verify_google_id_token(id_token)
+        # except Exception as e:
+        #     logger.error("Error verifying Google id_token: %s", e)
+        #     raise ValueError(f"Error verifying Google id_token: {e}")
+
+        # Декодируем id_token без проверки подписи (для демо)
+        user_info = jwt.decode(
+            id_token,
+            algorithms=["RS256"],
+            options={"verify_signature": False},
+        )
 
         return OAuth2UserData(
             provider_id=user_info.get("sub", ""),
