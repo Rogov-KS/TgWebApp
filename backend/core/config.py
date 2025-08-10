@@ -37,6 +37,22 @@ class Settings(BaseSettings):
     CORS_ALLOW_METHODS: Annotated[list[str], NoDecode]
     CORS_ALLOW_HEADERS: Annotated[list[str], NoDecode]
 
+    # Redis настройки
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_PASSWORD: str | None = None
+
+    # Celery настройки
+    CELERY_BROKER_URL: str | None = None
+    CELERY_RESULT_BACKEND: str | None = None
+
+    # SMTP настройки
+    SMTP_HOST: str
+    SMTP_PORT: int = 587
+    SMTP_USER: str
+    SMTP_PASS: str
+
     # Кастомный валидатор для разбиения строки в список
     @field_validator(
         "CORS_ORIGINS",
@@ -56,6 +72,23 @@ class Settings(BaseSettings):
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
 
+    @property
+    def REDIS_URL(self) -> str:  # noqa
+        if self.REDIS_PASSWORD:
+            return (
+                f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:"
+                f"{self.REDIS_PORT}/{self.REDIS_DB}"
+            )
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
+    @property
+    def CELERY_BROKER_URL_PROPERTY(self) -> str:  # noqa
+        return self.CELERY_BROKER_URL or self.REDIS_URL
+
+    @property
+    def CELERY_RESULT_BACKEND_PROPERTY(self) -> str:  # noqa
+        return self.CELERY_RESULT_BACKEND or self.REDIS_URL
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -68,6 +101,14 @@ class Settings(BaseSettings):
             "allow_credentials": self.CORS_ALLOW_CREDENTIALS,
             "allow_methods": self.CORS_ALLOW_METHODS,
             "allow_headers": self.CORS_ALLOW_HEADERS,
+        }
+
+    def get_smtp_attrs(self) -> dict:
+        return {
+            "host": self.SMTP_HOST,
+            "port": self.SMTP_PORT,
+            "user": self.SMTP_USER,
+            "pass": self.SMTP_PASS,
         }
 
 

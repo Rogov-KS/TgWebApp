@@ -10,6 +10,8 @@ if [[ ":$PYTHONPATH:" != *":$(pwd):"* ]]; then
     export PYTHONPATH=$PYTHONPATH:$(pwd)
 fi
 
+source .venv/bin/activate
+
 clear
 
 python3 backend/main.py

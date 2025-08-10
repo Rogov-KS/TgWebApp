@@ -21,6 +21,7 @@ from backend.utils.auth import (
     is_valid_email,
     set_tokens_to_cookies,
 )
+from backend.celery_app.utils.email import send_welcome_email_task
 
 logger = get_logger(__name__)
 
@@ -72,6 +73,14 @@ async def register(user_data: UserAuth) -> User:
         logger.error("Validation error: %s", e)
         await UserDAO.delete(id=user.id)
         raise e
+
+    # Отправляем приветственное письмо асинхронно
+    if user_data.email:
+        logger.info("Try to send welcome email to %s", user_data.email)
+        await send_welcome_email_task(
+            user_email=user_data.email,
+            username=user_data.username or user_data.email
+        )
 
     return model_user
 

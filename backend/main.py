@@ -4,7 +4,7 @@ import json
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api.endpoints import auth, game_sessions, leaderboard
+from backend.api.endpoints import auth, game_sessions, leaderboard, test
 from backend.core.config import settings
 from backend.logger import get_logger, setup_logging
 from backend.oauth2 import router as oauth2_router
@@ -24,6 +24,7 @@ app.add_middleware(
 )
 
 # Подключаем роутеры
+app.include_router(test.router)
 app.include_router(oauth2_router)
 app.include_router(auth.router)
 # app.include_router(users.router) # noqa
@@ -44,6 +45,7 @@ if __name__ == "__main__":
     setup_logging()
     # logger.info("sys.path: %s", sys.path)
     # logger.info("settings config[CORS]: %s", json.dumps(settings.get_cors_attrs(), indent=4))
+    logger.info("settings config[SMTP]: %s", json.dumps(settings.get_smtp_attrs(), indent=4))
 
     logger.info("Starting the application...")
     import uvicorn
