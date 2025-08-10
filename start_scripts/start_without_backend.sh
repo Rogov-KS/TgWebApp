@@ -39,11 +39,11 @@ echo "Telegram bot запущен с PID: $BOT_PID"
 # Небольшая задержка для запуска telegram bot
 sleep 2
 
-# Запуск Celery worker в фоновом режиме
-echo "📧 Запуск Celery worker..."
+# Запуск Celery в фоновом режиме
+echo "📧 Запуск Celery"
 ./start_scripts/start_celery.sh > /dev/null &
 CELERY_PID=$!
-echo "Celery worker запущен с PID: $CELERY_PID"
+echo "Celery запущен с PID: $CELERY_PID"
 
 # Небольшая задержка для запуска Celery
 sleep 2

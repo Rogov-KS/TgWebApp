@@ -25,6 +25,7 @@ dependencies = [
     "aiosmtplib>=4.0.1",
     "celery>=5.5.3",
     "flower>=2.0.1",
+    "fastapi-cache>=0.1.0",
 ]
 
 [project.optional-dependencies]
