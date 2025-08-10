@@ -10,7 +10,7 @@ from backend.utils.auth import set_tokens_to_cookies
 from backend.logger import get_logger
 from backend.schemas import CloudFile, OAuth2TokenData, OAuth2UserData
 from backend.dao.user import UserDAO
-from backend.celery_app.utils.email import send_welcome_email_task
+from backend.celery_app.tasks.email import send_welcome_email_task
 
 logger = get_logger(__name__)
 

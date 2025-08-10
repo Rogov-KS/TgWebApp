@@ -49,7 +49,7 @@ class Settings(BaseSettings):
 
     # SMTP настройки
     SMTP_HOST: str
-    SMTP_PORT: int = 587
+    SMTP_PORT: int
     SMTP_USER: str
     SMTP_PASS: str
 

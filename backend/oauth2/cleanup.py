@@ -6,7 +6,7 @@ from backend.oauth2.state_storage import state_storage
 logger = get_logger(__name__)
 
 
-async def cleanup_oauth_data():
+async def cleanup_oauth_data() -> None:
     """Периодическая очистка OAuth данных"""
     while True:
         try:

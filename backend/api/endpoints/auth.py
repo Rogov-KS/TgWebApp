@@ -21,7 +21,7 @@ from backend.utils.auth import (
     is_valid_email,
     set_tokens_to_cookies,
 )
-from backend.celery_app.utils.email import send_welcome_email_task
+from backend.celery_app.tasks.email import send_welcome_email_task
 
 logger = get_logger(__name__)
 

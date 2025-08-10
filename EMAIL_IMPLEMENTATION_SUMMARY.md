@@ -194,7 +194,7 @@ celery -A backend.celery_app.app inspect queues
 
 ### Использование утилит
 ```python
-from backend.utils.email import send_welcome_email_task
+from backend.tasks.email import send_welcome_email_task
 
 # Отправка приветственного письма
 await send_welcome_email_task(

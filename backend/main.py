@@ -16,7 +16,6 @@ app = FastAPI(title="TgWebApp API", version="1.0.0")
 # Настраиваем CORS
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=["http://localhost:3000", "http://localhost:5173", "https://mammal-vast-arguably.ngrok-free.app"],
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
     allow_methods=settings.CORS_ALLOW_METHODS,
@@ -35,7 +34,7 @@ logger = get_logger(__name__)
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     """Событие при запуске приложения"""
     logger.info("Starting OAuth cleanup task...")
     start_cleanup_task()
@@ -45,7 +44,7 @@ if __name__ == "__main__":
     setup_logging()
     # logger.info("sys.path: %s", sys.path)
     # logger.info("settings config[CORS]: %s", json.dumps(settings.get_cors_attrs(), indent=4))
-    logger.info("settings config[SMTP]: %s", json.dumps(settings.get_smtp_attrs(), indent=4))
+    # logger.info("settings config[SMTP]: %s", json.dumps(settings.get_smtp_attrs(), indent=4))
 
     logger.info("Starting the application...")
     import uvicorn

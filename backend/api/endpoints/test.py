@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import EmailStr
 
-from backend.celery_app.utils.email import send_welcome_email_task
+from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.logger import get_logger
 
 
