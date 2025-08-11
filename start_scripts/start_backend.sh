@@ -14,5 +14,6 @@ source .venv/bin/activate
 
 clear
 
-python3 backend/main.py
+uvicorn backend.main:app --reload
+# python3 backend/main.py
 # python3 backend/test_main.py

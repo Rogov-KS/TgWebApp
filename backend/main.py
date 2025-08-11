@@ -2,15 +2,9 @@ import sys
 import json
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
-import asyncio
-import time
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from redis import asyncio as aioredis
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
-from fastapi_cache.decorator import cache
 
 from backend.api.endpoints import auth, game_sessions, leaderboard, test
 from backend.core.config import settings

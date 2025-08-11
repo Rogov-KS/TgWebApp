@@ -25,6 +25,7 @@ async def get_leaderboard(
 
 
 @router.get("/my_max_score")
+@cache(expire=60)
 async def get_my_max_score(
     user: User = Depends(get_current_user),
 ) -> int | None:

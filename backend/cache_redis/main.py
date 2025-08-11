@@ -21,6 +21,8 @@ async def init_cache() -> None:
 
         FastAPICache.init(RedisBackend(redis), prefix="cache")
         logger.info("Redis cache initialized")
+
     except Exception as e:
+
         logger.error("Error initializing Redis cache: %s", str(e))
         raise
