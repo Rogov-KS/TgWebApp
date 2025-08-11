@@ -12,7 +12,6 @@ dependencies = [
     "sqlalchemy>=2.0.0",
     "alembic>=1.13.0",
     "psycopg2-binary>=2.9.0",
-    "redis>=5.0.0",
     "httpx>=0.25.0",
     "python-telegram-bot>=20.7",
     "asyncpg>=0.30.0",
@@ -22,10 +21,10 @@ dependencies = [
     "fastapi>=0.116.0",
     "pyjwt>=2.10.1",
     "jinja2>=3.1.6",
+    "aiohttp>=3.12.15",
     "aiosmtplib>=4.0.1",
     "celery>=5.5.3",
     "flower>=2.0.1",
-    "fastapi-cache>=0.1.0",
 ]
 
 [project.optional-dependencies]

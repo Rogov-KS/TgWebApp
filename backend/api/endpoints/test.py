@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from pydantic import EmailStr
+# from fastapi_cache.decorator import cache
 
 from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.logger import get_logger
@@ -23,3 +24,10 @@ async def send_email(email_to: EmailStr, username: str) -> dict[str, str]:
     )
 
     return {"message": "Email sent"}
+
+
+@router.get("/test_cache")
+# @cache(expire=60)
+async def get_cache() -> dict[str, str]:
+    """Тест кэша"""
+    return {"message": "Cache"}

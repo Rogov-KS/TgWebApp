@@ -1,5 +1,7 @@
 import sys
 import json
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +11,8 @@ from backend.core.config import settings
 from backend.logger import get_logger, setup_logging
 from backend.oauth2 import router as oauth2_router
 from backend.oauth2.cleanup import start_cleanup_task
+from backend.cache_redis.main import init_cache
+
 
 # Создаем экземпляр FastAPI
 app = FastAPI(title="TgWebApp API", version="1.0.0")
@@ -33,12 +37,15 @@ app.include_router(leaderboard.router)
 logger = get_logger(__name__)
 
 
-@app.on_event("startup")
-async def startup_event() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Событие при запуске приложения"""
     logger.info("Starting OAuth cleanup task...")
     start_cleanup_task()
-
+    init_cache()
+    yield
+    """Событие при завершении работы приложения"""
+    logger.info("Stopping OAuth cleanup task...")
 
 if __name__ == "__main__":
     setup_logging()

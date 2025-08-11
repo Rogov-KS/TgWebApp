@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+# from fastapi_cache.decorator import cache
 
 from backend.core.dependecies import get_current_user
 from backend.dao.game_session import GameSessionDAO
@@ -10,6 +11,7 @@ router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
 
 
 @router.get("/")
+# @cache(expire=60)
 async def get_leaderboard(
     limit: int = 10,
     offset: int = 0,
