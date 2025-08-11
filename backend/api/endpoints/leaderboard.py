@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
-# from fastapi_cache.decorator import cache
+from fastapi_cache.decorator import cache
+import asyncio
 
 from backend.core.dependecies import get_current_user
 from backend.dao.game_session import GameSessionDAO
@@ -11,13 +12,14 @@ router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
 
 
 @router.get("/")
-# @cache(expire=60)
+@cache(expire=60)
 async def get_leaderboard(
     limit: int = 10,
     offset: int = 0,
     sort_order: str = "desc",
 ) -> list[LeaderboardPlace]:
     """Получить топ игроков в рейтинге."""
+    await asyncio.sleep(3)
     top_scores = await get_db_leaderboard(limit, offset, sort_order)
     return top_scores
 

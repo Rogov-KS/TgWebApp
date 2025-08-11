@@ -1,10 +1,16 @@
 import sys
 import json
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from typing import AsyncIterator
+import asyncio
+import time
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from redis import asyncio as aioredis
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
 
 from backend.api.endpoints import auth, game_sessions, leaderboard, test
 from backend.core.config import settings
@@ -14,8 +20,24 @@ from backend.oauth2.cleanup import start_cleanup_task
 from backend.cache_redis.main import init_cache
 
 
+logger = get_logger(__name__)
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    """События при запуске и завершении работы приложения"""
+    # Событие при запуске приложения
+    logger.info("Starting OAuth cleanup task...")
+    start_cleanup_task()
+    await init_cache()
+
+    yield
+
+    # Событие при завершении работы приложения
+    logger.info("Stopping OAuth cleanup task...")
+
+
 # Создаем экземпляр FastAPI
-app = FastAPI(title="TgWebApp API", version="1.0.0")
+app = FastAPI(title="TgWebApp API", version="1.0.0", lifespan=lifespan)
 
 # Настраиваем CORS
 app.add_middleware(
@@ -34,18 +56,6 @@ app.include_router(auth.router)
 app.include_router(game_sessions.router)
 app.include_router(leaderboard.router)
 
-logger = get_logger(__name__)
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """Событие при запуске приложения"""
-    logger.info("Starting OAuth cleanup task...")
-    start_cleanup_task()
-    init_cache()
-    yield
-    """Событие при завершении работы приложения"""
-    logger.info("Stopping OAuth cleanup task...")
 
 if __name__ == "__main__":
     setup_logging()
