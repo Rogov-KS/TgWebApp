@@ -5,7 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 from aiosmtplib import SMTP
 
 from backend.core.config import settings
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
 

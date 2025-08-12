@@ -3,7 +3,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Body, HTTPException, Query, Response
 from fastapi.responses import RedirectResponse
 
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 from backend.oauth2.base_provider import OAuth2Provider
 from backend.oauth2.google.provider import google_provider
 from backend.oauth2.state_storage import state_storage

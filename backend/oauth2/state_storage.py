@@ -2,7 +2,7 @@ import secrets
 from typing import Dict
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
 

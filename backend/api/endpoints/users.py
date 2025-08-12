@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from backend.dao.user import UserDAO
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 from backend.schemas.user import User
 
 router = APIRouter(prefix="/users", tags=["Users"])

@@ -3,7 +3,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 
 from backend.core.config import settings
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
 

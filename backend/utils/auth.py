@@ -10,7 +10,7 @@ from backend.core.config import settings
 from backend.dao.refresh_token import RefreshTokenDAO
 from backend.dao.user import UserDAO
 from backend.models.user import User
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 
 
 logger = get_logger(__name__)
@@ -41,7 +41,19 @@ def is_valid_email(email: str) -> bool:
 async def authenticate_user(
     username_or_email: str, password: str
 ) -> User | None:
-    """Аутентификация пользователя по username или email."""
+    """
+    Аутентификация пользователя по username или email.
+    Если пользователь не найден, возвращает None.
+    Если пользователь найден, но пароль неверный, возвращает None.
+    Если пользователь найден и пароль верный, возвращает пользователя.
+
+    Args:
+        username_or_email: str - username или email пользователя
+        password: str - пароль пользователя
+
+    Returns:
+        User | None - пользователь или None, если пользователь не найден или пароль неверный
+    """
     user = None
 
     # Сначала проверяем, является ли введенная строка email

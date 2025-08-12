@@ -13,7 +13,7 @@ from backend.core.exception import (
     UserNotFoundException,
 )
 from backend.dao.user import UserDAO
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 from backend.models.user import User
 
 logger = get_logger(__name__)

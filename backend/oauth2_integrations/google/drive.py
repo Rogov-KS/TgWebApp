@@ -3,7 +3,7 @@
 import aiohttp
 from typing import List
 
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 from backend.oauth2_integrations.base import CloudIntegration
 from backend.schemas import CloudFile
 

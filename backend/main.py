@@ -5,13 +5,16 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqladmin import Admin
 
-from backend.api.endpoints import auth, game_sessions, leaderboard, test
+from backend.api.endpoints import include_routers_into_app
 from backend.core.config import settings
-from backend.logger import get_logger, setup_logging
-from backend.oauth2 import router as oauth2_router
+from backend.core.logger import get_logger, setup_logging
 from backend.oauth2.cleanup import start_cleanup_task
 from backend.cache_redis.main import init_cache
+from backend.core.database import engine
+from backend.admin_page.main import add_views_into_admin
+from backend.admin_page.auth import authentication_backend
 
 
 logger = get_logger(__name__)
@@ -43,12 +46,17 @@ app.add_middleware(
 )
 
 # Подключаем роутеры
-app.include_router(test.router)
-app.include_router(oauth2_router)
-app.include_router(auth.router)
-# app.include_router(users.router) # noqa
-app.include_router(game_sessions.router)
-app.include_router(leaderboard.router)
+include_routers_into_app(app)
+
+
+# Добавляем админку
+admin = Admin(
+    app,
+    engine,
+    title="Admin",
+    authentication_backend=authentication_backend,
+)
+add_views_into_admin(admin)
 
 
 if __name__ == "__main__":

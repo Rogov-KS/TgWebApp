@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASS: str
 
+    # Admin настройки
+    ADMIN_SECRET_KEY: str
+
     # Кастомный валидатор для разбиения строки в список
     @field_validator(
         "CORS_ORIGINS",

@@ -2,7 +2,7 @@ import asyncio
 from typing import Any
 
 from backend.celery_app.app import celery_app
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 from backend.celery_app.utils.email import (
     create_welcome_message,
     _send_email_async,

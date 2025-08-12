@@ -5,7 +5,7 @@ from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.exc import SQLAlchemyError
 
 from backend.core.database import Base, async_session_maker
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 
 ModelType = TypeVar("ModelType", bound=Base)
 

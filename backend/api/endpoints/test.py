@@ -4,7 +4,7 @@ from fastapi_cache.decorator import cache
 import asyncio
 
 from backend.celery_app.tasks.email import send_welcome_email_task
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 
 
 logger = get_logger(__name__)

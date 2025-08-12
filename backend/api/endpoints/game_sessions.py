@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from backend.core.dependecies import get_current_user
 from backend.dao.game_session import GameSessionDAO
 from backend.dao.user import UserDAO
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 from backend.schemas.game_session import (
     GameSession,
     GameSessionCreate,

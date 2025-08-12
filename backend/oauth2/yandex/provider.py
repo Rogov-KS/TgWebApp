@@ -1,7 +1,7 @@
 from typing import Any
 
 from backend.core.config import settings
-from backend.logger import get_logger
+from backend.core.logger import get_logger
 from backend.oauth2.base_provider import OAuth2Provider
 from backend.oauth2_integrations.yandex.disk import YandexDiskIntegration
 from backend.schemas import CloudFile, OAuth2UserData
