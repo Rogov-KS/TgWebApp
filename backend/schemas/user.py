@@ -9,6 +9,7 @@ class User(BaseModel):
     email: str | None = None
     username: str | None = None
     hashed_password: str | None = None
+    is_admin: bool = False
     is_bot: bool = False
     is_active: bool = True
     max_score: int = 0

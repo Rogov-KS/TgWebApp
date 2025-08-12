@@ -11,6 +11,8 @@ from backend.dao.refresh_token import RefreshTokenDAO
 from backend.dao.user import UserDAO
 from backend.models.user import User
 from backend.core.logger import get_logger
+from backend.schemas.user import User as UserSchema
+from pydantic import ValidationError
 
 
 logger = get_logger(__name__)
@@ -40,7 +42,7 @@ def is_valid_email(email: str) -> bool:
 
 async def authenticate_user(
     username_or_email: str, password: str
-) -> User | None:
+) -> UserSchema | None:
     """
     Аутентификация пользователя по username или email.
     Если пользователь не найден, возвращает None.
@@ -69,6 +71,21 @@ async def authenticate_user(
         )
 
     if not user or not verify_password(password, user.hashed_password):
+        return None
+
+    try:
+        schema_user = UserSchema.model_validate(user)
+    except ValidationError as err:
+        raise IncorrectTokenFormatException from err
+
+    return schema_user
+
+
+async def authenticate_admin_user(
+    username_or_email: str, password: str
+) -> UserSchema | None:
+    user = await authenticate_user(username_or_email, password)
+    if not user or not user.is_admin:
         return None
     return user
 

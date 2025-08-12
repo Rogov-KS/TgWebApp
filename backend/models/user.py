@@ -27,6 +27,7 @@ class User(Base):
         String(255), unique=True, index=True, nullable=True
     )
     hashed_password: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     is_bot: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     max_score: Mapped[int] = mapped_column(

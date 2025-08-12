@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response, Request
 from pydantic import ValidationError
 
 from backend.core.config import settings
-from backend.core.dependecies import get_current_user
+from backend.core.dependecies import get_current_user, get_current_admin_user
 from backend.core.exception import (
     InvalidCredentialsException,
     UserAlreadyExistsException,
@@ -158,6 +158,12 @@ async def logout(
 
 @router.get("/me")
 async def me(user: User = Depends(get_current_user)) -> User:
+    logger.info("Getting user: %s", user)
+    return user
+
+
+@router.get("/me_admin")
+async def me_admin(user: User = Depends(get_current_admin_user)) -> User:
     logger.info("Getting user: %s", user)
     return user
 

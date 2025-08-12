@@ -24,6 +24,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """События при запуске и завершении работы приложения"""
     # Событие при запуске приложения
     logger.info("Starting OAuth cleanup task...")
+    setup_logging()
     start_cleanup_task()
     await init_cache()
 
@@ -59,14 +60,13 @@ admin = Admin(
 add_views_into_admin(admin)
 
 
-if __name__ == "__main__":
-    setup_logging()
-    # logger.info("sys.path: %s", sys.path)
-    # logger.info("settings config[CORS]: %s", json.dumps(settings.get_cors_attrs(), indent=4))
-    # logger.info("settings config[SMTP]: %s", json.dumps(settings.get_smtp_attrs(), indent=4))
+# if __name__ == "__main__":
+#     # logger.info("sys.path: %s", sys.path)
+#     # logger.info("settings config[CORS]: %s", json.dumps(settings.get_cors_attrs(), indent=4))
+#     # logger.info("settings config[SMTP]: %s", json.dumps(settings.get_smtp_attrs(), indent=4))
 
-    logger.info("Starting the application...")
-    import uvicorn
+#     logger.info("Starting the application...")
+#     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-    logger.info("Application ended")
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
+#     logger.info("Application ended")

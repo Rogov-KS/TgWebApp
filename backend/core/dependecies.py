@@ -13,8 +13,11 @@ from backend.core.exception import (
     UserNotFoundException,
 )
 from backend.dao.user import UserDAO
+from backend.schemas.user import User as UserSchema
 from backend.core.logger import get_logger
 from backend.models.user import User
+from pydantic import ValidationError
+
 
 logger = get_logger(__name__)
 
@@ -26,7 +29,7 @@ def get_token(request: Request) -> str:
     return str(token)
 
 
-async def get_current_user(token: str = Depends(get_token)) -> User:
+async def get_current_user(token: str = Depends(get_token)) -> UserSchema:
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -49,11 +52,22 @@ async def get_current_user(token: str = Depends(get_token)) -> User:
     if not user:
         raise UserNotFoundException
 
-    logger.info("user: %s", user)
+    try:
+        schema_user = UserSchema.model_validate(user)
+    except ValidationError as err:
+        raise IncorrectTokenFormatException from err
+
+    return schema_user
+
+
+async def get_current_admin_user(user: UserSchema = Depends(get_current_user)) -> UserSchema:
+    if not user or not user.is_admin:
+        raise ForbiddenException
     return user
 
 
-async def get_current_admin_user(user: User = Depends(get_current_user)) -> User:
-    if not user.is_admin:
+async def get_current_admin_user_by_token(token: str = Depends(get_token)) -> UserSchema:
+    user = await get_current_user(token)
+    if not user or not user.is_admin:
         raise ForbiddenException
     return user

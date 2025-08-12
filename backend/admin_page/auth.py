@@ -2,17 +2,25 @@ from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from backend.utils.auth import authenticate_user, create_access_token
-from backend.core.dependecies import get_current_user
+from backend.utils.auth import authenticate_admin_user, create_access_token
+from backend.core.dependecies import get_current_admin_user_by_token
 from backend.core.config import settings
+from backend.core.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class AdminAuth(AuthenticationBackend):
+    def _redirect_to_login(self, request: Request) -> RedirectResponse:
+        return RedirectResponse(request.url_for("admin:login"), status_code=302)
+
     async def login(self, request: Request) -> bool:
         form = await request.form()
         username_or_email, password = form["username"], form["password"]
 
-        user = await authenticate_user(username_or_email, password)
+        user = await authenticate_admin_user(username_or_email, password)
+
         if user:
             access_token = create_access_token({"sub": str(user.id)})
             request.session.update({"token": access_token})
@@ -27,12 +35,19 @@ class AdminAuth(AuthenticationBackend):
         token = request.session.get("token")
 
         if not token:
-            return RedirectResponse(request.url_for("admin:login"), status_code=302)
+            return self._redirect_to_login(request)
 
-        user = await get_current_user(token)
-        if not user:
-            return RedirectResponse(request.url_for("admin:login"), status_code=302)
+        try:
+            logger.info("try to get admin user by token: %s", token)
+            admin_user = await get_current_admin_user_by_token(token)
+        except Exception as e:
+            logger.error("Error getting current admin user: %s", e)
+            return self._redirect_to_login(request)
+        logger.info("admin_user login in admin page success")
+        if not admin_user:
+            return self._redirect_to_login(request)
+
         return True
 
 
-authentication_backend = AdminAuth(secret_key=settings.ADMIN_SECRET_KEY)
+authentication_backend = AdminAuth(secret_key=settings.SECRET_KEY)
