@@ -24,9 +24,9 @@ def send_welcome_email(self: Any, user_email: str, username: str) -> dict[str, A
     Returns:
         dict: Результат отправки
     """
-    logger.info("Now in send_welcome_email from file: %s", __file__)
+    logger.info("Now in send_welcome_email", extra={"file": __file__})
     try:
-        logger.info(f"Отправка приветственного письма на {user_email}")
+        logger.info("Отправка приветственного письма", extra={"user_email": user_email})
 
         # Создаем сообщение
         message = create_welcome_message(user_email, username)
@@ -35,11 +35,11 @@ def send_welcome_email(self: Any, user_email: str, username: str) -> dict[str, A
         # Отправляем письмо
         asyncio.run(_send_email_async(message))
 
-        logger.info(f"Приветственное письмо успешно отправлено на {user_email}")
+        logger.info("Приветственное письмо успешно отправлено", extra={"user_email": user_email})
         return {"status": "success", "email": user_email}
 
     except Exception as exc:
-        logger.error(f"Ошибка отправки письма на {user_email}: {exc}")
+        logger.error("Ошибка отправки письма", extra={"user_email": user_email}, exc_info=True)
 
         return {"status": "error", "email": user_email, "error": str(exc)}
 
@@ -52,7 +52,7 @@ async def send_welcome_email_task(user_email: str, username: str) -> None:
         user_email: Email пользователя
         username: Имя пользователя
     """
-    logger.info("Sending welcome email to %s", user_email)
+    logger.info("Sending welcome email", extra={"user_email": user_email})
     try:
         # Запускаем задачу отправки письма
         send_welcome_email.delay(user_email, username)
@@ -61,9 +61,9 @@ async def send_welcome_email_task(user_email: str, username: str) -> None:
         #     username=username
         # )
         logger.info(
-            "Welcome email task queued for user: %s",
-            user_email
+            "Welcome email task queued for user",
+            extra={"user_email": user_email}
         )
     except Exception as e:
-        logger.error("Failed to queue welcome email task: %s", e)
+        logger.error("Failed to queue welcome email task", exc_info=True)
         # Не прерываем основной процесс, если не удалось отправить письмо

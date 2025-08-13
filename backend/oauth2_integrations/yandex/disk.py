@@ -34,10 +34,12 @@ class YandexDiskIntegration(CloudIntegration):
                 if response.status != 200:
                     error_text = await response.text()
                     logger.error(
-                        "Failed to get Yandex.Disk files. "
-                        "Status: %d, Response: %s",
-                        response.status,
-                        error_text,
+                        "Failed to get Yandex.Disk files",
+                        exc_info=True,
+                        extra={
+                            "status": response.status,
+                            "response": error_text
+                        }
                     )
                     return []
 

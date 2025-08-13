@@ -75,7 +75,7 @@ class OAuth2Provider(ABC):
         обрабатывается только один раз.
         """
         if request_key in self._processing_requests:
-            logger.warning("Request already being processed: %s", request_key)
+            logger.warning("Request already being processed", extra={"request_key": request_key})
             raise HTTPException(
                 status_code=429,
                 detail="Request is already being processed",
@@ -98,11 +98,13 @@ class OAuth2Provider(ABC):
                 if response.status != 200:
                     error_text = await response.text()
                     logger.error(
-                        "Failed to get access token from %s. "
-                        "Status: %d, Response: %s",
-                        self.provider_name,
-                        response.status,
-                        error_text,
+                        "Failed to get access token",
+                        exc_info=True,
+                        extra={
+                            "provider_name": self.provider_name,
+                            "status": response.status,
+                            "response": error_text
+                        }
                     )
                     raise HTTPException(
                         status_code=response.status,
@@ -147,11 +149,13 @@ class OAuth2Provider(ABC):
                 if response.status != 200:
                     error_text = await response.text()
                     logger.error(
-                        "Failed to get user data from %s. "
-                        "Status: %d, Response: %s",
-                        self.provider_name,
-                        response.status,
-                        error_text,
+                        "Failed to get user data",
+                        exc_info=True,
+                        extra={
+                            "provider_name": self.provider_name,
+                            "status": response.status,
+                            "response": error_text
+                        }
                     )
                     raise HTTPException(
                         status_code=response.status,
@@ -193,12 +197,15 @@ class OAuth2Provider(ABC):
                 cloud_files = await self.get_cloud_files(
                     token_data.access_token
                 )
-                logger.info("Found %d cloud files", len(cloud_files))
+                logger.info("Found cloud files", extra={"count": len(cloud_files)})
             except Exception as e:
                 logger.warning(
-                    "Failed to get cloud files from %s: %s",
-                    self.provider_name,
-                    e,
+                    "Failed to get cloud files",
+                    exc_info=True,
+                    extra={
+                        "provider_name": self.provider_name,
+                        "error": str(e)
+                    }
                 )
                 cloud_files = []
 
@@ -227,7 +234,7 @@ class OAuth2Provider(ABC):
 
             # Отправляем приветственное письмо для новых пользователей
             if user_data.email:
-                logger.info("Try to send welcome email to %s", user_data.email)
+                logger.info("Try to send welcome email", extra={"email": user_data.email})
                 await send_welcome_email_task(
                     user_email=user_data.email,
                     username=user_data.username or user_data.email

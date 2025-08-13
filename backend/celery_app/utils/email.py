@@ -63,7 +63,7 @@ async def _send_email_async(message: MIMEMultipart) -> None:
     Args:
         message: Email сообщение
     """
-    logger.info("Now in _send_email_async from file: %s", __file__)
+    logger.info("Now in _send_email_async", extra={"file": __file__})
     if not all([
         settings.SMTP_USER,
         settings.SMTP_PASS

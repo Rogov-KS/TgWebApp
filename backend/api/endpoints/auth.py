@@ -33,10 +33,13 @@ router = APIRouter(
 
 @router.post("/register")
 async def register(user_data: UserAuth) -> User:
-    logger.info("Registering user: %s", user_data)
+    logger.info(
+        "Registering user",
+        extra={"user_data": user_data.model_dump()}
+    )
 
     if not is_valid_email(user_data.email):
-        logger.info("Invalid email: %s", user_data.email)
+        logger.info("Invalid email", extra={"email": user_data.email})
         raise InvalidEmailException
 
     if user_data.username:
@@ -46,14 +49,17 @@ async def register(user_data: UserAuth) -> User:
 
     if existing_user:
         logger.info(
-            "User with email or username already exists: %s",
-            user_data.email or user_data.username
+            "User with email or username already exists",
+            extra={
+                "email": user_data.email,
+                "username": user_data.username
+            }
         )
         raise UserAlreadyExistsException
 
     hashed_password = get_password_hash(user_data.password)
 
-    logger.info("Creating user: %s", user_data)
+    logger.info("Creating user", extra={"user_data": user_data.model_dump()})
 
     try:
         user = await UserDAO.create(
@@ -62,21 +68,36 @@ async def register(user_data: UserAuth) -> User:
             hashed_password=hashed_password,
         )
     except Exception as e:
-        logger.error("Error creating user: %s", e)
+        logger.error("Error creating user", exc_info=True)
         raise e
 
-    logger.info("User created: %s", user)
+    logger.info(
+        "User created",
+        extra={"user": {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "is_admin": user.is_admin,
+            "is_bot": user.is_bot,
+            "is_active": user.is_active,
+            "max_score": user.max_score,
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "updated_at": (
+                user.updated_at.isoformat() if user.updated_at else None
+            )
+        } if user else None}
+    )
 
     try:
         model_user = User.model_validate(user)
     except ValidationError as e:
-        logger.error("Validation error: %s", e)
+        logger.error("Validation error", exc_info=True)
         await UserDAO.delete(id=user.id)
         raise e
 
     # Отправляем приветственное письмо асинхронно
     if user_data.email:
-        logger.info("Try to send welcome email to %s", user_data.email)
+        logger.info("Try to send welcome email", extra={"email": user_data.email})
         await send_welcome_email_task(
             user_email=user_data.email,
             username=user_data.username or user_data.email
@@ -87,12 +108,15 @@ async def register(user_data: UserAuth) -> User:
 
 @router.post("/login")
 async def login(response: Response, user_data: UserLogin) -> dict[str, str]:
-    logger.info("Logging in user: %s", user_data)
+    logger.info("Logging in user", extra={"user_data": user_data.model_dump()})
     user = await authenticate_user(
         user_data.username_or_email, user_data.password
     )
     if not user:
-        logger.info("Invalid credentials: %s", user_data)
+        logger.info(
+            "Invalid credentials",
+            extra={"user_data": user_data.model_dump()}
+        )
         raise InvalidCredentialsException
 
     access_token, refresh_token = await set_tokens_to_cookies(response, user)
@@ -128,7 +152,8 @@ async def refresh(
     await revoke_refresh_token(refresh_token)
 
     logger.info(
-        "New access token and refresh token created for user: %s", user.id
+        "New access token and refresh token created for user",
+        extra={"user_id": user.id}
     )
 
     access_token, refresh_token = await set_tokens_to_cookies(response, user)
@@ -144,11 +169,15 @@ async def refresh(
 async def logout(
     response: Response, user: User = Depends(get_current_user)
 ) -> dict[str, str]:
-    logger.info("Logging out user: %s", user.id)
+    logger.info("Logging out user", extra={"user_id": user.id})
 
     # Отзываем все refresh токены пользователя
     await revoke_user_refresh_tokens(user.id)
 
+    logger.info("Deleting cookies", extra={"cookies": {
+        "access_token": settings.ACCESS_TOKEN_COOKIE_NAME,
+        "refresh_token": settings.REFRESH_TOKEN_COOKIE_NAME
+    }})
     # Удаляем cookies
     response.delete_cookie(settings.ACCESS_TOKEN_COOKIE_NAME)
     response.delete_cookie(settings.REFRESH_TOKEN_COOKIE_NAME)

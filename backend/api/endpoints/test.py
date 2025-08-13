@@ -18,7 +18,7 @@ router = APIRouter(
 @router.post("/send_email")
 async def send_email(email_to: EmailStr, username: str) -> dict[str, str]:
     """Отправка email"""
-    logger.info("Sending email")
+    logger.info("Sending email", extra={"email_to": email_to, "username": username})
 
     await send_welcome_email_task(
         user_email=email_to,

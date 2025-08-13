@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 async def get_game_sessions() -> list[GameSession]:
     """Получить все игровые сессии."""
     game_sessions = await GameSessionDAO.get_all()
-    logger.info("Retrieved %d game sessions", len(game_sessions))
+    logger.info("Retrieved game sessions", extra={"count": len(game_sessions)})
     return game_sessions
 
 
@@ -37,11 +37,11 @@ async def create_game_session(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not allowed to create this game session",
         )
-    logger.info("Creating game session: %s", game_session_data.model_dump())
+    logger.info("Creating game session", extra={"game_session_data": game_session_data.model_dump()})
     try:
         game_session = await GameSessionDAO.create(**game_session_data.model_dump())
     except Exception as e:
-        logger.exception("Error creating game session")
+        logger.error("Error creating game session", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create game session",
@@ -52,7 +52,14 @@ async def create_game_session(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create game session",
         )
-    logger.info("Created game session %s", game_session)
+    logger.info("Created game session", extra={"game_session": {
+        "id": game_session.id,
+        "user_id": game_session.user_id,
+        "score": game_session.score,
+        "level": game_session.level,
+        "started_at": game_session.started_at.isoformat() if game_session.started_at else None,
+        "ended_at": game_session.ended_at.isoformat() if game_session.ended_at else None
+    }})
 
     # Update user max score
     if game_session.score > user.max_score:
@@ -70,7 +77,7 @@ async def get_user_game_sessions(
 ) -> list[GameSession]:
     """Получить все игровые сессии."""
     game_sessions = await GameSessionDAO.get_all(user_id=user.id)
-    logger.info("Retrieved %d game sessions", len(game_sessions))
+    logger.info("Retrieved game sessions", extra={"count": len(game_sessions), "user_id": user.id})
     return game_sessions
 
 
@@ -80,7 +87,7 @@ async def get_game_session(
     user: User = Depends(get_current_user),
 ) -> GameSession:
     """Получить конкретную игровую сессию."""
-    logger.info("Retrieving game session %d for user %s", game_session_id, user)
+    logger.info("Retrieving game session", extra={"game_session_id": game_session_id, "user_id": user.id})
     game_session = await GameSessionDAO.get_one_or_none(id=game_session_id)
     if not game_session:
         raise HTTPException(
@@ -113,7 +120,7 @@ async def complete_game_session(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not allowed to update this game session",
         )
-    logger.info("Updating game session: %s", game_session_update.model_dump())
+    logger.info("Updating game session", extra={"game_session_update": game_session_update.model_dump()})
     ended_at = datetime.now(timezone.utc)
     try:
         game_session = await GameSessionDAO.update(
@@ -121,7 +128,7 @@ async def complete_game_session(
             update_data={"ended_at": ended_at, **game_session_update.model_dump()},
         )
     except Exception as e:
-        logger.exception("Error updating game session")
+        logger.error("Error updating game session", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update game session",
@@ -131,7 +138,14 @@ async def complete_game_session(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Game session not found",
         )
-    logger.info("Completed game session: %s", game_session)
+    logger.info("Completed game session", extra={"game_session": {
+        "id": game_session.id,
+        "user_id": game_session.user_id,
+        "score": game_session.score,
+        "level": game_session.level,
+        "started_at": game_session.started_at.isoformat() if game_session.started_at else None,
+        "ended_at": game_session.ended_at.isoformat() if game_session.ended_at else None
+    }})
     return game_session
 
 
@@ -147,5 +161,5 @@ async def delete_game_session(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Game session not found",
         )
-    logger.info("Deleted game session %d", game_session_id)
+    logger.info("Deleted game session", extra={"game_session_id": game_session_id})
     return {"message": "Game session deleted successfully"}

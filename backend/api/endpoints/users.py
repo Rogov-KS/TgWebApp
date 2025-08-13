@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 @router.get("/", response_model=list[User])
 async def get_users() -> list[User]:
     users = await UserDAO.get_all()
-    logger.info("users: %s", users)
+    logger.info("Retrieved users", extra={"count": len(users)})
     return users
 
 

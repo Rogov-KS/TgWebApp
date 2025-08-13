@@ -57,12 +57,16 @@ class GoogleOAuth2Provider(OAuth2Provider):
                         if response.status == 200:
                             self._public_keys = await response.json()
                         else:
-                            logger.error("Failed to fetch Google public keys")
+                            logger.error(
+                                "Failed to fetch Google public keys",
+                                exc_info=True,
+                                extra={"status": response.status}
+                            )
                             raise ValueError(
                                 "Failed to fetch Google public keys"
                             )
             except Exception as e:
-                logger.error("Error fetching Google public keys: %s", e)
+                logger.error("Error fetching Google public keys", exc_info=True)
                 raise ValueError(
                     f"Error fetching Google public keys: {e}"
                 )
@@ -103,10 +107,10 @@ class GoogleOAuth2Provider(OAuth2Provider):
             return payload
 
         except jwt.InvalidTokenError as e:
-            logger.error("Invalid Google id_token: %s", e)
+            logger.error("Invalid Google id_token", exc_info=True, extra={"id_token": id_token})
             raise ValueError(f"Invalid Google id_token: {e}")
         except Exception as e:
-            logger.error("Error verifying Google id_token: %s", e)
+            logger.error("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
             raise ValueError(
                 f"Error verifying Google id_token: {e}"
             )
@@ -150,7 +154,7 @@ class GoogleOAuth2Provider(OAuth2Provider):
         # try:
         #     user_info = self._verify_google_id_token(id_token)
         # except Exception as e:
-        #     logger.error("Error verifying Google id_token: %s", e)
+        #     logger.error("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
         #     raise ValueError(f"Error verifying Google id_token: {e}")
 
         # Декодируем id_token без проверки подписи (для демо)

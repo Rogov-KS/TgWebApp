@@ -30,7 +30,7 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
         """
         if not isinstance(user_id, int) or user_id <= 0:
             msg = "user_id должен быть положительным целым числом"
-            logger.exception(msg)
+            logger.exception(msg, extra={"user_id": user_id}, exc_info=True)
             raise ValueError(msg)
 
         async with async_session_maker() as session:
@@ -42,6 +42,10 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
                 max_score = result.scalar_one_or_none()
                 return int(max_score) if max_score is not None else None
             except SQLAlchemyError as e:
-                logger.exception("Ошибка при получении максимального счета")
+                logger.exception(
+                    "Ошибка при получении максимального счета",
+                    extra={"user_id": user_id},
+                    exc_info=True
+                )
                 msg = "Ошибка при получении максимального счета"
                 raise ValueError(msg) from e

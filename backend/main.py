@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """События при запуске и завершении работы приложения"""
     # Событие при запуске приложения
-    logger.info("Starting OAuth cleanup task...")
+    logger.info("Starting OAuth cleanup task")
     setup_logging()
     start_cleanup_task()
     await init_cache()
@@ -31,7 +31,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
     # Событие при завершении работы приложения
-    logger.info("Stopping OAuth cleanup task...")
+    logger.info("Stopping OAuth cleanup task")
 
 
 # Создаем экземпляр FastAPI

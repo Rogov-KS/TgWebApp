@@ -40,7 +40,7 @@ async def get_current_user(token: str = Depends(get_token)) -> UserSchema:
         raise IncorrectTokenFormatException from err
 
     expire = payload.get("exp")
-    logger.info("expire: %s", expire)
+    logger.info("Token expire check", extra={"expire": expire})
     if not expire or (int(expire) < int(datetime.now(timezone.utc).timestamp())):
         raise TokenExpiredException
 

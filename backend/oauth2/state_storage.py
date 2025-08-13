@@ -23,20 +23,20 @@ class StateStorage:
             "created_at": datetime.now(timezone.utc),
             "used": False
         }
-        logger.info("Generated state for %s: %s", provider, state)
+        logger.info("Generated state", extra={"provider": provider, "state": state})
         return state
 
     def validate_state(self, state: str, provider: str) -> bool:
         """Проверяет валидность state"""
-        logger.info("validate_state : %s \n %s \n\n", state, provider)
+        logger.info("validate_state", extra={"state": state, "provider": provider})
 
         # Проверяем, что state не обрабатывается в данный момент
         if state in self._processing_states:
-            logger.warning("State is already being processed: %s", state)
+            logger.warning("State is already being processed", extra={"state": state})
             return False
 
         if state not in self._states:
-            logger.warning("Invalid state: %s", state)
+            logger.warning("Invalid state", extra={"state": state})
             return False
 
         state_data = self._states[state]
@@ -44,26 +44,29 @@ class StateStorage:
         # Проверяем провайдера
         if state_data["provider"] != provider:
             logger.warning(
-                "State provider mismatch. Expected: %s, Got: %s",
-                state_data["provider"], provider
+                "State provider mismatch",
+                extra={
+                    "expected_provider": state_data["provider"],
+                    "got_provider": provider
+                }
             )
             return False
 
         # Проверяем время жизни (5 минут)
         if datetime.now(timezone.utc) - state_data["created_at"] > timedelta(minutes=5):
-            logger.warning("State expired: %s", state)
+            logger.warning("State expired", extra={"state": state})
             return False
 
         # Проверяем, что state еще не использовался
         if state_data["used"]:
-            logger.warning("State already used: %s", state)
+            logger.warning("State already used", extra={"state": state})
             return False
 
         # Помечаем как обрабатываемый
         self._processing_states.add(state)
 
         # Помечаем как использованный
-        logger.info("mark as used : %s", state_data)
+        logger.info("mark as used", extra={"state_data": state_data})
         state_data["used"] = True
 
         # Удаляем из множества обрабатываемых
@@ -74,7 +77,7 @@ class StateStorage:
     def validate_state_or_raise(self, state: str, provider: str) -> None:
         """Валидирует state, выбрасывает HTTPException при ошибке."""
         if not self.validate_state(state, provider):
-            logger.error("Invalid state parameter: %s", state)
+            logger.error("Invalid state parameter", extra={"state": state}, exc_info=True)
             raise HTTPException(
                 status_code=400, detail="Invalid state parameter"
             )
@@ -91,7 +94,7 @@ class StateStorage:
             # Также очищаем из множества обрабатываемых
             self._processing_states.discard(state)
         if expired_states:
-            logger.info("Cleaned up %d expired states", len(expired_states))
+            logger.info("Cleaned up expired states", extra={"count": len(expired_states)})
 
 
 # Глобальный экземпляр

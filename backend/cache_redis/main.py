@@ -12,7 +12,7 @@ async def init_cache() -> None:
     """Инициализация кэша Redis"""
     try:
         redis_url = f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}"
-        logger.info("Initializing Redis cache with URL: %s", redis_url)
+        logger.info("Initializing Redis cache", extra={"redis_url": redis_url})
         redis = aioredis.from_url(redis_url, encoding="utf8", decode_responses=True)
 
         # Проверяем подключение к Redis
@@ -23,6 +23,5 @@ async def init_cache() -> None:
         logger.info("Redis cache initialized")
 
     except Exception as e:
-
-        logger.error("Error initializing Redis cache: %s", str(e))
+        logger.error("Error initializing Redis cache", exc_info=True)
         raise

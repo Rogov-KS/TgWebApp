@@ -36,9 +36,12 @@ class GoogleDriveIntegration(CloudIntegration):
                 if response.status != 200:
                     error_text = await response.text()
                     logger.error(
-                        "Failed to get Google Drive files. "
-                        "Status: %d, Response: %s",
-                        response.status, error_text
+                        "Failed to get Google Drive files",
+                        exc_info=True,
+                        extra={
+                            "status": response.status,
+                            "response": error_text
+                        }
                     )
                     return []
 

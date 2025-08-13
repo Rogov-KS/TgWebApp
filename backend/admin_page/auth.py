@@ -38,10 +38,10 @@ class AdminAuth(AuthenticationBackend):
             return self._redirect_to_login(request)
 
         try:
-            logger.info("try to get admin user by token: %s", token)
+            logger.info("try to get admin user by token", extra={"token": token})
             admin_user = await get_current_admin_user_by_token(token)
         except Exception as e:
-            logger.error("Error getting current admin user: %s", e)
+            logger.error("Error getting current admin user", exc_info=True)
             return self._redirect_to_login(request)
         logger.info("admin_user login in admin page success")
         if not admin_user:

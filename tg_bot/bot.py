@@ -199,11 +199,11 @@ async def main() -> None:
     # Проверяем доступность бота
     try:
         bot_info = await bot.get_me()
-        logger.info(f"✅ Бот успешно подключен: @{bot_info.username}")
-        logger.info(f"📱 Имя бота: {bot_info.first_name}")
-        logger.info(f"🔗 Web App URL: {WEBAPP_URL}")
+        logger.info("✅ Бот успешно подключен", extra={"username": bot_info.username})
+        logger.info("📱 Имя бота", extra={"first_name": bot_info.first_name})
+        logger.info("🔗 Web App URL", extra={"url": WEBAPP_URL})
     except Exception as e:
-        logger.error(f"❌ Ошибка подключения к боту: {e}")
+        logger.error("❌ Ошибка подключения к боту", extra={"error": str(e)})
         return
 
     # Запускаем бота
@@ -213,7 +213,7 @@ async def main() -> None:
     except KeyboardInterrupt:
         logger.info("⏹️ Остановка бота...")
     except Exception as e:
-        logger.error(f"❌ Ошибка в работе бота: {e}")
+        logger.error("❌ Ошибка в работе бота", extra={"error": str(e)})
     finally:
         await bot.session.close()
 

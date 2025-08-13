@@ -32,7 +32,7 @@ def verify_password(password: str, hashed_password: str | None) -> bool:
 
 def is_valid_email(email: str) -> bool:
     """Проверяет, является ли строка валидным email адресом."""
-    logger.info("Validating email: %s", email)
+    logger.info("Validating email", extra={"email": email})
     try:
         EmailStr._validate(email)
         return True
@@ -139,8 +139,8 @@ async def set_tokens_to_cookies(response: Response, user: User) -> tuple[str, st
         path="/auth/refresh",
     )
 
-    logger.info("Access token: %s", access_token)
-    logger.info("Refresh token created for user: %s", user.id)
+    logger.info("Access token created", extra={"access_token": access_token})
+    logger.info("Refresh token created for user", extra={"user_id": user.id})
 
     return access_token, refresh_token
 
@@ -148,7 +148,18 @@ async def set_tokens_to_cookies(response: Response, user: User) -> tuple[str, st
 async def verify_refresh_token(token: str) -> User | None:
     """Проверить refresh token и вернуть пользователя."""
     refresh_token = await RefreshTokenDAO.get_by_token(token)
-    logger.info("get info about refresh_token: %s", refresh_token)
+    logger.info(
+        "get info about refresh_token",
+        extra={"refresh_token": {
+            "token": refresh_token.token if refresh_token else None,
+            "user_id": refresh_token.user_id if refresh_token else None,
+            "is_revoked": refresh_token.is_revoked if refresh_token else None,
+            "expires_at": (
+                refresh_token.expires_at.isoformat()
+                if refresh_token and refresh_token.expires_at else None
+            )
+        }}
+    )
     if not refresh_token:
         return None
 
