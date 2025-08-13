@@ -29,6 +29,7 @@ dependencies = [
     "sqladmin[full]>=0.21.0",
     "python-json-logger>=3.3.0",
     "sentry-sdk[fastapi]>=2.34.1",
+    "fastapi-versioning>=0.10.0",
 ]
 
 [project.optional-dependencies]

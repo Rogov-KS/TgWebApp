@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import EmailStr
 from fastapi_cache.decorator import cache
 import asyncio
+from fastapi_versioning import version
 
 from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.core.logger import get_logger
@@ -16,6 +17,7 @@ router = APIRouter(
 
 
 @router.post("/send_email")
+@version(1)
 async def send_email(email_to: EmailStr, username: str) -> dict[str, str]:
     """Отправка email"""
     logger.info("Sending email", extra={"email_to": email_to, "username": username})
@@ -29,6 +31,7 @@ async def send_email(email_to: EmailStr, username: str) -> dict[str, str]:
 
 
 @router.get("/test_cache")
+@version(1)
 @cache(expire=30)
 async def get_cache():
     """Тест кэша c"""
@@ -39,6 +42,7 @@ async def get_cache():
 
 
 @router.get("/sentry-debug")
+@version(1)
 async def trigger_error() -> None:
     """Тест Sentry"""
     division_by_zero = 1 / 0

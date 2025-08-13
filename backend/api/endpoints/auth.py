@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Response, Request
 from pydantic import ValidationError
+from fastapi_versioning import version
 
 from backend.core.config import settings
 from backend.core.dependecies import get_current_user, get_current_admin_user
@@ -32,6 +33,7 @@ router = APIRouter(
 
 
 @router.post("/register")
+@version(1)
 async def register(user_data: UserAuth) -> User:
     logger.info(
         "Registering user",
@@ -107,6 +109,7 @@ async def register(user_data: UserAuth) -> User:
 
 
 @router.post("/login")
+@version(1)
 async def login(response: Response, user_data: UserLogin) -> dict[str, str]:
     logger.info("Logging in user", extra={"user_data": user_data.model_dump()})
     user = await authenticate_user(
@@ -129,6 +132,7 @@ async def login(response: Response, user_data: UserLogin) -> dict[str, str]:
 
 
 @router.post("/refresh")
+@version(1)
 async def refresh(
     response: Response,
     request: Request
@@ -166,6 +170,7 @@ async def refresh(
 
 
 @router.post("/logout")
+@version(1)
 async def logout(
     response: Response, user: User = Depends(get_current_user)
 ) -> dict[str, str]:
@@ -186,18 +191,14 @@ async def logout(
 
 
 @router.get("/me")
+@version(1)
 async def me(user: User = Depends(get_current_user)) -> User:
     logger.info("Getting user", extra={"user": user.model_dump()})
     return user
 
 
 @router.get("/me_admin")
+@version(1)
 async def me_admin(user: User = Depends(get_current_admin_user)) -> User:
     logger.info("Getting user", extra={"user": user.model_dump()})
     return user
-
-
-@router.get("/hello_world")
-async def hello_world() -> str:
-    logger.info("Calling func 'hello world'")
-    return "hello world"

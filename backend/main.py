@@ -3,6 +3,7 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI
 from sqladmin import Admin
+from fastapi_versioning import VersionedFastAPI
 
 from backend.api.endpoints import include_routers_into_app
 from backend.core.logger import get_logger, setup_logging
@@ -35,15 +36,25 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 # Создаем экземпляр FastAPI
-app = FastAPI(title="TgWebApp API", version="1.0.0", lifespan=lifespan)
-
-
-# Добавляем middlewares
-add_middlewares(app)
-
+app = FastAPI(
+    version="0.1.0",
+    root_path="/api",
+    title="TgWebApp API"
+)
 
 # Подключаем роутеры
 include_routers_into_app(app)
+
+# Добавляем версионирование
+app = VersionedFastAPI(
+    app,
+    version_format="{major}",
+    prefix_format="/api/v{major}",
+    lifespan=lifespan,
+)
+
+# Добавляем middlewares
+add_middlewares(app)
 
 
 # Добавляем админку

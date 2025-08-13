@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi_versioning import version
 
 from backend.dao.user import UserDAO
 from backend.core.logger import get_logger
@@ -10,6 +11,7 @@ logger = get_logger(__name__)
 
 
 @router.get("/", response_model=list[User])
+@version(1)
 async def get_users() -> list[User]:
     users = await UserDAO.get_all()
     logger.info("Retrieved users", extra={"count": len(users)})
@@ -17,5 +19,6 @@ async def get_users() -> list[User]:
 
 
 @router.get("/{user_id}", response_model=User | None)
+@version(1)
 async def get_user(user_id: int) -> User | None:
     return await UserDAO.get_one_or_none(id=user_id)

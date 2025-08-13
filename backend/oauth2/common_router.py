@@ -2,6 +2,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, HTTPException, Query, Response
 from fastapi.responses import RedirectResponse
+from fastapi_versioning import version
 
 from backend.core.logger import get_logger
 from backend.oauth2.base_provider import OAuth2Provider
@@ -24,12 +25,14 @@ PROVIDERS: dict[str, OAuth2Provider] = {
 
 
 @router.get("/providers")
+@version(1)
 def get_available_providers() -> dict[str, Any]:
     """Получить список доступных OAuth2 провайдеров"""
     return {"providers": list(PROVIDERS.keys()), "count": len(PROVIDERS)}
 
 
 @router.get("/{provider}/url")
+@version(1)
 def get_oauth_redirect_uri(provider: str) -> RedirectResponse:
     """
     Получить URL для авторизации через указанного провайдера
@@ -59,6 +62,7 @@ def get_oauth_redirect_uri(provider: str) -> RedirectResponse:
 
 
 @router.post("/{provider}/callback")
+@version(1)
 async def handle_oauth_callback(
     provider: str,
     code: Annotated[str, Body()],
@@ -102,6 +106,7 @@ async def handle_oauth_callback(
 
 
 @router.get("/{provider}/files")
+@version(1)
 async def get_cloud_files(
     provider: str, access_token: Annotated[str, Query()]
 ) -> dict[str, Any]:

@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_versioning import version
 
 from backend.core.dependecies import get_current_user
 from backend.dao.game_session import GameSessionDAO
@@ -19,6 +20,7 @@ logger = get_logger(__name__)
 
 
 @router.get("/", response_model=list[GameSession])
+@version(1)
 async def get_game_sessions() -> list[GameSession]:
     """Получить все игровые сессии."""
     game_sessions = await GameSessionDAO.get_all()
@@ -27,6 +29,7 @@ async def get_game_sessions() -> list[GameSession]:
 
 
 @router.post("/", response_model=GameSession)
+@version(1)
 async def create_game_session(
     game_session_data: GameSessionCreate,
     user: User = Depends(get_current_user),
@@ -72,6 +75,7 @@ async def create_game_session(
 
 
 @router.get("/user_game_sessions", response_model=list[GameSession])
+@version(1)
 async def get_user_game_sessions(
     user: User = Depends(get_current_user),
 ) -> list[GameSession]:
@@ -82,6 +86,7 @@ async def get_user_game_sessions(
 
 
 @router.get("/{game_session_id}", response_model=GameSession)
+@version(1)
 async def get_game_session(
     game_session_id: int,
     user: User = Depends(get_current_user),
@@ -103,6 +108,7 @@ async def get_game_session(
 
 
 @router.put("/{game_session_id}", response_model=GameSession)
+@version(1)
 async def complete_game_session(
     game_session_id: int,
     game_session_update: GameSessionUpdate,
@@ -150,6 +156,7 @@ async def complete_game_session(
 
 
 @router.delete("/{game_session_id}")
+@version(1)
 async def delete_game_session(
     game_session_id: int,
     user: User = Depends(get_current_user),
