@@ -14,6 +14,7 @@ from backend.admin_page.main import add_views_into_admin
 from backend.admin_page.auth import authentication_backend
 from backend.middlewares import add_middlewares
 from backend.sentry import init_sentry
+from backend.prometheus import init_prometheus
 
 
 logger = get_logger(__name__)
@@ -55,6 +56,9 @@ app = VersionedFastAPI(
 
 # Добавляем middlewares
 add_middlewares(app)
+
+# Добавляем Prometheus
+init_prometheus(app)
 
 
 # Добавляем админку

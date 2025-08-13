@@ -46,3 +46,15 @@ async def get_cache():
 async def trigger_error() -> None:
     """Тест Sentry"""
     division_by_zero = 1 / 0
+
+@router.get("/versioning-test")
+@version(1)
+async def hello_version(name: str) -> dict[str, str]:
+    """Тест Versioning"""
+    return {"message": f"Hello {name}"}
+
+@router.get("/versioning-test")
+@version(2)
+async def hello_version_v2(name: str) -> dict[str, str]:
+    """Тест Versioning"""
+    return {"message": f"Hello {name*2}"}
