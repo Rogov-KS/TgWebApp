@@ -158,13 +158,13 @@ async def logout(
 
 @router.get("/me")
 async def me(user: User = Depends(get_current_user)) -> User:
-    logger.info("Getting user: %s", user)
+    logger.info("Getting user", extra={"user": user.model_dump()})
     return user
 
 
 @router.get("/me_admin")
 async def me_admin(user: User = Depends(get_current_admin_user)) -> User:
-    logger.info("Getting user: %s", user)
+    logger.info("Getting user", extra={"user": user.model_dump()})
     return user
 
 

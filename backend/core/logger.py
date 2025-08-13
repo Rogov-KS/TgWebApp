@@ -7,9 +7,7 @@ from backend.core.config import settings
 
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
-    """Форматтер для логирования в JSON"""
-    def add_fields(self, log_record: dict, record: logging.LogRecord, message_dict: dict) -> None:
-        """Добавление полей в лог"""
+    def add_fields(self, log_record, record, message_dict):
         super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
         if not log_record.get("timestamp"):
             now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -20,32 +18,54 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             log_record["level"] = record.levelname
 
 
-# formatter = CustomJsonFormatter(
-#     "%(timestamp)s %(level)s %(message)s %(module)s %(funcName)s"
-# )
+formatter = CustomJsonFormatter(
+    "%(timestamp)s %(level)s %(message)s %(module)s %(funcName)s"
+)
 
-# logger = logging.getLogger()
+logger = logging.getLogger()
 
-# logHandler = logging.StreamHandler()
+logHandler = logging.StreamHandler()
 
-# logHandler.setFormatter(formatter)
-# logger.addHandler(logHandler)
-# logger.setLevel(settings.LOG_LEVEL)
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
+logger.setLevel(settings.LOG_LEVEL)
 
 
 def setup_logging() -> None:
-    """Настройка базовой конфигурации логирования"""
+    """Настройка базовой конфигурации логирования с использованием python-json-logger"""
     logs_dir = Path("logs")
     logs_dir.mkdir(exist_ok=True)
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-        handlers=[
-            logging.FileHandler(f"{logs_dir}/bot_log.txt", encoding="utf-8"),
-            logging.StreamHandler(),
-        ],
+    # Создаем форматтер для JSON логов
+    json_formatter = CustomJsonFormatter(
+        "%(timestamp)s %(message)s %(level)s %(name)s "
+        "%(module)s %(funcName)s %(lineno)d"
     )
+
+    # Настраиваем корневой логгер
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, settings.LOG_LEVEL))
+
+    # Очищаем существующие обработчики
+    root_logger.handlers.clear()
+
+    # Создаем обработчик для файла
+    log_file_path = f"{logs_dir}/app_log.json"
+    file_handler = logging.FileHandler(
+        log_file_path,
+        encoding="utf-8"
+    )
+    file_handler.setFormatter(json_formatter)
+    file_handler.setLevel(getattr(logging, settings.LOG_LEVEL))
+
+    # Создаем обработчик для консоли
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(json_formatter)
+    console_handler.setLevel(getattr(logging, settings.LOG_LEVEL))
+
+    # Добавляем обработчики к корневому логгеру
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
 
 
 def get_logger(name: str) -> logging.Logger:
