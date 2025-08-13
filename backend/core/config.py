@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -55,6 +55,10 @@ class Settings(BaseSettings):
 
     # Admin настройки
     ADMIN_SECRET_KEY: str
+
+    # Логирование настройки
+    MODE: Literal["DEV", "TEST", "PROD"]
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
     # Кастомный валидатор для разбиения строки в список
     @field_validator(
