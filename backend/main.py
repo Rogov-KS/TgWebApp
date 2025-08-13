@@ -1,23 +1,21 @@
-import sys
-import json
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from sqladmin import Admin
 
 from backend.api.endpoints import include_routers_into_app
-from backend.core.config import settings
 from backend.core.logger import get_logger, setup_logging
 from backend.oauth2.cleanup import start_cleanup_task
 from backend.cache_redis.main import init_cache
 from backend.core.database import engine
 from backend.admin_page.main import add_views_into_admin
 from backend.admin_page.auth import authentication_backend
+from backend.middlewares import add_middlewares
 
 
 logger = get_logger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -37,14 +35,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 # Создаем экземпляр FastAPI
 app = FastAPI(title="TgWebApp API", version="1.0.0", lifespan=lifespan)
 
-# Настраиваем CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
-    allow_methods=settings.CORS_ALLOW_METHODS,
-    allow_headers=settings.CORS_ALLOW_HEADERS,
-)
+
+# Добавляем middlewares
+add_middlewares(app)
+
 
 # Подключаем роутеры
 include_routers_into_app(app)
@@ -62,8 +56,10 @@ add_views_into_admin(admin)
 
 # if __name__ == "__main__":
 #     # logger.info("sys.path: %s", sys.path)
-#     # logger.info("settings config[CORS]: %s", json.dumps(settings.get_cors_attrs(), indent=4))
-#     # logger.info("settings config[SMTP]: %s", json.dumps(settings.get_smtp_attrs(), indent=4))
+#     # logger.info("settings config[CORS]: %s",
+#     #            json.dumps(settings.get_cors_attrs(), indent=4))
+#     # logger.info("settings config[SMTP]: %s",
+#     #            json.dumps(settings.get_smtp_attrs(), indent=4))
 
 #     logger.info("Starting the application...")
 #     import uvicorn
