@@ -12,6 +12,7 @@ from backend.core.database import engine
 from backend.admin_page.main import add_views_into_admin
 from backend.admin_page.auth import authentication_backend
 from backend.middlewares import add_middlewares
+from backend.sentry import init_sentry
 
 
 logger = get_logger(__name__)
@@ -22,6 +23,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """События при запуске и завершении работы приложения"""
     # Событие при запуске приложения
     logger.info("Starting OAuth cleanup task")
+    init_sentry()
     setup_logging()
     start_cleanup_task()
     await init_cache()

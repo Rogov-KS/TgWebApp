@@ -36,3 +36,9 @@ async def get_cache():
     await asyncio.sleep(3)
     logger.info("End test cache")
     return dict(hello="world")
+
+
+@router.get("/sentry-debug")
+async def trigger_error() -> None:
+    """Тест Sentry"""
+    division_by_zero = 1 / 0
