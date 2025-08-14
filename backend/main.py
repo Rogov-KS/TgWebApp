@@ -24,6 +24,7 @@ logger = get_logger(__name__)
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """События при запуске и завершении работы приложения"""
     # Событие при запуске приложения
+    logger.info("Starting the application...", extra={"hello": "world"})
     logger.info("Starting OAuth cleanup task")
     # init_sentry()
     setup_logging()
