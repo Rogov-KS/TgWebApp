@@ -25,10 +25,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """События при запуске и завершении работы приложения"""
     # Событие при запуске приложения
     logger.info("Starting OAuth cleanup task")
-    init_sentry()
+    # init_sentry()
     setup_logging()
     start_cleanup_task()
-    await init_cache()
+    # await init_cache()
 
     yield
 

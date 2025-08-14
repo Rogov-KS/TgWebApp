@@ -1,0 +1,68 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Linting and formatting
+.ruff_cache/
+.mypy_cache/
+.black_cache/
+
+# Logs
+logs/
+*.log
+
+# Documentation
+docs/
+# *.md
+
+# Development files
+start_scripts/
+tests/
+plans_md/
+backlog.md
+
+# Frontend (если не нужен в backend контейнере)
+frontend/
+
+# Telegram bot (если запускается отдельно)
+tg_bot/
+
+# Monitoring
+grafana/
+prometheus/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Environment files
+# .env
+# .env.local
+# .env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
