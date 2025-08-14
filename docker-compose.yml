@@ -111,7 +111,7 @@ services:
     build:
       context: .
       dockerfile: ${DOCKER_FILE}
-    command: sh -c "celery -A backend.celery_app.app:celery_app flower"
+    command: sh -c "celery -A backend.celery_app.app:celery_app flower --port=5555"
     # При запуске через nginx необходимо запускать команду ниже для корректной работы js и css
     # command: sh -c "celery --app=app.tasks.celery:celery flower --url_prefix=/flower"
     depends_on:
@@ -120,7 +120,7 @@ services:
     env_file:
       - .env-non-dev
     ports:
-      - "5555:5555"
+      - "5550:5555"
       # - "${FLOWER_PORT}:5555"
     networks:
       - app-network
