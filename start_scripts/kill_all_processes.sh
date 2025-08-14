@@ -88,10 +88,12 @@ get_frontend_ports() {
 # Получаем все возможные порты
 BACKEND_PORTS=($(get_backend_ports))
 FRONTEND_PORTS=($(get_frontend_ports))
+FLOWER_PORTS=5555
 
 echo "🔍 Проверяемые порты:"
 echo "  Backend: ${BACKEND_PORTS[*]}"
 echo "  Frontend: ${FRONTEND_PORTS[*]}"
+echo "  Flower: ${FLOWER_PORTS}"
 
 # Показываем информацию о процессах перед остановкой
 echo ""
@@ -131,6 +133,10 @@ for port in "${BACKEND_PORTS[@]}"; do
 done
 
 for port in "${FRONTEND_PORTS[@]}"; do
+    lsof -i:$port 2>/dev/null | grep LISTEN || echo "  Порт $port: нет активных процессов"
+done
+
+for port in "${FLOWER_PORTS[@]}"; do
     lsof -i:$port 2>/dev/null | grep LISTEN || echo "  Порт $port: нет активных процессов"
 done
 
@@ -180,6 +186,13 @@ echo "🔄 Остановка процессов на всех портах fron
 for port in "${FRONTEND_PORTS[@]}"; do
     kill_processes_by_port $port
 done
+
+echo ""
+echo "🔄 Остановка процессов на всех портах flower..."
+for port in "${FLOWER_PORTS[@]}"; do
+    kill_processes_by_port $port
+done
+
 
 # Дополнительная очистка - убиваем все процессы Python и Node, связанные с проектом
 echo ""
