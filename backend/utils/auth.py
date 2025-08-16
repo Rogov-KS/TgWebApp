@@ -8,10 +8,10 @@ from fastapi import Response
 
 from backend.core.config import settings
 from backend.dao.refresh_token import RefreshTokenDAO
-from backend.dao.user import UserDAO
-from backend.models.user import User
+from backend.entities.user.dao import UserDAO
+from backend.entities.user.models import User
 from backend.core.logger import get_logger
-from backend.schemas.user import User as UserSchema
+from backend.entities.user.schemas import User as UserSchema
 from pydantic import ValidationError
 
 

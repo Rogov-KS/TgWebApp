@@ -10,9 +10,9 @@ from backend.core.exception import (
     InvalidOAuth2TokenException,
     InvalidEmailException,
 )
-from backend.dao.user import UserDAO
+from backend.entities.user.dao import UserDAO
 from backend.core.logger import get_logger
-from backend.schemas.user import User, UserAuth, UserLogin
+from backend.entities.user.schemas import User, UserAuth, UserLogin
 from backend.utils.auth import (
     authenticate_user,
     get_password_hash,

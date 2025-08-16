@@ -12,10 +12,10 @@ from backend.core.exception import (
     TokenExpiredException,
     UserNotFoundException,
 )
-from backend.dao.user import UserDAO
-from backend.schemas.user import User as UserSchema
+from backend.entities.user.dao import UserDAO
+from backend.entities.user.schemas import User as UserSchema
 from backend.core.logger import get_logger
-from backend.models.user import User
+from backend.entities.user.models import User
 from pydantic import ValidationError
 
 

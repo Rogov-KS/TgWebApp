@@ -6,7 +6,7 @@ from backend.core.dependecies import get_current_user
 from backend.dao.game_session import GameSessionDAO
 from backend.dao.utils import get_db_leaderboard
 from backend.schemas.leaderboard import LeaderboardPlace
-from backend.schemas.user import User
+from backend.entities.user.schemas import User
 
 router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
 

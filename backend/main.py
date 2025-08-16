@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from sqladmin import Admin
 from fastapi_versioning import VersionedFastAPI
 
-from backend.api.endpoints import include_routers_into_app
+from backend.routers import include_routers_into_app
 from backend.core.logger import get_logger, setup_logging
 from backend.oauth2.cleanup import start_cleanup_task
 from backend.cache_redis.main import init_cache

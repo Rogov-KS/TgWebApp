@@ -16,7 +16,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.core.database import Base
 
 if TYPE_CHECKING:
-    from backend.models.user import User
+    from backend.entities.user.models import User
 
 
 class OAuth2Token(Base):

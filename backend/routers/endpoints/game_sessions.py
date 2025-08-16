@@ -5,14 +5,14 @@ from fastapi_versioning import version
 
 from backend.core.dependecies import get_current_user
 from backend.dao.game_session import GameSessionDAO
-from backend.dao.user import UserDAO
+from backend.entities.user.dao import UserDAO
 from backend.core.logger import get_logger
 from backend.schemas.game_session import (
     GameSession,
     GameSessionCreate,
     GameSessionUpdate,
 )
-from backend.schemas.user import User
+from backend.entities.user.schemas import User
 
 router = APIRouter(prefix="/game_sessions", tags=["Game Sessions"])
 

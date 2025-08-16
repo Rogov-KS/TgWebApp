@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 from backend.core.database import Base
 
 if TYPE_CHECKING:
-    from backend.models.user import User
+    from backend.entities.user.models import User
 
 
 class GameSession(Base):

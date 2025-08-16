@@ -3,8 +3,8 @@ from .game_session import (
     GameSessionBase,
     GameSessionCreate,
 )
-from .oauth2 import CloudFile, OAuth2TokenData, OAuth2UserData
-from .user import User, UserAuth
+from backend.schemas.oauth2 import CloudFile, OAuth2TokenData, OAuth2UserData
+from backend.entities.user.schemas import User, UserAuth, UserLogin
 
 __all__ = [
     "GameSession",
@@ -12,6 +12,7 @@ __all__ = [
     "GameSessionCreate",
     "User",
     "UserAuth",
+    "UserLogin",
     "OAuth2UserData",
     "OAuth2TokenData",
     "CloudFile",
