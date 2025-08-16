@@ -6,9 +6,9 @@ from typing import Any
 import aiohttp
 from fastapi import HTTPException, Response
 
-from backend.utils.auth import set_tokens_to_cookies
+from backend.entities.auth.utils import set_tokens_to_cookies
 from backend.core.logger import get_logger
-from backend.schemas import CloudFile, OAuth2TokenData, OAuth2UserData
+from backend.entities.oauth2_token.schemas import CloudFile, OAuth2TokenData, OAuth2UserData
 from backend.entities.user.dao import UserDAO
 from backend.celery_app.tasks.email import send_welcome_email_task
 

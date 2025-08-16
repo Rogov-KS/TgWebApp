@@ -7,7 +7,7 @@ from backend.oauth2.base_provider import OAuth2Provider
 from backend.core.config import settings
 from backend.core.logger import get_logger
 from backend.oauth2_integrations.google.drive import GoogleDriveIntegration
-from backend.schemas import CloudFile, OAuth2UserData
+from backend.entities.oauth2_token.schemas import CloudFile, OAuth2UserData
 
 logger = get_logger(__name__)
 

@@ -4,8 +4,8 @@ from fastapi_versioning import version
 
 from backend.core.dependecies import get_current_user
 from backend.entities.game_session.dao import GameSessionDAO
-from backend.dao.utils import get_db_leaderboard
-from backend.schemas.leaderboard import LeaderboardPlace
+from backend.entities.leaderboard.dao import get_db_leaderboard
+from backend.entities.leaderboard.schemas import LeaderboardPlace
 from backend.entities.user.schemas import User
 
 router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
@@ -30,6 +30,6 @@ async def get_leaderboard(
 async def get_my_max_score(
     user: User = Depends(get_current_user),
 ) -> int | None:
-    """Получить максимальный счет пользователя."""
+    """Получить максимальный счет текущего пользователя."""
     max_score = await GameSessionDAO.get_max_score(user.id)
     return max_score

@@ -2,7 +2,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from backend.core.database import async_session_maker
-from backend.dao.base import BaseDAO
+from backend.core.base_dao import BaseDAO
 from backend.core.logger import get_logger
 from backend.entities.game_session.models import GameSession as GameSessionDB
 

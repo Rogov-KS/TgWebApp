@@ -3,7 +3,7 @@ from sqlalchemy import func, select
 from backend.core.database import async_session_maker
 from backend.entities.game_session.models import GameSession
 from backend.entities.user.models import User
-from backend.schemas.leaderboard import LeaderboardPlace
+from backend.entities.leaderboard.schemas import LeaderboardPlace
 
 
 async def get_db_leaderboard(

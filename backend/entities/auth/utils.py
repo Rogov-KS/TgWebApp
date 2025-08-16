@@ -7,7 +7,7 @@ from pydantic import EmailStr
 from fastapi import Response
 
 from backend.core.config import settings
-from backend.dao.refresh_token import RefreshTokenDAO
+from backend.entities.refresh_token.dao import RefreshTokenDAO
 from backend.entities.user.dao import UserDAO
 from backend.entities.user.models import User
 from backend.core.logger import get_logger
@@ -27,14 +27,12 @@ def get_password_hash(password: str) -> str:
 def verify_password(password: str, hashed_password: str | None) -> bool:
     if not hashed_password:
         return False
-    return bool(pwd_context.verify(password, hashed_password))
+    return pwd_context.verify(password, hashed_password)
 
 
 def is_valid_email(email: str) -> bool:
-    """Проверяет, является ли строка валидным email адресом."""
-    logger.info("Validating email", extra={"email": email})
     try:
-        EmailStr._validate(email)
+        EmailStr.validate(email)
         return True
     except Exception:
         return False
@@ -84,6 +82,20 @@ async def authenticate_user(
 async def authenticate_admin_user(
     username_or_email: str, password: str
 ) -> UserSchema | None:
+    """
+    Аутентификация администратора по username или email.
+    Если пользователь не найден, возвращает None.
+    Если пользователь найден, но пароль неверный, возвращает None.
+    Если пользователь найден и пароль верный, но пользователь не админ, возвращает None.
+    Если пользователь найден, пароль верный и пользователь админ, возвращает пользователя.
+
+    Args:
+        username_or_email: str - username или email пользователя
+        password: str - пароль пользователя
+
+    Returns:
+        User | None - пользователь или None, если пользователь не найден или пароль неверный или не админ
+    """
     user = await authenticate_user(username_or_email, password)
     if not user or not user.is_admin:
         return None
@@ -146,7 +158,10 @@ async def set_tokens_to_cookies(response: Response, user: User) -> tuple[str, st
 
 
 async def verify_refresh_token(token: str) -> User | None:
-    """Проверить refresh token и вернуть пользователя."""
+    """
+    Верификация refresh token.
+    Возвращает пользователя, если токен валиден, иначе None.
+    """
     refresh_token = await RefreshTokenDAO.get_by_token(token)
     logger.info(
         "get info about refresh_token",

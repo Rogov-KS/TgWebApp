@@ -1,6 +1,6 @@
 from sqladmin import ModelView
 
-from backend.models import (
+from backend.entities.assemblers.models import (
     User,
     GameSession,
     RefreshToken,

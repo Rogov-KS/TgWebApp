@@ -2,7 +2,7 @@ from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from backend.utils.auth import authenticate_admin_user, create_access_token
+from backend.entities.auth.utils import authenticate_admin_user, create_access_token
 from backend.core.dependecies import get_current_admin_user_by_token
 from backend.core.config import settings
 from backend.core.logger import get_logger

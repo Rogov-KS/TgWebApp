@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from backend.schemas import CloudFile
+from backend.entities.assemblers.schemas import CloudFile
 
 
 class CloudIntegration(ABC):

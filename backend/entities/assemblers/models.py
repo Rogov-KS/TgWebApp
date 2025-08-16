@@ -1,7 +1,7 @@
 # Импорт всех моделей
 from backend.entities.game_session.models import GameSession
-from backend.models.oauth2_token import OAuth2Token
-from backend.models.refresh_token import RefreshToken
+from backend.entities.oauth2_token.models import OAuth2Token
+from backend.entities.refresh_token.models import RefreshToken
 from backend.entities.user.models import User
 
 __all__ = [

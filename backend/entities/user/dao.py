@@ -1,6 +1,6 @@
 # mypy: ignore-errors
 
-from backend.dao.base import BaseDAO
+from backend.core.base_dao import BaseDAO
 from backend.entities.user.models import User
 
 

@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 from sqlalchemy import and_, select
 
-from backend.dao.base import BaseDAO
-from backend.models.refresh_token import RefreshToken
+from backend.core.base_dao import BaseDAO
+from backend.entities.refresh_token.models import RefreshToken
 from backend.core.database import async_session_maker
 
 
