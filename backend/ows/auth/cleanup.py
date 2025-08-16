@@ -1,7 +1,7 @@
 import asyncio
 
 from backend.core.logger import get_logger
-from backend.oauth2.state_storage import state_storage
+from backend.ows.auth.state_storage import state_storage
 
 logger = get_logger(__name__)
 

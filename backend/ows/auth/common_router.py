@@ -5,10 +5,10 @@ from fastapi.responses import RedirectResponse
 from fastapi_versioning import version
 
 from backend.core.logger import get_logger
-from backend.oauth2.base_provider import OAuth2Provider
-from backend.oauth2.google.provider import google_provider
-from backend.oauth2.state_storage import state_storage
-from backend.oauth2.yandex.provider import yandex_provider
+from backend.ows.auth.base_provider import OAuth2Provider
+from backend.ows.auth.google.provider import google_provider
+from backend.ows.auth.state_storage import state_storage
+from backend.ows.auth.yandex.provider import yandex_provider
 
 logger = get_logger(__name__)
 

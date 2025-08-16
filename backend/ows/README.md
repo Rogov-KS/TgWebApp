@@ -21,7 +21,7 @@ oauth2_integrations/
 ### Базовые классы
 
 ```python
-from backend.oauth2_integrations import CloudFile, CloudIntegration
+from backend.ows.auth_integrations import CloudFile, CloudIntegration
 
 # CloudFile - информация о файле в облачном хранилище
 file = CloudFile(
@@ -43,7 +43,7 @@ class MyCloudIntegration(CloudIntegration):
 ### Google Drive интеграция
 
 ```python
-from backend.oauth2_integrations import GoogleDriveIntegration
+from backend.ows.auth_integrations import GoogleDriveIntegration
 
 drive = GoogleDriveIntegration()
 files = await drive.get_files(access_token)
@@ -52,7 +52,7 @@ files = await drive.get_files(access_token)
 ### Yandex.Disk интеграция
 
 ```python
-from backend.oauth2_integrations import YandexDiskIntegration
+from backend.ows.auth_integrations import YandexDiskIntegration
 
 disk = YandexDiskIntegration()
 files = await disk.get_files(access_token)

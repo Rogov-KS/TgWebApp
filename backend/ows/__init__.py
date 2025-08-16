@@ -1,4 +1,7 @@
-"""Интеграции с внешними сервисами через OAuth2"""
+"""
+OWS - Other Web Services
+Интеграции с внешними сервисами через OAuth2
+"""
 
 from .base import CloudFile, CloudIntegration
 from .google.drive import GoogleDriveIntegration

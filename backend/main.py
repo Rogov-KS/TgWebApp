@@ -7,7 +7,7 @@ from fastapi_versioning import VersionedFastAPI
 
 from backend.entities.assemblers.routers import include_routers_into_app
 from backend.core.logger import get_logger, setup_logging
-from backend.oauth2.cleanup import start_cleanup_task
+from backend.ows.auth.cleanup import start_cleanup_task
 from backend.cache_redis.main import init_cache
 from backend.core.database import engine
 from backend.admin_page.main import add_views_into_admin

@@ -2,8 +2,8 @@ from typing import Any
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
-from backend.oauth2.base_provider import OAuth2Provider
-from backend.oauth2_integrations.yandex.disk import YandexDiskIntegration
+from backend.ows.auth.base_provider import OAuth2Provider
+from backend.ows.yandex.disk import YandexDiskIntegration
 from backend.entities.oauth2_token.schemas import CloudFile, OAuth2UserData
 
 logger = get_logger(__name__)

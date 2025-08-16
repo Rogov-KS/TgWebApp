@@ -172,7 +172,7 @@ class OAuth2Provider(ABC):
         self, code: str, state: str
     ) -> OAuth2UserData | None:
         """Полный процесс аутентификации"""
-        from backend.oauth2.state_storage import state_storage
+        from backend.ows.auth.state_storage import state_storage
 
         request_key = f"{state}_{code}"
         with self._single_processing_request(request_key):
