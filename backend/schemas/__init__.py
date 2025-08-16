@@ -1,4 +1,4 @@
-from .game_session import (
+from backend.entities.game_session.schemas import (
     GameSession,
     GameSessionBase,
     GameSessionCreate,

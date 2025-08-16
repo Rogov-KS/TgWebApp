@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_versioning import version
 
 from backend.core.dependecies import get_current_user
-from backend.dao.game_session import GameSessionDAO
+from backend.entities.game_session.dao import GameSessionDAO
 from backend.entities.user.dao import UserDAO
 from backend.core.logger import get_logger
-from backend.schemas.game_session import (
+from backend.entities.game_session.schemas import (
     GameSession,
     GameSessionCreate,
     GameSessionUpdate,
@@ -34,7 +34,7 @@ async def create_game_session(
     game_session_data: GameSessionCreate,
     user: User = Depends(get_current_user),
 ) -> GameSession:
-    """Создать новую игровую сессию."""
+
     if game_session_data.user_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -91,7 +91,7 @@ async def get_game_session(
     game_session_id: int,
     user: User = Depends(get_current_user),
 ) -> GameSession:
-    """Получить конкретную игровую сессию."""
+
     logger.info("Retrieving game session", extra={"game_session_id": game_session_id, "user_id": user.id})
     game_session = await GameSessionDAO.get_one_or_none(id=game_session_id)
     if not game_session:
@@ -114,7 +114,7 @@ async def complete_game_session(
     game_session_update: GameSessionUpdate,
     user: User = Depends(get_current_user),
 ) -> GameSession:
-    """Завершить игровую сессию."""
+
     game_session = await GameSessionDAO.get_one_or_none(id=game_session_id)
     if not game_session:
         raise HTTPException(
@@ -161,7 +161,7 @@ async def delete_game_session(
     game_session_id: int,
     user: User = Depends(get_current_user),
 ) -> dict[str, str]:
-    """Удалить игровую сессию."""
+
     deleted = await GameSessionDAO.delete(id=game_session_id, user_id=user.id)
     if not deleted:
         raise HTTPException(

@@ -3,7 +3,7 @@ from fastapi_cache.decorator import cache
 from fastapi_versioning import version
 
 from backend.core.dependecies import get_current_user
-from backend.dao.game_session import GameSessionDAO
+from backend.entities.game_session.dao import GameSessionDAO
 from backend.dao.utils import get_db_leaderboard
 from backend.schemas.leaderboard import LeaderboardPlace
 from backend.entities.user.schemas import User

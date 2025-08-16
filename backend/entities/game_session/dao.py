@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from backend.core.database import async_session_maker
 from backend.dao.base import BaseDAO
 from backend.core.logger import get_logger
-from backend.models.game_session import GameSession as GameSessionDB
+from backend.entities.game_session.models import GameSession as GameSessionDB
 
 logger = get_logger(__name__)
 
