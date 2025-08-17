@@ -10,7 +10,6 @@ from backend.core.exception import (
     UserAlreadyExistsException,
 )
 from backend.core.logger import get_logger
-from backend.entities.auth import utils as auth_utils
 from backend.entities.auth.utils import (
     verify_password,
     get_password_hash,

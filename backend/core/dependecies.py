@@ -15,7 +15,7 @@ from backend.core.exception import (
     UserNotFoundException,
 )
 from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAO
+from backend.entities.user.dao import UserDAO, UserDAODep
 from backend.entities.user.schemas import User as UserSchema
 
 logger = get_logger(__name__)
@@ -27,8 +27,12 @@ def get_token(request: Request) -> str:
         raise TokenAbsentException
     return str(token)
 
+AccessTokenDep = Annotated[str, Depends(get_token)]
 
-async def get_current_user(token: str = Depends(get_token)) -> UserSchema:
+async def get_current_user(
+    token: AccessTokenDep,
+    user_dao: UserDAODep,
+) -> UserSchema:
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -47,7 +51,7 @@ async def get_current_user(token: str = Depends(get_token)) -> UserSchema:
     if not user_id:
         raise UserNotFoundException
 
-    user = await UserDAO.get_one_or_none(id=int(user_id))
+    user = await user_dao.get_one_or_none(id=int(user_id))
     if not user:
         raise UserNotFoundException
 
@@ -71,9 +75,10 @@ async def get_current_admin_user(
 
 
 async def get_current_admin_user_by_token(
-    token: str = Depends(get_token),
+    token: AccessTokenDep,
+    user_dao: UserDAODep,
 ) -> UserSchema:
-    user = await get_current_user(token)
+    user = await get_current_user(token, user_dao)
     if not user or not user.is_admin:
         raise ForbiddenException
     return user

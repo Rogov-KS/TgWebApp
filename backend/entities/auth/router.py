@@ -4,9 +4,7 @@ from fastapi_versioning import version
 from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.core.dependecies import CurrentUserDep
 from backend.core.logger import get_logger
-from backend.entities.auth import utils as auth_utils
 from backend.entities.auth.service import AuthServiceDep
-from backend.entities.refresh_token.service import RefreshTokenServiceDep
 from backend.entities.user.schemas import User, UserAuth, UserLogin
 
 logger = get_logger(__name__)
@@ -44,11 +42,10 @@ async def login(
     response: Response,
     user_data: UserLogin,
     auth_service: AuthServiceDep,
-    refresh_token_service: RefreshTokenServiceDep,
 ) -> dict[str, str]:
     """Вход пользователя в систему."""
     return await auth_service.login_user(
-        user_data, response, auth_utils, refresh_token_service
+        user_data, response
     )
 
 
@@ -58,12 +55,11 @@ async def refresh(
     response: Response,
     request: Request,
     auth_service: AuthServiceDep,
-    refresh_token_service: RefreshTokenServiceDep,
 ) -> dict[str, str]:
     """Обновить access token используя refresh token с ротацией
     refresh токена."""
     return await auth_service.refresh_tokens(
-        request, response, auth_utils, refresh_token_service
+        request, response
     )
 
 
@@ -73,11 +69,10 @@ async def logout(
     response: Response,
     user: CurrentUserDep,
     auth_service: AuthServiceDep,
-    refresh_token_service: RefreshTokenServiceDep,
 ) -> dict[str, str]:
     """Выйти из системы."""
     return await auth_service.logout_user(
-        user, response, refresh_token_service
+        user, response
     )
 
 
