@@ -1,8 +1,11 @@
+from typing import Annotated
+
+from fastapi import Depends
 from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from backend.core.base_dao import BaseDAO
-from backend.core.database import async_session_maker
+from backend.core.database import AsyncSessionDep
 from backend.core.logger import get_logger
 from backend.entities.game_session.models import GameSession as GameSessionDB
 
@@ -14,8 +17,7 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
 
     model = GameSessionDB
 
-    @classmethod
-    async def get_max_score(cls, user_id: int) -> int | None:
+    async def get_max_score(self, user_id: int) -> int | None:
         """
         Получить максимальный счет пользователя.
 
@@ -33,19 +35,27 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
             logger.exception(msg, extra={"user_id": user_id}, exc_info=True)
             raise ValueError(msg)
 
-        async with async_session_maker() as session:
-            try:
-                query = select(func.max(cls.model.score)).where(
-                    cls.model.user_id == user_id
-                )
-                result = await session.execute(query)
-                max_score = result.scalar_one_or_none()
-                return int(max_score) if max_score is not None else None
-            except SQLAlchemyError as e:
-                logger.exception(
-                    "Ошибка при получении максимального счета",
-                    extra={"user_id": user_id},
-                    exc_info=True,
-                )
-                msg = "Ошибка при получении максимального счета"
-                raise ValueError(msg) from e
+        try:
+            query = select(func.max(self.model.score)).where(
+                self.model.user_id == user_id
+            )
+            result = await self.session.execute(query)
+            max_score = result.scalar_one_or_none()
+            return int(max_score) if max_score is not None else None
+        except SQLAlchemyError as e:
+            logger.exception(
+                "Ошибка при получении максимального счета",
+                extra={"user_id": user_id},
+                exc_info=True,
+            )
+            msg = "Ошибка при получении максимального счета"
+            raise ValueError(msg) from e
+
+
+def get_game_session_dao(session: AsyncSessionDep) -> GameSessionDAO:
+    """Dependency для получения GameSessionDAO."""
+    return GameSessionDAO(session)
+
+
+# Тип для использования в других модулях
+GameSessionDAODep = Annotated[GameSessionDAO, Depends(get_game_session_dao)]

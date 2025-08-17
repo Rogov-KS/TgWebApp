@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import Depends, Request
 from jose import JWTError, jwt
@@ -58,8 +59,11 @@ async def get_current_user(token: str = Depends(get_token)) -> UserSchema:
     return schema_user
 
 
+CurrentUserDep = Annotated[UserSchema, Depends(get_current_user)]
+
+
 async def get_current_admin_user(
-    user: UserSchema = Depends(get_current_user),
+    user: CurrentUserDep,
 ) -> UserSchema:
     if not user or not user.is_admin:
         raise ForbiddenException
