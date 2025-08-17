@@ -1,4 +1,6 @@
 from typing import Annotated, Literal
+import os
+from pathlib import Path
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -119,9 +121,37 @@ class Settings(BaseSettings):
         }
 
 
+def get_env_files(env_dir: str = "./envs") -> list[str]:
+    """Возвращает список .env файлов для загрузки"""
+    env_mode = os.getenv("ENV_MODE", "dev").lower()
+
+    # Базовый файл
+    files = [".env-base"]
+
+    # Специфичный файл окружения
+    env_files = {
+        "dev": ".env-dev",
+        "test": ".env-test",
+        "prod": ".env-prod"
+    }
+
+    if env_mode in env_files:
+        files.append(env_files[env_mode])
+
+    if env_dir:
+        files = [f"{env_dir}/{file}" for file in files]
+    print(f"files: {files}")
+    return files
+
+
 def get_settings() -> Settings:
     """Получение настроек с кэшированием"""
-    return Settings()
+    # env_dir = os.getenv("ENV_DIR", "envs")
+    env_dir = "./envs"
+    return Settings(
+        _env_file=get_env_files(env_dir=env_dir),
+        env_file_encoding="utf-8",
+    )
 
 
 settings = get_settings()

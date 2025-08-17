@@ -11,7 +11,7 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
 from backend.core.config import settings
 from backend.core.database import Base
-from backend.entities.composers.models import *
+from backend.entities.assemblers.models import *
 
 
 # this is the Alembic Config object, which provides

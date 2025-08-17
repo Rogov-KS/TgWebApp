@@ -6,7 +6,7 @@ services:
     image: postgres:15
     container_name: tg_web_app_db
     env_file:
-      - .env-non-dev
+      - .env-prod
     ports:
       - "4321:5432"
       # - "${DB_PORT}:5432"
@@ -56,7 +56,9 @@ services:
       redis:
         condition: service_healthy
     env_file:
-      - .env-non-dev
+      - .env-prod
+    environment:
+      - ENV_MODE=prod
     ports:
       - "9000:8000"
       # - "${BACKEND_PORT}:8000"
@@ -82,7 +84,7 @@ services:
       redis:
         condition: service_healthy
     env_file:
-      - .env-non-dev
+      - .env-prod
     networks:
       - app-network
     restart: unless-stopped
@@ -101,7 +103,7 @@ services:
   #     redis:
   #       condition: service_healthy
   #   env_file:
-  #     - .env-non-dev
+  #     - .env-prod
 
 
   # Flower Layer - Flower
@@ -118,7 +120,7 @@ services:
       redis:
         condition: service_healthy
     env_file:
-      - .env-non-dev
+      - .env-prod
     ports:
       - "5550:5555"
       # - "${FLOWER_PORT}:5555"
@@ -166,7 +168,7 @@ services:
       prometheus:
         condition: service_healthy
     env_file:
-      - .env-non-dev
+      - .env-prod
     ports:
       - "3333:3000"
       # - "${GRAFANA_PORT}:3000"

@@ -14,7 +14,7 @@ async def cleanup_oauth_data() -> None:
             state_storage.cleanup_expired_states()
             logger.debug("OAuth data cleanup completed")
 
-        except Exception as e:
+        except Exception:
             logger.error("Error during OAuth cleanup", exc_info=True)
 
         # Очищаем каждые 5 минут
