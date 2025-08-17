@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException, Response, status
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
+from backend.entities.auth import utils as auth_utils
 from backend.entities.refresh_token.dao import (
     RefreshTokenDAO,
     RefreshTokenDAODep
@@ -13,6 +14,7 @@ from backend.entities.refresh_token.dao import (
 from backend.entities.refresh_token.models import RefreshToken
 from backend.entities.user.dao import UserDAO, UserDAODep
 from backend.entities.user.models import User
+
 
 logger = get_logger(__name__)
 
@@ -308,7 +310,7 @@ class RefreshTokenService:
         return token, expire
 
     async def set_tokens_to_cookies(
-        self, response: Response, user: User, auth_utils
+        self, response: Response, user: User
     ) -> tuple[str, str]:
         """
         Создать токены и установить их в cookies.
@@ -316,7 +318,6 @@ class RefreshTokenService:
         Args:
             response: HTTP response объект
             user: пользователь
-            auth_utils: модуль с утилитами аутентификации
 
         Returns:
             tuple[str, str]: access_token, refresh_token

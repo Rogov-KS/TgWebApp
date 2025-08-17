@@ -10,10 +10,19 @@ from backend.core.exception import (
     UserAlreadyExistsException,
 )
 from backend.core.logger import get_logger
-from backend.entities.auth.utils import get_password_hash, is_valid_email
+from backend.entities.auth import utils as auth_utils
+from backend.entities.auth.utils import (
+    verify_password,
+    get_password_hash,
+    is_valid_email,
+)
 from backend.entities.user.dao import UserDAO, UserDAODep
 from backend.entities.user.schemas import User, UserAuth, UserLogin
 from backend.entities.user.schemas import User as UserSchema
+from backend.entities.refresh_token.service import (
+    RefreshTokenService,
+    RefreshTokenServiceDep,
+)
 
 logger = get_logger(__name__)
 
@@ -21,11 +30,18 @@ logger = get_logger(__name__)
 class AuthService:
     """Сервисный слой для аутентификации и управления пользователями."""
 
-    def __init__(self, user_dao: UserDAO):
+    def __init__(
+        self,
+        user_dao: UserDAO,
+        refresh_service: RefreshTokenService,
+    ):
         self.user_dao = user_dao
+        self.refresh_service = refresh_service
 
     async def authenticate_user(
-        self, username_or_email: str, password: str
+        self,
+        username_or_email: str,
+        password: str
     ) -> UserSchema | None:
         """
         Аутентификация пользователя по username или email.
@@ -38,7 +54,6 @@ class AuthService:
             UserSchema | None: пользователь или None, если
                               аутентификация не удалась
         """
-        from backend.entities.auth.utils import verify_password
 
         user = None
 
@@ -146,7 +161,9 @@ class AuthService:
         return model_user
 
     async def login_user(
-        self, user_data: UserLogin, response: Response, auth_utils, refresh_service
+        self,
+        user_data: UserLogin,
+        response: Response,
     ) -> dict[str, str]:
         """
         Вход пользователя в систему.
@@ -154,7 +171,6 @@ class AuthService:
         Args:
             user_data: данные для входа
             response: HTTP response объект
-            auth_utils: модуль с утилитами аутентификации
             refresh_service: сервис для работы с refresh токенами
 
         Returns:
@@ -173,8 +189,8 @@ class AuthService:
             )
             raise InvalidCredentialsException
 
-        tokens = await refresh_service.set_tokens_to_cookies(
-            response, user, auth_utils
+        tokens = await self.refresh_service.set_tokens_to_cookies(
+            response, user
         )
         access_token, refresh_token = tokens
 
@@ -185,7 +201,9 @@ class AuthService:
         }
 
     async def refresh_tokens(
-        self, request: Request, response: Response, auth_utils, refresh_service
+        self,
+        request: Request,
+        response: Response,
     ) -> dict[str, str]:
         """
         Обновление токенов доступа.
@@ -193,7 +211,6 @@ class AuthService:
         Args:
             request: HTTP request объект
             response: HTTP response объект
-            auth_utils: модуль с утилитами аутентификации
             refresh_service: сервис для работы с refresh токенами
 
         Returns:
@@ -213,21 +230,21 @@ class AuthService:
             logger.info("No refresh token found")
             raise InvalidOAuth2TokenException
 
-        user = await refresh_service.verify_refresh_token(refresh_token)
+        user = await self.refresh_service.verify_refresh_token(refresh_token)
         if not user:
             logger.info("Invalid refresh token")
             raise InvalidOAuth2TokenException
 
         # Отзываем старый refresh token
-        await refresh_service.revoke_token(refresh_token)
+        await self.refresh_service.revoke_token(refresh_token)
 
         logger.info(
             "New access token and refresh token created for user",
             extra={"user_id": user.id},
         )
 
-        tokens = await refresh_service.set_tokens_to_cookies(
-            response, user, auth_utils
+        tokens = await self.refresh_service.set_tokens_to_cookies(
+            response, user
         )
         access_token, new_refresh_token = tokens
 
@@ -238,7 +255,7 @@ class AuthService:
         }
 
     async def logout_user(
-        self, user: User, response: Response, refresh_service
+        self, user: User, response: Response
     ) -> dict[str, str]:
         """
         Выход пользователя из системы.
@@ -246,7 +263,6 @@ class AuthService:
         Args:
             user: текущий пользователь
             response: HTTP response объект
-            refresh_service: сервис для работы с refresh токенами
 
         Returns:
             dict: сообщение об успешном выходе
@@ -256,7 +272,7 @@ class AuthService:
         logger.info("Logging out user", extra={"user_id": user.id})
 
         # Отзываем все refresh токены пользователя
-        await refresh_service.revoke_all_user_tokens(user.id)
+        await self.refresh_service.revoke_all_user_tokens(user.id)
 
         # Удаляем cookies
         response.delete_cookie(settings.ACCESS_TOKEN_COOKIE_NAME)
@@ -266,9 +282,12 @@ class AuthService:
         return {"message": "Successfully logged out"}
 
 
-def get_auth_service(user_dao: UserDAODep) -> AuthService:
+def get_auth_service(
+    user_dao: UserDAODep,
+    refresh_service: RefreshTokenServiceDep
+) -> AuthService:
     """Dependency для получения AuthService."""
-    return AuthService(user_dao)
+    return AuthService(user_dao, refresh_service)
 
 
 # Тип для использования в роутерах
