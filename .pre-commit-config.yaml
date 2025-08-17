@@ -5,10 +5,14 @@ repos:
       - id: ruff
         args: [--fix]
         exclude: ^backend/alembic/
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
+      - id: ruff-format
+        exclude: ^backend/alembic/
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.3.1
     hooks:
-      - id: black
+      - id: autoflake
+        args: [--remove-all-unused-imports, --remove-unused-variables, --in-place]
+        exclude: ^backend/alembic/
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.16.1
     hooks:
