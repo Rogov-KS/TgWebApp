@@ -99,8 +99,6 @@ class Settings(BaseSettings):
         return self.CELERY_RESULT_BACKEND or self.REDIS_URL
 
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
         extra="ignore",  # Игнорирует неизвестные переменные
     )
 
@@ -150,7 +148,7 @@ def get_settings() -> Settings:
     env_dir = "./envs"
     return Settings(
         _env_file=get_env_files(env_dir=env_dir),
-        env_file_encoding="utf-8",
+        _env_file_encoding="utf-8",
     )
 
 
