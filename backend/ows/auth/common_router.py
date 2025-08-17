@@ -57,7 +57,9 @@ def get_oauth_redirect_uri(provider: str) -> RedirectResponse:
     url_params = "&".join([f"{k}={v}" for k, v in auth_params.items()])
     auth_url = f"{oauth_provider.authorization_url}?{url_params}"
 
-    logger.info("Generated auth URL", extra={"provider": provider, "auth_url": auth_url})
+    logger.info(
+        "Generated auth URL", extra={"provider": provider, "auth_url": auth_url}
+    )
     return RedirectResponse(url=auth_url, status_code=302)
 
 
@@ -67,7 +69,7 @@ async def handle_oauth_callback(
     provider: str,
     code: Annotated[str, Body()],
     state: Annotated[str, Body()],
-    response: Response
+    response: Response,
 ) -> dict[str, str]:
     """
     Обработать callback от OAuth2 провайдера
@@ -86,7 +88,9 @@ async def handle_oauth_callback(
             ),
         )
 
-    logger.info("OAuth callback", extra={"provider": provider, "code": code, "state": state})
+    logger.info(
+        "OAuth callback", extra={"provider": provider, "code": code, "state": state}
+    )
 
     oauth_provider = PROVIDERS[provider]
 
@@ -94,12 +98,17 @@ async def handle_oauth_callback(
         # Выполняем аутентификацию
         user_data = await oauth_provider.get_oauth2_user_data(code, state)
 
-        logger.info("Authentication successful", extra={"provider": provider, "email": user_data.email})
+        logger.info(
+            "Authentication successful",
+            extra={"provider": provider, "email": user_data.email},
+        )
 
         return await oauth_provider.authenticate_by_user_data(user_data, response)
 
     except Exception as e:
-        logger.error("OAuth authentication failed", extra={"provider": provider}, exc_info=True)
+        logger.exception(
+            "OAuth authentication failed", extra={"provider": provider}, exc_info=True
+        )
         raise HTTPException(
             status_code=400, detail=f"OAuth authentication failed: {e!s}"
         )
@@ -148,5 +157,7 @@ async def get_cloud_files(
         }
 
     except Exception as e:
-        logger.error("Failed to get cloud files", extra={"provider": provider}, exc_info=True)
+        logger.exception(
+            "Failed to get cloud files", extra={"provider": provider}, exc_info=True
+        )
         raise HTTPException(status_code=400, detail=f"Failed to get cloud files: {e!s}")

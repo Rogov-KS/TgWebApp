@@ -1,7 +1,8 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import Depends, Request
 from jose import JWTError, jwt
+from pydantic import ValidationError
 
 from backend.core.config import settings
 from backend.core.exception import (
@@ -12,12 +13,9 @@ from backend.core.exception import (
     TokenExpiredException,
     UserNotFoundException,
 )
+from backend.core.logger import get_logger
 from backend.entities.user.dao import UserDAO
 from backend.entities.user.schemas import User as UserSchema
-from backend.core.logger import get_logger
-from backend.entities.user.models import User
-from pydantic import ValidationError
-
 
 logger = get_logger(__name__)
 
@@ -41,7 +39,7 @@ async def get_current_user(token: str = Depends(get_token)) -> UserSchema:
 
     expire = payload.get("exp")
     logger.info("Token expire check", extra={"expire": expire})
-    if not expire or (int(expire) < int(datetime.now(timezone.utc).timestamp())):
+    if not expire or (int(expire) < int(datetime.now(UTC).timestamp())):
         raise TokenExpiredException
 
     user_id = payload.get("sub")
@@ -60,13 +58,17 @@ async def get_current_user(token: str = Depends(get_token)) -> UserSchema:
     return schema_user
 
 
-async def get_current_admin_user(user: UserSchema = Depends(get_current_user)) -> UserSchema:
+async def get_current_admin_user(
+    user: UserSchema = Depends(get_current_user),
+) -> UserSchema:
     if not user or not user.is_admin:
         raise ForbiddenException
     return user
 
 
-async def get_current_admin_user_by_token(token: str = Depends(get_token)) -> UserSchema:
+async def get_current_admin_user_by_token(
+    token: str = Depends(get_token),
+) -> UserSchema:
     user = await get_current_user(token)
     if not user or not user.is_admin:
         raise ForbiddenException

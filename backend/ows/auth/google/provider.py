@@ -1,13 +1,13 @@
-from typing import Dict, Any, List
-import jwt
-import aiohttp
-import asyncio
+from typing import Any
 
-from backend.ows.auth.base_provider import OAuth2Provider
+import aiohttp
+import jwt
+
 from backend.core.config import settings
 from backend.core.logger import get_logger
-from backend.ows.google.drive import GoogleDriveIntegration
 from backend.entities.oauth2_token.schemas import CloudFile, OAuth2UserData
+from backend.ows.auth.base_provider import OAuth2Provider
+from backend.ows.google.drive import GoogleDriveIntegration
 
 logger = get_logger(__name__)
 
@@ -45,40 +45,35 @@ class GoogleOAuth2Provider(OAuth2Provider):
         # Google предоставляет данные пользователя через id_token
         return ""
 
-    async def _get_google_public_keys(self) -> Dict[str, Any]:
+    async def _get_google_public_keys(self) -> dict[str, Any]:
         """Получить публичные ключи Google для проверки подписи id_token"""
         if self._public_keys is None:
             try:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(
-                        "https://www.googleapis.com/oauth2/v1/certs",
-                        ssl=False
+                        "https://www.googleapis.com/oauth2/v1/certs", ssl=False
                     ) as response:
                         if response.status == 200:
                             self._public_keys = await response.json()
                         else:
-                            logger.error(
+                            logger.exception(
                                 "Failed to fetch Google public keys",
                                 exc_info=True,
-                                extra={"status": response.status}
+                                extra={"status": response.status},
                             )
-                            raise ValueError(
-                                "Failed to fetch Google public keys"
-                            )
+                            raise ValueError("Failed to fetch Google public keys")
             except Exception as e:
-                logger.error("Error fetching Google public keys", exc_info=True)
-                raise ValueError(
-                    f"Error fetching Google public keys: {e}"
-                )
+                logger.exception("Error fetching Google public keys", exc_info=True)
+                raise ValueError(f"Error fetching Google public keys: {e}")
 
         return self._public_keys
 
-    def _verify_google_id_token(self, id_token: str) -> Dict[str, Any]:
+    def _verify_google_id_token(self, id_token: str) -> dict[str, Any]:
         """Проверить подпись Google id_token"""
         try:
             # Декодируем заголовок токена для получения kid
             header = jwt.get_unverified_header(id_token)
-            kid = header.get('kid')
+            kid = header.get("kid")
 
             if not kid:
                 raise ValueError("No 'kid' in token header")
@@ -86,9 +81,7 @@ class GoogleOAuth2Provider(OAuth2Provider):
             # Получаем публичные ключи
             public_keys = self._public_keys
             if not public_keys or kid not in public_keys:
-                raise ValueError(
-                    f"Public key with kid '{kid}' not found"
-                )
+                raise ValueError(f"Public key with kid '{kid}' not found")
 
             # Получаем публичный ключ
             public_key = public_keys[kid]
@@ -107,30 +100,36 @@ class GoogleOAuth2Provider(OAuth2Provider):
             return payload
 
         except jwt.InvalidTokenError as e:
-            logger.error("Invalid Google id_token", exc_info=True, extra={"id_token": id_token})
+            logger.exception(
+                "Invalid Google id_token", exc_info=True, extra={"id_token": id_token}
+            )
             raise ValueError(f"Invalid Google id_token: {e}")
         except Exception as e:
-            logger.error("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
-            raise ValueError(
-                f"Error verifying Google id_token: {e}"
+            logger.exception(
+                "Error verifying Google id_token",
+                exc_info=True,
+                extra={"id_token": id_token},
             )
+            raise ValueError(f"Error verifying Google id_token: {e}")
 
-    def get_authorization_params(self, state: str) -> Dict[str, str]:
+    def get_authorization_params(self, state: str) -> dict[str, str]:
         return {
             "client_id": self.client_id,
             "redirect_uri": self.redirect_uri,
             "response_type": "code",
-            "scope": " ".join([
-                "openid",
-                "profile",
-                "email",
-                "https://www.googleapis.com/auth/drive.readonly",
-            ]),
+            "scope": " ".join(
+                [
+                    "openid",
+                    "profile",
+                    "email",
+                    "https://www.googleapis.com/auth/drive.readonly",
+                ]
+            ),
             "access_type": "offline",
             "state": state,
         }
 
-    def get_token_params(self, code: str) -> Dict[str, str]:
+    def get_token_params(self, code: str) -> dict[str, str]:
         return {
             "client_id": self.client_id,
             "client_secret": self.client_secret,
@@ -139,7 +138,7 @@ class GoogleOAuth2Provider(OAuth2Provider):
             "code": code,
         }
 
-    async def parse_user_data(self, raw_data: Dict[str, Any]) -> OAuth2UserData:
+    async def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
         # Для Google, данные пользователя приходят в id_token
         id_token = raw_data.get("id_token")
         if not id_token:
@@ -154,7 +153,7 @@ class GoogleOAuth2Provider(OAuth2Provider):
         # try:
         #     user_info = self._verify_google_id_token(id_token)
         # except Exception as e:
-        #     logger.error("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
+        #     logger.exception("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
         #     raise ValueError(f"Error verifying Google id_token: {e}")
 
         # Декодируем id_token без проверки подписи (для демо)
@@ -175,7 +174,7 @@ class GoogleOAuth2Provider(OAuth2Provider):
             raw_data=user_info,
         )
 
-    async def get_cloud_files(self, access_token: str) -> List[CloudFile]:
+    async def get_cloud_files(self, access_token: str) -> list[CloudFile]:
         """Получение файлов из Google Drive через интеграцию"""
         files = await self._drive_integration.get_files(access_token)
         return files

@@ -1,12 +1,12 @@
-from fastapi import APIRouter
-from pydantic import EmailStr
-from fastapi_cache.decorator import cache
 import asyncio
+
+from fastapi import APIRouter
+from fastapi_cache.decorator import cache
 from fastapi_versioning import version
+from pydantic import EmailStr
 
 from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.core.logger import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -22,10 +22,7 @@ async def send_email(email_to: EmailStr, username: str) -> dict[str, str]:
     """Отправка email"""
     logger.info("Sending email", extra={"email_to": email_to, "username": username})
 
-    await send_welcome_email_task(
-        user_email=email_to,
-        username=username
-    )
+    await send_welcome_email_task(user_email=email_to, username=username)
 
     return {"message": "Email sent"}
 
@@ -38,14 +35,15 @@ async def get_cache():
     logger.info("Start test cache")
     await asyncio.sleep(3)
     logger.info("End test cache")
-    return dict(hello="world")
+    return {"hello": "world"}
 
 
 @router.get("/sentry-debug")
 @version(1)
 async def trigger_error() -> None:
     """Тест Sentry"""
-    division_by_zero = 1 / 0
+    1 / 0
+
 
 @router.get("/versioning-test")
 @version(1)
@@ -53,8 +51,9 @@ async def hello_version(name: str) -> dict[str, str]:
     """Тест Versioning"""
     return {"message": f"Hello {name}"}
 
+
 @router.get("/versioning-test")
 @version(2)
 async def hello_version_v2(name: str) -> dict[str, str]:
     """Тест Versioning"""
-    return {"message": f"Hello {name*2}"}
+    return {"message": f"Hello {name * 2}"}

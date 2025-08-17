@@ -1,15 +1,17 @@
 from sqladmin import ModelView
 
 from backend.entities.assemblers.models import (
-    User,
     GameSession,
-    RefreshToken,
     OAuth2Token,
+    RefreshToken,
+    User,
 )
 
 
 class UsersAdmin(ModelView, model=User):
-    column_list = [c.name for c in User.__table__.columns if c.name != "hashed_password"]
+    column_list = [
+        c.name for c in User.__table__.columns if c.name != "hashed_password"
+    ]
     column_details_exclude_list = [User.hashed_password]
     can_delete = False
     name = "Пользователь"
@@ -36,7 +38,11 @@ class RefreshTokenAdmin(ModelView, model=RefreshToken):
 
 
 class OAuth2TokenAdmin(ModelView, model=OAuth2Token):
-    column_list = [c.name for c in OAuth2Token.__table__.columns if c.name not in ["access_token", "refresh_token"]]
+    column_list = [
+        c.name
+        for c in OAuth2Token.__table__.columns
+        if c.name not in ["access_token", "refresh_token"]
+    ]
     column_details_exclude_list = [OAuth2Token.access_token, OAuth2Token.refresh_token]
     can_delete = False
     can_create = False

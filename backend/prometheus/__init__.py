@@ -1,5 +1,5 @@
-from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from backend.prometheus.router import router
 

@@ -1,7 +1,8 @@
+from datetime import UTC, datetime
 import logging
 from pathlib import Path
+
 from pythonjsonlogger import jsonlogger
-from datetime import datetime, timezone
 
 from backend.core.config import settings
 
@@ -10,14 +11,14 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
     """Форматтер для логирования в формате JSON"""
 
     def add_fields(
-            self,
-            log_record: dict,
-            record: logging.LogRecord,
-            message_dict: dict,
+        self,
+        log_record: dict,
+        record: logging.LogRecord,
+        message_dict: dict,
     ) -> None:
         super().add_fields(log_record, record, message_dict)
         if not log_record.get("timestamp"):
-            now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             log_record["timestamp"] = now
         if log_record.get("level"):
             log_record["level"] = log_record["level"].upper()
@@ -58,10 +59,7 @@ def setup_logging() -> None:
 
     # Создаем обработчик для файла
     log_file_path = f"{logs_dir}/app_log.json"
-    file_handler = logging.FileHandler(
-        log_file_path,
-        encoding="utf-8"
-    )
+    file_handler = logging.FileHandler(log_file_path, encoding="utf-8")
     file_handler.setFormatter(json_formatter)
     file_handler.setLevel(getattr(logging, settings.LOG_LEVEL))
 

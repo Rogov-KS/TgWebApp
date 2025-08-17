@@ -1,10 +1,9 @@
 from fastapi import APIRouter
 from fastapi_versioning import version
 
-from backend.entities.user.dao import UserDAO
 from backend.core.logger import get_logger
+from backend.entities.user.dao import UserDAO
 from backend.entities.user.schemas import User
-
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

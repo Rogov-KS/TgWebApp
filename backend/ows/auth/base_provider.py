@@ -6,11 +6,15 @@ from typing import Any
 import aiohttp
 from fastapi import HTTPException, Response
 
-from backend.entities.auth.utils import set_tokens_to_cookies
-from backend.core.logger import get_logger
-from backend.entities.oauth2_token.schemas import CloudFile, OAuth2TokenData, OAuth2UserData
-from backend.entities.user.dao import UserDAO
 from backend.celery_app.tasks.email import send_welcome_email_task
+from backend.core.logger import get_logger
+from backend.entities.auth.utils import set_tokens_to_cookies
+from backend.entities.oauth2_token.schemas import (
+    CloudFile,
+    OAuth2TokenData,
+    OAuth2UserData,
+)
+from backend.entities.user.dao import UserDAO
 
 logger = get_logger(__name__)
 
@@ -75,7 +79,9 @@ class OAuth2Provider(ABC):
         обрабатывается только один раз.
         """
         if request_key in self._processing_requests:
-            logger.warning("Request already being processed", extra={"request_key": request_key})
+            logger.warning(
+                "Request already being processed", extra={"request_key": request_key}
+            )
             raise HTTPException(
                 status_code=429,
                 detail="Request is already being processed",
@@ -97,14 +103,14 @@ class OAuth2Provider(ABC):
             ) as response:
                 if response.status != 200:
                     error_text = await response.text()
-                    logger.error(
+                    logger.exception(
                         "Failed to get access token",
                         exc_info=True,
                         extra={
                             "provider_name": self.provider_name,
                             "status": response.status,
-                            "response": error_text
-                        }
+                            "response": error_text,
+                        },
                     )
                     raise HTTPException(
                         status_code=response.status,
@@ -148,14 +154,14 @@ class OAuth2Provider(ABC):
             ) as response:
                 if response.status != 200:
                     error_text = await response.text()
-                    logger.error(
+                    logger.exception(
                         "Failed to get user data",
                         exc_info=True,
                         extra={
                             "provider_name": self.provider_name,
                             "status": response.status,
-                            "response": error_text
-                        }
+                            "response": error_text,
+                        },
                     )
                     raise HTTPException(
                         status_code=response.status,
@@ -194,18 +200,13 @@ class OAuth2Provider(ABC):
             # Чисто для примера, в будущем будет использоваться для получения файлов
             # из облачного хранилища по сторонему АПИ и токену
             try:
-                cloud_files = await self.get_cloud_files(
-                    token_data.access_token
-                )
+                cloud_files = await self.get_cloud_files(token_data.access_token)
                 logger.info("Found cloud files", extra={"count": len(cloud_files)})
             except Exception as e:
                 logger.warning(
                     "Failed to get cloud files",
                     exc_info=True,
-                    extra={
-                        "provider_name": self.provider_name,
-                        "error": str(e)
-                    }
+                    extra={"provider_name": self.provider_name, "error": str(e)},
                 )
                 cloud_files = []
 
@@ -234,16 +235,17 @@ class OAuth2Provider(ABC):
 
             # Отправляем приветственное письмо для новых пользователей
             if user_data.email:
-                logger.info("Try to send welcome email", extra={"email": user_data.email})
+                logger.info(
+                    "Try to send welcome email", extra={"email": user_data.email}
+                )
                 await send_welcome_email_task(
                     user_email=user_data.email,
-                    username=user_data.username or user_data.email
+                    username=user_data.username or user_data.email,
                 )
-
 
         access_token, refresh_token = await set_tokens_to_cookies(response, user)
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "token_type": "bearer"
+            "token_type": "bearer",
         }

@@ -1,21 +1,19 @@
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import FastAPI
-from sqladmin import Admin
 from fastapi_versioning import VersionedFastAPI
+from sqladmin import Admin
 
-from backend.entities.assemblers.routers import include_routers_into_app
-from backend.core.logger import get_logger, setup_logging
-from backend.ows.auth.cleanup import start_cleanup_task
+from backend.admin_page import add_views_into_admin, authentication_backend
 from backend.cache_redis.main import init_cache
 from backend.core.database import engine
-from backend.admin_page.main import add_views_into_admin
-from backend.admin_page.auth import authentication_backend
+from backend.core.logger import get_logger, setup_logging
+from backend.entities.assemblers.routers import include_routers_into_app
 from backend.middlewares import add_middlewares
-from backend.sentry import init_sentry
+from backend.ows.auth.cleanup import start_cleanup_task
 from backend.prometheus import init_prometheus
-
+from backend.sentry import init_sentry
 
 logger = get_logger(__name__)
 
@@ -38,11 +36,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 # Создаем экземпляр FastAPI
-app = FastAPI(
-    version="0.1.0",
-    root_path="/api",
-    title="TgWebApp API"
-)
+app = FastAPI(version="0.1.0", root_path="/api", title="TgWebApp API")
 
 # Подключаем роутеры
 include_routers_into_app(app)

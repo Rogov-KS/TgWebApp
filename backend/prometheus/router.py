@@ -1,20 +1,16 @@
-import time
 from random import random
+import time
 
 from fastapi import APIRouter
 
-router = APIRouter(
-    prefix="/prometheus",
-    tags=["Тестирование Grafana + Prometheus"]
-)
+router = APIRouter(prefix="/prometheus", tags=["Тестирование Grafana + Prometheus"])
 
 
 @router.get("/get_error")
 def get_error():
     if random() > 0.5:
         raise ZeroDivisionError
-    else:
-        raise KeyError
+    raise KeyError
 
 
 @router.get("/time_consumer")

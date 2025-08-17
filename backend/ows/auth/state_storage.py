@@ -1,7 +1,8 @@
+from datetime import UTC, datetime, timedelta
 import secrets
-from typing import Dict
-from datetime import datetime, timedelta, timezone
+
 from fastapi import HTTPException
+
 from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -11,7 +12,7 @@ class StateStorage:
     """Хранилище для OAuth state параметров"""
 
     def __init__(self) -> None:
-        self._states: Dict[str, Dict] = {}
+        self._states: dict[str, dict] = {}
         # Множество для отслеживания обрабатываемых states
         self._processing_states: set = set()
 
@@ -20,8 +21,8 @@ class StateStorage:
         state = secrets.token_urlsafe(32)
         self._states[state] = {
             "provider": provider,
-            "created_at": datetime.now(timezone.utc),
-            "used": False
+            "created_at": datetime.now(UTC),
+            "used": False,
         }
         logger.info("Generated state", extra={"provider": provider, "state": state})
         return state
@@ -47,13 +48,13 @@ class StateStorage:
                 "State provider mismatch",
                 extra={
                     "expected_provider": state_data["provider"],
-                    "got_provider": provider
-                }
+                    "got_provider": provider,
+                },
             )
             return False
 
         # Проверяем время жизни (5 минут)
-        if datetime.now(timezone.utc) - state_data["created_at"] > timedelta(minutes=5):
+        if datetime.now(UTC) - state_data["created_at"] > timedelta(minutes=5):
             logger.warning("State expired", extra={"state": state})
             return False
 
@@ -77,16 +78,17 @@ class StateStorage:
     def validate_state_or_raise(self, state: str, provider: str) -> None:
         """Валидирует state, выбрасывает HTTPException при ошибке."""
         if not self.validate_state(state, provider):
-            logger.error("Invalid state parameter", extra={"state": state}, exc_info=True)
-            raise HTTPException(
-                status_code=400, detail="Invalid state parameter"
+            logger.exception(
+                "Invalid state parameter", extra={"state": state}, exc_info=True
             )
+            raise HTTPException(status_code=400, detail="Invalid state parameter")
 
     def cleanup_expired_states(self) -> None:
         """Очищает истекшие state"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expired_states = [
-            state for state, data in self._states.items()
+            state
+            for state, data in self._states.items()
             if now - data["created_at"] > timedelta(minutes=10)
         ]
         for state in expired_states:
@@ -94,7 +96,9 @@ class StateStorage:
             # Также очищаем из множества обрабатываемых
             self._processing_states.discard(state)
         if expired_states:
-            logger.info("Cleaned up expired states", extra={"count": len(expired_states)})
+            logger.info(
+                "Cleaned up expired states", extra={"count": len(expired_states)}
+            )
 
 
 # Глобальный экземпляр

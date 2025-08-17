@@ -1,6 +1,6 @@
-from redis import asyncio as aioredis
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
@@ -22,6 +22,6 @@ async def init_cache() -> None:
         FastAPICache.init(RedisBackend(redis), prefix="cache")
         logger.info("Redis cache initialized")
 
-    except Exception as e:
-        logger.error("Error initializing Redis cache", exc_info=True)
+    except Exception:
+        logger.exception("Error initializing Redis cache", exc_info=True)
         raise

@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import and_, select
 
 from backend.core.base_dao import BaseDAO
-from backend.entities.refresh_token.models import RefreshToken
 from backend.core.database import async_session_maker
+from backend.entities.refresh_token.models import RefreshToken
 
 
 class RefreshTokenDAO(BaseDAO[RefreshToken]):
@@ -26,7 +26,7 @@ class RefreshTokenDAO(BaseDAO[RefreshToken]):
                 and_(
                     cls.model.user_id == user_id,
                     cls.model.is_revoked == False,  # noqa: E712
-                    cls.model.expires_at > datetime.now(timezone.utc),
+                    cls.model.expires_at > datetime.now(UTC),
                 )
             )
             result = await session.execute(stmt)
@@ -48,9 +48,7 @@ class RefreshTokenDAO(BaseDAO[RefreshToken]):
     async def delete_expired(cls) -> None:
         """Удалить истекшие refresh токены."""
         async with async_session_maker() as session:
-            stmt = select(cls.model).where(
-                cls.model.expires_at <= datetime.now(timezone.utc)
-            )
+            stmt = select(cls.model).where(cls.model.expires_at <= datetime.now(UTC))
             result = await session.execute(stmt)
             expired_tokens = result.scalars().all()
 
@@ -73,8 +71,5 @@ class RefreshTokenDAO(BaseDAO[RefreshToken]):
     ) -> RefreshToken | None:
         """Создать новый refresh token."""
         return await cls.create(
-            user_id=user_id,
-            token=token,
-            expires_at=expires_at,
-            is_revoked=False
+            user_id=user_id, token=token, expires_at=expires_at, is_revoked=False
         )

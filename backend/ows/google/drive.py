@@ -1,11 +1,10 @@
 """Google Drive интеграция"""
 
 import aiohttp
-from typing import List
 
 from backend.core.logger import get_logger
-from backend.ows.base import CloudIntegration
 from backend.entities.assemblers.schemas import CloudFile
+from backend.ows.base import CloudIntegration
 
 logger = get_logger(__name__)
 
@@ -17,7 +16,7 @@ class GoogleDriveIntegration(CloudIntegration):
         super().__init__("google_drive")
         self.api_base_url = "https://www.googleapis.com/drive/v3"
 
-    async def get_files(self, access_token: str) -> List[CloudFile]:
+    async def get_files(self, access_token: str) -> list[CloudFile]:
         """Получение файлов из Google Drive"""
         drive_url = f"{self.api_base_url}/files"
 
@@ -26,22 +25,17 @@ class GoogleDriveIntegration(CloudIntegration):
                 url=drive_url,
                 headers={"Authorization": f"Bearer {access_token}"},
                 params={
-                    "fields": (
-                        "files(id,name,size,mimeType,modifiedTime,webViewLink)"
-                    ),
-                    "pageSize": 100
+                    "fields": ("files(id,name,size,mimeType,modifiedTime,webViewLink)"),
+                    "pageSize": 100,
                 },
                 ssl=False,
             ) as response:
                 if response.status != 200:
                     error_text = await response.text()
-                    logger.error(
+                    logger.exception(
                         "Failed to get Google Drive files",
                         exc_info=True,
-                        extra={
-                            "status": response.status,
-                            "response": error_text
-                        }
+                        extra={"status": response.status, "response": error_text},
                     )
                     return []
 
@@ -52,10 +46,7 @@ class GoogleDriveIntegration(CloudIntegration):
                     CloudFile(
                         name=file.get("name", ""),
                         id=file.get("id"),
-                        size=(
-                            int(file.get("size", 0))
-                            if file.get("size") else None
-                        ),
+                        size=(int(file.get("size", 0)) if file.get("size") else None),
                         mime_type=file.get("mimeType"),
                         modified_time=file.get("modifiedTime"),
                         download_url=file.get("webViewLink"),

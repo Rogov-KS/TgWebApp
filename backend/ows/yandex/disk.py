@@ -1,11 +1,10 @@
 """Yandex.Disk интеграция"""
 
 import aiohttp
-from typing import List
 
 from backend.core.logger import get_logger
-from backend.ows.base import CloudIntegration
 from backend.entities.assemblers.schemas import CloudFile
+from backend.ows.base import CloudIntegration
 
 logger = get_logger(__name__)
 
@@ -17,7 +16,7 @@ class YandexDiskIntegration(CloudIntegration):
         super().__init__("yandex_disk")
         self.api_base_url = "https://cloud-api.yandex.net/v1/disk"
 
-    async def get_files(self, access_token: str) -> List[CloudFile]:
+    async def get_files(self, access_token: str) -> list[CloudFile]:
         """Получение файлов из Яндекс.Диска"""
         disk_url = f"{self.api_base_url}/resources/files"
 
@@ -33,13 +32,10 @@ class YandexDiskIntegration(CloudIntegration):
             ) as response:
                 if response.status != 200:
                     error_text = await response.text()
-                    logger.error(
+                    logger.exception(
                         "Failed to get Yandex.Disk files",
                         exc_info=True,
-                        extra={
-                            "status": response.status,
-                            "response": error_text
-                        }
+                        extra={"status": response.status, "response": error_text},
                     )
                     return []
 

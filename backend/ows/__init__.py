@@ -11,5 +11,5 @@ __all__ = [
     "CloudFile",
     "CloudIntegration",
     "GoogleDriveIntegration",
-    "YandexDiskIntegration"
+    "YandexDiskIntegration",
 ]

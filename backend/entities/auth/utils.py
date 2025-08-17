@@ -1,19 +1,17 @@
+from datetime import UTC, datetime, timedelta
 import secrets
-from datetime import datetime, timedelta, timezone
 
+from fastapi import Response
 from jose import jwt
 from passlib.context import CryptContext
-from pydantic import EmailStr
-from fastapi import Response
+from pydantic import EmailStr, ValidationError
 
 from backend.core.config import settings
+from backend.core.logger import get_logger
 from backend.entities.refresh_token.dao import RefreshTokenDAO
 from backend.entities.user.dao import UserDAO
 from backend.entities.user.models import User
-from backend.core.logger import get_logger
 from backend.entities.user.schemas import User as UserSchema
-from pydantic import ValidationError
-
 
 logger = get_logger(__name__)
 
@@ -38,9 +36,7 @@ def is_valid_email(email: str) -> bool:
         return False
 
 
-async def authenticate_user(
-    username_or_email: str, password: str
-) -> UserSchema | None:
+async def authenticate_user(username_or_email: str, password: str) -> UserSchema | None:
     """
     Аутентификация пользователя по username или email.
     Если пользователь не найден, возвращает None.
@@ -59,14 +55,10 @@ async def authenticate_user(
     # Сначала проверяем, является ли введенная строка email
     if is_valid_email(username_or_email):
         # Если это email, ищем пользователя по email
-        user = await UserDAO.get_one_or_none(
-            email=username_or_email
-        )
+        user = await UserDAO.get_one_or_none(email=username_or_email)
     else:
         # Если это не email, ищем по username
-        user = await UserDAO.get_one_or_none(
-            username=username_or_email
-        )
+        user = await UserDAO.get_one_or_none(username=username_or_email)
 
     if not user or not verify_password(password, user.hashed_password):
         return None
@@ -104,9 +96,7 @@ async def authenticate_admin_user(
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+    expire = datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
@@ -117,12 +107,11 @@ def create_access_token(data: dict) -> str:
 def create_refresh_token(user_id: int) -> tuple[str, datetime]:
     """Создать refresh token для пользователя."""
     # Генерируем случайный токен
+    logger.info("create_refresh_token", extra={"user_id": user_id})
     token = secrets.token_urlsafe(32)
 
     # Вычисляем время истечения
-    expire = datetime.now(timezone.utc) + timedelta(
-        days=settings.REFRESH_TOKEN_EXPIRE_DAYS
-    )
+    expire = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
 
     return token, expire
 
@@ -165,22 +154,24 @@ async def verify_refresh_token(token: str) -> User | None:
     refresh_token = await RefreshTokenDAO.get_by_token(token)
     logger.info(
         "get info about refresh_token",
-        extra={"refresh_token": {
-            "token": refresh_token.token if refresh_token else None,
-            "user_id": refresh_token.user_id if refresh_token else None,
-            "is_revoked": refresh_token.is_revoked if refresh_token else None,
-            "expires_at": (
-                refresh_token.expires_at.isoformat()
-                if refresh_token and refresh_token.expires_at else None
-            )
-        }}
+        extra={
+            "refresh_token": {
+                "token": refresh_token.token if refresh_token else None,
+                "user_id": refresh_token.user_id if refresh_token else None,
+                "is_revoked": refresh_token.is_revoked if refresh_token else None,
+                "expires_at": (
+                    refresh_token.expires_at.isoformat()
+                    if refresh_token and refresh_token.expires_at
+                    else None
+                ),
+            }
+        },
     )
     if not refresh_token:
         return None
 
     # Проверяем, что токен активен и не истек
-    if (refresh_token.is_revoked or
-            refresh_token.expires_at <= datetime.now(timezone.utc)):
+    if refresh_token.is_revoked or refresh_token.expires_at <= datetime.now(UTC):
         return None
 
     # Получаем пользователя
@@ -215,9 +206,7 @@ async def create_user_refresh_token(user_id: int) -> str:
 
     # Сохраняем в базу
     await RefreshTokenDAO.create_refresh_token(
-        user_id=user_id,
-        token=token,
-        expires_at=expires_at
+        user_id=user_id, token=token, expires_at=expires_at
     )
 
     return token

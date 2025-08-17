@@ -15,7 +15,7 @@ async def cleanup_oauth_data() -> None:
             logger.debug("OAuth data cleanup completed")
 
         except Exception:
-            logger.error("Error during OAuth cleanup", exc_info=True)
+            logger.exception("Error during OAuth cleanup", exc_info=True)
 
         # Очищаем каждые 5 минут
         await asyncio.sleep(300)

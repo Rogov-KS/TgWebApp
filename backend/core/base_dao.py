@@ -49,10 +49,8 @@ class BaseDAO(Generic[ModelType]):
             elif isinstance(e, Exception):
                 msg = "Unknown Exc: Cannot insert data into table"
 
-            logger.error(
-                msg,
-                extra={"table": cls.model.__tablename__},
-                exc_info=True
+            logger.exception(
+                msg, extra={"table": cls.model.__tablename__}, exc_info=True
             )
             return None
 
@@ -81,7 +79,11 @@ class BaseDAO(Generic[ModelType]):
         """
         if not filters or not update_data:
             msg = "Filters and update data cannot be empty"
-            logger.error(msg, exc_info=True, extra={"filters": filters, "update_data": update_data})
+            logger.exception(
+                msg,
+                exc_info=True,
+                extra={"filters": filters, "update_data": update_data},
+            )
             raise ValueError(msg)
 
         async with async_session_maker() as session:
@@ -113,9 +115,7 @@ class BaseDAO(Generic[ModelType]):
             except SQLAlchemyError as e:
                 await session.rollback()
                 msg = "Error updating record"
-                logger.error(
-                    msg,
-                    extra={"table": cls.model.__tablename__},
-                    exc_info=True
+                logger.exception(
+                    msg, extra={"table": cls.model.__tablename__}, exc_info=True
                 )
                 raise ValueError(msg) from e

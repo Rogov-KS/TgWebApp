@@ -2,9 +2,9 @@ from typing import Any
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
+from backend.entities.oauth2_token.schemas import CloudFile, OAuth2UserData
 from backend.ows.auth.base_provider import OAuth2Provider
 from backend.ows.yandex.disk import YandexDiskIntegration
-from backend.entities.oauth2_token.schemas import CloudFile, OAuth2UserData
 
 logger = get_logger(__name__)
 
@@ -81,9 +81,7 @@ class YandexOAuth2Provider(OAuth2Provider):
         """Формирует URL аватара пользователя"""
         avatar_id = user_data.get("default_avatar_id")
         if avatar_id:
-            return (
-                f"https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200"
-            )
+            return f"https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200"
         return ""
 
     async def get_cloud_files(self, access_token: str) -> list[CloudFile]:

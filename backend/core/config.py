@@ -1,6 +1,5 @@
-from typing import Annotated, Literal
 import os
-from pathlib import Path
+from typing import Annotated, Literal
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -127,11 +126,7 @@ def get_env_files(env_dir: str = "./envs") -> list[str]:
     files = [".env-base"]
 
     # Специфичный файл окружения
-    env_files = {
-        "dev": ".env-dev",
-        "test": ".env-test",
-        "prod": ".env-prod"
-    }
+    env_files = {"dev": ".env-dev", "test": ".env-test", "prod": ".env-prod"}
 
     if env_mode in env_files:
         files.append(env_files[env_mode])

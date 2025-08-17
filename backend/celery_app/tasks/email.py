@@ -2,12 +2,11 @@ import asyncio
 from typing import Any
 
 from backend.celery_app.app import celery_app
-from backend.core.logger import get_logger
 from backend.celery_app.utils.email import (
-    create_welcome_message,
     _send_email_async,
+    create_welcome_message,
 )
-
+from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -35,11 +34,15 @@ def send_welcome_email(self: Any, user_email: str, username: str) -> dict[str, A
         # Отправляем письмо
         asyncio.run(_send_email_async(message))
 
-        logger.info("Приветственное письмо успешно отправлено", extra={"user_email": user_email})
+        logger.info(
+            "Приветственное письмо успешно отправлено", extra={"user_email": user_email}
+        )
         return {"status": "success", "email": user_email}
 
     except Exception as exc:
-        logger.error("Ошибка отправки письма", extra={"user_email": user_email}, exc_info=True)
+        logger.exception(
+            "Ошибка отправки письма", extra={"user_email": user_email}, exc_info=True
+        )
 
         return {"status": "error", "email": user_email, "error": str(exc)}
 
@@ -56,14 +59,9 @@ async def send_welcome_email_task(user_email: str, username: str) -> None:
     try:
         # Запускаем задачу отправки письма
         send_welcome_email.delay(user_email, username)
-        # send_welcome_email.delay(
-        #     user_email=user_email,
-        #     username=username
-        # )
         logger.info(
-            "Welcome email task queued for user",
-            extra={"user_email": user_email}
+            "Welcome email task queued for user", extra={"user_email": user_email}
         )
-    except Exception as e:
-        logger.error("Failed to queue welcome email task", exc_info=True)
+    except Exception:
         # Не прерываем основной процесс, если не удалось отправить письмо
+        logger.exception("Failed to queue welcome email task", exc_info=True)

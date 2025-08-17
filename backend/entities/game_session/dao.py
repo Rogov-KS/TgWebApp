@@ -1,8 +1,8 @@
 from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 
-from backend.core.database import async_session_maker
 from backend.core.base_dao import BaseDAO
+from backend.core.database import async_session_maker
 from backend.core.logger import get_logger
 from backend.entities.game_session.models import GameSession as GameSessionDB
 
@@ -45,7 +45,7 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
                 logger.exception(
                     "Ошибка при получении максимального счета",
                     extra={"user_id": user_id},
-                    exc_info=True
+                    exc_info=True,
                 )
                 msg = "Ошибка при получении максимального счета"
                 raise ValueError(msg) from e

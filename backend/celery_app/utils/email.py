@@ -1,8 +1,9 @@
-import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from jinja2 import Environment, FileSystemLoader
+import os
+
 from aiosmtplib import SMTP
+from jinja2 import Environment, FileSystemLoader
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
@@ -31,12 +32,8 @@ def create_welcome_message(user_email: str, username: str) -> MIMEMultipart:
     message["To"] = user_email
 
     # Загружаем шаблоны
-    html_template = template_env.get_template(
-        "welcome_email/welcome_email.html"
-    )
-    text_template = template_env.get_template(
-        "welcome_email/welcome_email.txt"
-    )
+    html_template = template_env.get_template("welcome_email/welcome_email.html")
+    text_template = template_env.get_template("welcome_email/welcome_email.txt")
 
     # Рендерим шаблоны
     template_vars = {
@@ -64,10 +61,7 @@ async def _send_email_async(message: MIMEMultipart) -> None:
         message: Email сообщение
     """
     logger.info("Now in _send_email_async", extra={"file": __file__})
-    if not all([
-        settings.SMTP_USER,
-        settings.SMTP_PASS
-    ]):
+    if not all([settings.SMTP_USER, settings.SMTP_PASS]):
         logger.warning("Email настройки не настроены, пропускаем отправку")
         return
 

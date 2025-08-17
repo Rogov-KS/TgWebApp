@@ -1,0 +1,1046 @@
+ruff (legacy alias)......................................................[41mFailed[m
+[2m- hook id: ruff[m
+[2m- exit code: 1[m
+
+[1;33mwarning[0m[1m:[0m [1mThe top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `pyproject.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+  - 'isort' -> 'lint.isort'[0m
+[1mbackend/admin_page/auth.py[0m[36m:[0m43[36m:[0m66[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m41 |[0m             admin_user = await get_current_admin_user_by_token(token)
+[1m[94m42 |[0m         except Exception:
+[1m[94m43 |[0m             logger.exception("Error getting current admin user", exc_info=True)
+   [1m[94m|[0m                                                                  [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m44 |[0m             return self._redirect_to_login(request)
+[1m[94m45 |[0m         logger.info("admin_user login in admin page success")
+   [1m[94m|[0m
+
+[1mbackend/admin_page/view.py[0m[36m:[0m12[36m:[0m19[36m:[0m [1;31mRUF012[0m Mutable class attributes should be annotated with `typing.ClassVar`
+   [1m[94m|[0m
+[1m[94m11 |[0m   class UsersAdmin(ModelView, model=User):
+[1m[94m12 |[0m       column_list = [
+   [1m[94m|[0m  [1m[91m___________________^[0m
+[1m[94m13 |[0m [1m[91m|[0m         c.name for c in User.__table__.columns if c.name != "hashed_password"
+[1m[94m14 |[0m [1m[91m|[0m     ]
+   [1m[94m|[0m [1m[91m|_____^[0m [1m[91mRUF012[0m
+[1m[94m15 |[0m       column_details_exclude_list = [User.hashed_password]
+[1m[94m16 |[0m       can_delete = False
+   [1m[94m|[0m
+
+[1mbackend/admin_page/view.py[0m[36m:[0m15[36m:[0m35[36m:[0m [1;31mRUF012[0m Mutable class attributes should be annotated with `typing.ClassVar`
+   [1m[94m|[0m
+[1m[94m13 |[0m         c.name for c in User.__table__.columns if c.name != "hashed_password"
+[1m[94m14 |[0m     ]
+[1m[94m15 |[0m     column_details_exclude_list = [User.hashed_password]
+   [1m[94m|[0m                                   [1m[91m^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mRUF012[0m
+[1m[94m16 |[0m     can_delete = False
+[1m[94m17 |[0m     name = "Пользователь"
+   [1m[94m|[0m
+
+[1mbackend/admin_page/view.py[0m[36m:[0m23[36m:[0m19[36m:[0m [1;31mRUF012[0m Mutable class attributes should be annotated with `typing.ClassVar`
+   [1m[94m|[0m
+[1m[94m22 |[0m class GameSessionsAdmin(ModelView, model=GameSession):
+[1m[94m23 |[0m     column_list = [c.name for c in GameSession.__table__.columns]
+   [1m[94m|[0m                   [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mRUF012[0m
+[1m[94m24 |[0m     can_delete = False
+[1m[94m25 |[0m     name = "Игровая сессия"
+   [1m[94m|[0m
+
+[1mbackend/admin_page/view.py[0m[36m:[0m31[36m:[0m19[36m:[0m [1;31mRUF012[0m Mutable class attributes should be annotated with `typing.ClassVar`
+   [1m[94m|[0m
+[1m[94m30 |[0m class RefreshTokenAdmin(ModelView, model=RefreshToken):
+[1m[94m31 |[0m     column_list = [c.name for c in RefreshToken.__table__.columns if c.name != "token"]
+   [1m[94m|[0m                   [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mRUF012[0m
+[1m[94m32 |[0m     column_details_exclude_list = [RefreshToken.token]
+[1m[94m33 |[0m     can_create = False
+   [1m[94m|[0m
+
+[1mbackend/admin_page/view.py[0m[36m:[0m32[36m:[0m35[36m:[0m [1;31mRUF012[0m Mutable class attributes should be annotated with `typing.ClassVar`
+   [1m[94m|[0m
+[1m[94m30 |[0m class RefreshTokenAdmin(ModelView, model=RefreshToken):
+[1m[94m31 |[0m     column_list = [c.name for c in RefreshToken.__table__.columns if c.name != "token"]
+[1m[94m32 |[0m     column_details_exclude_list = [RefreshToken.token]
+   [1m[94m|[0m                                   [1m[91m^^^^^^^^^^^^^^^^^^^^[0m [1m[91mRUF012[0m
+[1m[94m33 |[0m     can_create = False
+[1m[94m34 |[0m     can_edit = False
+   [1m[94m|[0m
+
+[1mbackend/admin_page/view.py[0m[36m:[0m41[36m:[0m19[36m:[0m [1;31mRUF012[0m Mutable class attributes should be annotated with `typing.ClassVar`
+   [1m[94m|[0m
+[1m[94m40 |[0m   class OAuth2TokenAdmin(ModelView, model=OAuth2Token):
+[1m[94m41 |[0m       column_list = [
+   [1m[94m|[0m  [1m[91m___________________^[0m
+[1m[94m42 |[0m [1m[91m|[0m         c.name
+[1m[94m43 |[0m [1m[91m|[0m         for c in OAuth2Token.__table__.columns
+[1m[94m44 |[0m [1m[91m|[0m         if c.name not in ["access_token", "refresh_token"]
+[1m[94m45 |[0m [1m[91m|[0m     ]
+   [1m[94m|[0m [1m[91m|_____^[0m [1m[91mRUF012[0m
+[1m[94m46 |[0m       column_details_exclude_list = [OAuth2Token.access_token, OAuth2Token.refresh_token]
+[1m[94m47 |[0m       can_delete = False
+   [1m[94m|[0m
+
+[1mbackend/admin_page/view.py[0m[36m:[0m46[36m:[0m35[36m:[0m [1;31mRUF012[0m Mutable class attributes should be annotated with `typing.ClassVar`
+   [1m[94m|[0m
+[1m[94m44 |[0m         if c.name not in ["access_token", "refresh_token"]
+[1m[94m45 |[0m     ]
+[1m[94m46 |[0m     column_details_exclude_list = [OAuth2Token.access_token, OAuth2Token.refresh_token]
+   [1m[94m|[0m                                   [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mRUF012[0m
+[1m[94m47 |[0m     can_delete = False
+[1m[94m48 |[0m     can_create = False
+   [1m[94m|[0m
+
+[1mbackend/cache_redis/main.py[0m[36m:[0m26[36m:[0m60[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m25 |[0m     except Exception:
+[1m[94m26 |[0m         logger.exception("Error initializing Redis cache", exc_info=True)
+   [1m[94m|[0m                                                            [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m27 |[0m         raise
+   [1m[94m|[0m
+
+[1mbackend/celery_app/tasks/email.py[0m[36m:[0m15[36m:[0m24[36m:[0m [1;31mARG001[0m Unused function argument: `self`
+   [1m[94m|[0m
+[1m[94m14 |[0m @celery_app.task(bind=True, max_retries=3)
+[1m[94m15 |[0m def send_welcome_email(self: Any, user_email: str, username: str) -> dict[str, Any]:
+   [1m[94m|[0m                        [1m[91m^^^^[0m [1m[91mARG001[0m
+[1m[94m16 |[0m     """
+[1m[94m17 |[0m     Отправка приветственного письма новому пользователю.
+   [1m[94m|[0m
+
+[1mbackend/celery_app/tasks/email.py[0m[36m:[0m40[36m:[0m9[36m:[0m [1;31mTRY300[0m Consider moving this statement to an `else` block
+   [1m[94m|[0m
+[1m[94m38 |[0m             "Приветственное письмо успешно отправлено", extra={"user_email": user_email}
+[1m[94m39 |[0m         )
+[1m[94m40 |[0m         return {"status": "success", "email": user_email}
+   [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY300[0m
+[1m[94m41 |[0m
+[1m[94m42 |[0m     except Exception as exc:
+   [1m[94m|[0m
+
+[1mbackend/celery_app/tasks/email.py[0m[36m:[0m44[36m:[0m73[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m42 |[0m     except Exception as exc:
+[1m[94m43 |[0m         logger.exception(
+[1m[94m44 |[0m             "Ошибка отправки письма", extra={"user_email": user_email}, exc_info=True
+   [1m[94m|[0m                                                                         [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m45 |[0m         )
+   [1m[94m|[0m
+
+[1mbackend/celery_app/tasks/email.py[0m[36m:[0m67[36m:[0m64[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m65 |[0m     except Exception:
+[1m[94m66 |[0m         # Не прерываем основной процесс, если не удалось отправить письмо
+[1m[94m67 |[0m         logger.exception("Failed to queue welcome email task", exc_info=True)
+   [1m[94m|[0m                                                                [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+   [1m[94m|[0m
+
+[1mbackend/celery_app/utils/email.py[0m[36m:[0m13[36m:[0m16[36m:[0m [1;31mPTH118[0m `os.path.join()` should be replaced by `Path` with `/` operator
+   [1m[94m|[0m
+[1m[94m11 |[0m logger = get_logger(__name__)
+[1m[94m12 |[0m
+[1m[94m13 |[0m template_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
+   [1m[94m|[0m                [1m[91m^^^^^^^^^^^^[0m [1m[91mPTH118[0m
+[1m[94m14 |[0m template_env = Environment(loader=FileSystemLoader(template_dir))
+   [1m[94m|[0m
+
+[1mbackend/celery_app/utils/email.py[0m[36m:[0m13[36m:[0m29[36m:[0m [1;31mPTH120[0m `os.path.dirname()` should be replaced by `Path.parent`
+   [1m[94m|[0m
+[1m[94m11 |[0m logger = get_logger(__name__)
+[1m[94m12 |[0m
+[1m[94m13 |[0m template_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
+   [1m[94m|[0m                             [1m[91m^^^^^^^^^^^^^^^[0m [1m[91mPTH120[0m
+[1m[94m14 |[0m template_env = Environment(loader=FileSystemLoader(template_dir))
+   [1m[94m|[0m
+
+[1mbackend/celery_app/utils/email.py[0m[36m:[0m71[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m69 |[0m         hostname=settings.SMTP_HOST,
+[1m[94m70 |[0m         port=settings.SMTP_PORT,
+[1m[94m71 |[0m         # username=settings.SMTP_USER,
+   [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m72 |[0m         # password=settings.SMTP_PASS,
+[1m[94m73 |[0m         # use_tls=settings.SMTP_USE_TLS,
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/celery_app/utils/email.py[0m[36m:[0m72[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m70 |[0m         port=settings.SMTP_PORT,
+[1m[94m71 |[0m         # username=settings.SMTP_USER,
+[1m[94m72 |[0m         # password=settings.SMTP_PASS,
+   [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m73 |[0m         # use_tls=settings.SMTP_USE_TLS,
+[1m[94m74 |[0m         # use_ssl=settings.SMTP_USE_SSL,
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/celery_app/utils/email.py[0m[36m:[0m73[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m71 |[0m         # username=settings.SMTP_USER,
+[1m[94m72 |[0m         # password=settings.SMTP_PASS,
+[1m[94m73 |[0m         # use_tls=settings.SMTP_USE_TLS,
+   [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m74 |[0m         # use_ssl=settings.SMTP_USE_SSL,
+[1m[94m75 |[0m     )
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/celery_app/utils/email.py[0m[36m:[0m74[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m72 |[0m         # password=settings.SMTP_PASS,
+[1m[94m73 |[0m         # use_tls=settings.SMTP_USE_TLS,
+[1m[94m74 |[0m         # use_ssl=settings.SMTP_USE_SSL,
+   [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m75 |[0m     )
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/core/base_dao.py[0m[36m:[0m53[36m:[0m64[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m52 |[0m             logger.exception(
+[1m[94m53 |[0m                 msg, extra={"table": cls.model.__tablename__}, exc_info=True
+   [1m[94m|[0m                                                                [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m54 |[0m             )
+[1m[94m55 |[0m             return None
+   [1m[94m|[0m
+
+[1mbackend/core/base_dao.py[0m[36m:[0m84[36m:[0m17[36m:[0m [1;31mLOG014[0m `exc_info=` outside exception handlers
+   [1m[94m|[0m
+[1m[94m82 |[0m             logger.exception(
+[1m[94m83 |[0m                 msg,
+[1m[94m84 |[0m                 exc_info=True,
+   [1m[94m|[0m                 [1m[91m^^^^^^^^^^^^^[0m [1m[91mLOG014[0m
+[1m[94m85 |[0m                 extra={"filters": filters, "update_data": update_data},
+[1m[94m86 |[0m             )
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove `exc_info=`
+
+[1mbackend/core/base_dao.py[0m[36m:[0m119[36m:[0m68[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+    [1m[94m|[0m
+[1m[94m117 |[0m                 msg = "Error updating record"
+[1m[94m118 |[0m                 logger.exception(
+[1m[94m119 |[0m                     msg, extra={"table": cls.model.__tablename__}, exc_info=True
+    [1m[94m|[0m                                                                    [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m120 |[0m                 )
+[1m[94m121 |[0m                 raise ValueError(msg) from e
+    [1m[94m|[0m
+
+[1mbackend/core/config.py[0m[36m:[0m136[36m:[0m5[36m:[0m [1;31mT201[0m `print` found
+    [1m[94m|[0m
+[1m[94m134 |[0m     if env_dir:
+[1m[94m135 |[0m         files = [f"{env_dir}/{file}" for file in files]
+[1m[94m136 |[0m     print(f"files: {files}")
+    [1m[94m|[0m     [1m[91m^^^^^[0m [1m[91mT201[0m
+[1m[94m137 |[0m     return files
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove `print`
+
+[1mbackend/core/config.py[0m[36m:[0m142[36m:[0m5[36m:[0m [1;31mERA001[0m Found commented-out code
+    [1m[94m|[0m
+[1m[94m140 |[0m def get_settings() -> Settings:
+[1m[94m141 |[0m     """Получение настроек с кэшированием"""
+[1m[94m142 |[0m     # env_dir = os.getenv("ENV_DIR", "envs")
+    [1m[94m|[0m     [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m143 |[0m     env_dir = "./envs"
+[1m[94m144 |[0m     return Settings(
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/core/logger.py[0m[36m:[0m35[36m:[0m1[36m:[0m [1;31mN816[0m Variable `logHandler` in global scope should not be mixedCase
+   [1m[94m|[0m
+[1m[94m33 |[0m logger = logging.getLogger()
+[1m[94m34 |[0m
+[1m[94m35 |[0m logHandler = logging.StreamHandler()
+   [1m[94m|[0m [1m[91m^^^^^^^^^^[0m [1m[91mN816[0m
+[1m[94m36 |[0m
+[1m[94m37 |[0m logHandler.setFormatter(formatter)
+   [1m[94m|[0m
+
+[1mbackend/core/test_router.py[0m[36m:[0m45[36m:[0m5[36m:[0m [1;31mB018[0m Found useless expression. Either assign it to a variable or remove it.
+   [1m[94m|[0m
+[1m[94m43 |[0m async def trigger_error() -> None:
+[1m[94m44 |[0m     """Тест Sentry"""
+[1m[94m45 |[0m     1 / 0
+   [1m[94m|[0m     [1m[91m^^^^^[0m [1m[91mB018[0m
+   [1m[94m|[0m
+
+[1mbackend/entities/auth/router.py[0m[36m:[0m67[36m:[0m49[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m65 |[0m         )
+[1m[94m66 |[0m     except Exception as e:
+[1m[94m67 |[0m         logger.exception("Error creating user", exc_info=True)
+   [1m[94m|[0m                                                 [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m68 |[0m         raise UserAlreadyExistsException from e
+   [1m[94m|[0m
+
+[1mbackend/entities/auth/utils.py[0m[36m:[0m34[36m:[0m9[36m:[0m [1;31mTRY300[0m Consider moving this statement to an `else` block
+   [1m[94m|[0m
+[1m[94m32 |[0m     try:
+[1m[94m33 |[0m         EmailStr.validate(email)
+[1m[94m34 |[0m         return True
+   [1m[94m|[0m         [1m[91m^^^^^^^^^^^[0m [1m[91mTRY300[0m
+[1m[94m35 |[0m     except Exception:
+[1m[94m36 |[0m         return False
+   [1m[94m|[0m
+
+[1mbackend/entities/auth/utils.py[0m[36m:[0m69[36m:[0m15[36m:[0m [1;31mF821[0m Undefined name `IncorrectTokenFormatException`
+   [1m[94m|[0m
+[1m[94m67 |[0m         schema_user = UserSchema.model_validate(user)
+[1m[94m68 |[0m     except ValidationError as err:
+[1m[94m69 |[0m         raise IncorrectTokenFormatException from err
+   [1m[94m|[0m               [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mF821[0m
+[1m[94m70 |[0m
+[1m[94m71 |[0m     return schema_user
+   [1m[94m|[0m
+
+[1mbackend/entities/game_session/dao.py[0m[36m:[0m33[36m:[0m63[36m:[0m [1;31mLOG014[0m `exc_info=` outside exception handlers
+   [1m[94m|[0m
+[1m[94m31 |[0m         if not isinstance(user_id, int) or user_id <= 0:
+[1m[94m32 |[0m             msg = "user_id должен быть положительным целым числом"
+[1m[94m33 |[0m             logger.exception(msg, extra={"user_id": user_id}, exc_info=True)
+   [1m[94m|[0m                                                               [1m[91m^^^^^^^^^^^^^[0m [1m[91mLOG014[0m
+[1m[94m34 |[0m             raise ValueError(msg)
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove `exc_info=`
+
+[1mbackend/entities/game_session/dao.py[0m[36m:[0m48[36m:[0m21[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m46 |[0m                     "Ошибка при получении максимального счета",
+[1m[94m47 |[0m                     extra={"user_id": user_id},
+[1m[94m48 |[0m                     exc_info=True,
+   [1m[94m|[0m                     [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m49 |[0m                 )
+[1m[94m50 |[0m                 msg = "Ошибка при получении максимального счета"
+   [1m[94m|[0m
+
+[1mbackend/entities/game_session/router.py[0m[36m:[0m49[36m:[0m57[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m47 |[0m         game_session = await GameSessionDAO.create(**game_session_data.model_dump())
+[1m[94m48 |[0m     except Exception as e:
+[1m[94m49 |[0m         logger.exception("Error creating game session", exc_info=True)
+   [1m[94m|[0m                                                         [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m50 |[0m         raise HTTPException(
+[1m[94m51 |[0m             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+   [1m[94m|[0m
+
+[1mbackend/entities/game_session/router.py[0m[36m:[0m155[36m:[0m57[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+    [1m[94m|[0m
+[1m[94m153 |[0m         )
+[1m[94m154 |[0m     except Exception as e:
+[1m[94m155 |[0m         logger.exception("Error updating game session", exc_info=True)
+    [1m[94m|[0m                                                         [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m156 |[0m         raise HTTPException(
+[1m[94m157 |[0m             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    [1m[94m|[0m
+
+[1mbackend/main.py[0m[36m:[0m70[36m:[0m1[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m69 |[0m # if __name__ == "__main__":
+[1m[94m70 |[0m #     # logger.info("sys.path: %s", sys.path)
+   [1m[94m|[0m [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m71 |[0m #     # logger.info("settings config[CORS]: %s",
+[1m[94m72 |[0m #     #            json.dumps(settings.get_cors_attrs(), indent=4))
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/main.py[0m[36m:[0m76[36m:[0m1[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m74 |[0m #     #            json.dumps(settings.get_smtp_attrs(), indent=4))
+[1m[94m75 |[0m
+[1m[94m76 |[0m #     logger.info("Starting the application...")
+   [1m[94m|[0m [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m77 |[0m #     import uvicorn
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/main.py[0m[36m:[0m77[36m:[0m1[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m76 |[0m #     logger.info("Starting the application...")
+[1m[94m77 |[0m #     import uvicorn
+   [1m[94m|[0m [1m[91m^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m78 |[0m
+[1m[94m79 |[0m #     uvicorn.run(app, host="0.0.0.0", port=8000)
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/main.py[0m[36m:[0m79[36m:[0m1[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m77 |[0m #     import uvicorn
+[1m[94m78 |[0m
+[1m[94m79 |[0m #     uvicorn.run(app, host="0.0.0.0", port=8000)
+   [1m[94m|[0m [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m80 |[0m #     logger.info("Application ended")
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/main.py[0m[36m:[0m80[36m:[0m1[36m:[0m [1;31mERA001[0m Found commented-out code
+   [1m[94m|[0m
+[1m[94m79 |[0m #     uvicorn.run(app, host="0.0.0.0", port=8000)
+[1m[94m80 |[0m #     logger.info("Application ended")
+   [1m[94m|[0m [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/ows/auth/base_provider.py[0m[36m:[0m97[36m:[0m9[36m:[0m [1;31mSIM117[0m Use a single `with` statement with multiple contexts instead of nested `with` statements
+    [1m[94m|[0m
+[1m[94m 95 |[0m       async def exchange_code_for_tokens(self, code: str) -> OAuth2TokenData:
+[1m[94m 96 |[0m           """Обмен authorization code на токены"""
+[1m[94m 97 |[0m [1m[91m/[0m         async with aiohttp.ClientSession() as session:
+[1m[94m 98 |[0m [1m[91m|[0m             async with session.post(
+[1m[94m 99 |[0m [1m[91m|[0m                 url=self.token_url,
+[1m[94m100 |[0m [1m[91m|[0m                 data=self.get_token_params(code),
+[1m[94m101 |[0m [1m[91m|[0m                 headers={"Content-Type": "application/x-www-form-urlencoded"},
+[1m[94m102 |[0m [1m[91m|[0m                 ssl=False,
+[1m[94m103 |[0m [1m[91m|[0m             ) as response:
+    [1m[94m|[0m [1m[91m|__________________________^[0m [1m[91mSIM117[0m
+[1m[94m104 |[0m                   if response.status != 200:
+[1m[94m105 |[0m                       error_text = await response.text()
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Combine `with` statements
+
+[1mbackend/ows/auth/base_provider.py[0m[36m:[0m104[36m:[0m39[36m:[0m [1;31mPLR2004[0m Magic value used in comparison, consider replacing `200` with a constant variable
+    [1m[94m|[0m
+[1m[94m102 |[0m                 ssl=False,
+[1m[94m103 |[0m             ) as response:
+[1m[94m104 |[0m                 if response.status != 200:
+    [1m[94m|[0m                                       [1m[91m^^^[0m [1m[91mPLR2004[0m
+[1m[94m105 |[0m                     error_text = await response.text()
+[1m[94m106 |[0m                     logger.exception(
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/base_provider.py[0m[36m:[0m108[36m:[0m25[36m:[0m [1;31mLOG014[0m `exc_info=` outside exception handlers
+    [1m[94m|[0m
+[1m[94m106 |[0m                     logger.exception(
+[1m[94m107 |[0m                         "Failed to get access token",
+[1m[94m108 |[0m                         exc_info=True,
+    [1m[94m|[0m                         [1m[91m^^^^^^^^^^^^^[0m [1m[91mLOG014[0m
+[1m[94m109 |[0m                         extra={
+[1m[94m110 |[0m                             "provider_name": self.provider_name,
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove `exc_info=`
+
+[1mbackend/ows/auth/base_provider.py[0m[36m:[0m138[36m:[0m17[36m:[0m [1;31mEM102[0m Exception must not use an f-string literal, assign to variable first
+    [1m[94m|[0m
+[1m[94m136 |[0m         if not self.user_info_url:
+[1m[94m137 |[0m             raise NotImplementedError(
+[1m[94m138 |[0m                 f"User info URL not implemented for {self.provider_name}"
+    [1m[94m|[0m                 [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mEM102[0m
+[1m[94m139 |[0m             )
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Assign to variable; remove f-string literal
+
+[1mbackend/ows/auth/base_provider.py[0m[36m:[0m155[36m:[0m39[36m:[0m [1;31mPLR2004[0m Magic value used in comparison, consider replacing `200` with a constant variable
+    [1m[94m|[0m
+[1m[94m153 |[0m                 ssl=False,
+[1m[94m154 |[0m             ) as response:
+[1m[94m155 |[0m                 if response.status != 200:
+    [1m[94m|[0m                                       [1m[91m^^^[0m [1m[91mPLR2004[0m
+[1m[94m156 |[0m                     error_text = await response.text()
+[1m[94m157 |[0m                     logger.exception(
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/base_provider.py[0m[36m:[0m159[36m:[0m25[36m:[0m [1;31mLOG014[0m `exc_info=` outside exception handlers
+    [1m[94m|[0m
+[1m[94m157 |[0m                     logger.exception(
+[1m[94m158 |[0m                         "Failed to get user data",
+[1m[94m159 |[0m                         exc_info=True,
+    [1m[94m|[0m                         [1m[91m^^^^^^^^^^^^^[0m [1m[91mLOG014[0m
+[1m[94m160 |[0m                         extra={
+[1m[94m161 |[0m                             "provider_name": self.provider_name,
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove `exc_info=`
+
+[1mbackend/ows/auth/base_provider.py[0m[36m:[0m181[36m:[0m9[36m:[0m [1;31mPLC0415[0m `import` should be at the top-level of a file
+    [1m[94m|[0m
+[1m[94m179 |[0m     ) -> OAuth2UserData | None:
+[1m[94m180 |[0m         """Полный процесс аутентификации"""
+[1m[94m181 |[0m         from backend.ows.auth.state_storage import state_storage
+    [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mPLC0415[0m
+[1m[94m182 |[0m
+[1m[94m183 |[0m         request_key = f"{state}_{code}"
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/cleanup.py[0m[36m:[0m18[36m:[0m60[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m17 |[0m         except Exception:
+[1m[94m18 |[0m             logger.exception("Error during OAuth cleanup", exc_info=True)
+   [1m[94m|[0m                                                            [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m19 |[0m
+[1m[94m20 |[0m         # Очищаем каждые 5 минут
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/cleanup.py[0m[36m:[0m26[36m:[0m5[36m:[0m [1;31mRUF006[0m Store a reference to the return value of `asyncio.create_task`
+   [1m[94m|[0m
+[1m[94m24 |[0m def start_cleanup_task() -> None:
+[1m[94m25 |[0m     """Запускает задачу очистки"""
+[1m[94m26 |[0m     asyncio.create_task(cleanup_oauth_data())
+   [1m[94m|[0m     [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mRUF006[0m
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/common_router.py[0m[36m:[0m110[36m:[0m74[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+    [1m[94m|[0m
+[1m[94m108 |[0m     except Exception as e:
+[1m[94m109 |[0m         logger.exception(
+[1m[94m110 |[0m             "OAuth authentication failed", extra={"provider": provider}, exc_info=True
+    [1m[94m|[0m                                                                          [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m111 |[0m         )
+[1m[94m112 |[0m         raise HTTPException(
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/common_router.py[0m[36m:[0m112[36m:[0m9[36m:[0m [1;31mB904[0m Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    [1m[94m|[0m
+[1m[94m110 |[0m               "OAuth authentication failed", extra={"provider": provider}, exc_info=True
+[1m[94m111 |[0m           )
+[1m[94m112 |[0m [1m[91m/[0m         raise HTTPException(
+[1m[94m113 |[0m [1m[91m|[0m             status_code=400, detail=f"OAuth authentication failed: {e!s}"
+[1m[94m114 |[0m [1m[91m|[0m         )
+    [1m[94m|[0m [1m[91m|_________^[0m [1m[91mB904[0m
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/common_router.py[0m[36m:[0m161[36m:[0m72[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+    [1m[94m|[0m
+[1m[94m159 |[0m     except Exception as e:
+[1m[94m160 |[0m         logger.exception(
+[1m[94m161 |[0m             "Failed to get cloud files", extra={"provider": provider}, exc_info=True
+    [1m[94m|[0m                                                                        [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m162 |[0m         )
+[1m[94m163 |[0m         raise HTTPException(status_code=400, detail=f"Failed to get cloud files: {e!s}")
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/common_router.py[0m[36m:[0m163[36m:[0m9[36m:[0m [1;31mB904[0m Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    [1m[94m|[0m
+[1m[94m161 |[0m             "Failed to get cloud files", extra={"provider": provider}, exc_info=True
+[1m[94m162 |[0m         )
+[1m[94m163 |[0m         raise HTTPException(status_code=400, detail=f"Failed to get cloud files: {e!s}")
+    [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mB904[0m
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m52[36m:[0m17[36m:[0m [1;31mSIM117[0m Use a single `with` statement with multiple contexts instead of nested `with` statements
+   [1m[94m|[0m
+[1m[94m50 |[0m           if self._public_keys is None:
+[1m[94m51 |[0m               try:
+[1m[94m52 |[0m [1m[91m/[0m                 async with aiohttp.ClientSession() as session:
+[1m[94m53 |[0m [1m[91m|[0m                     async with session.get(
+[1m[94m54 |[0m [1m[91m|[0m                         "https://www.googleapis.com/oauth2/v1/certs", ssl=False
+[1m[94m55 |[0m [1m[91m|[0m                     ) as response:
+   [1m[94m|[0m [1m[91m|__________________________________^[0m [1m[91mSIM117[0m
+[1m[94m56 |[0m                           if response.status == 200:
+[1m[94m57 |[0m                               self._public_keys = await response.json()
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Combine `with` statements
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m56[36m:[0m47[36m:[0m [1;31mPLR2004[0m Magic value used in comparison, consider replacing `200` with a constant variable
+   [1m[94m|[0m
+[1m[94m54 |[0m                         "https://www.googleapis.com/oauth2/v1/certs", ssl=False
+[1m[94m55 |[0m                     ) as response:
+[1m[94m56 |[0m                         if response.status == 200:
+   [1m[94m|[0m                                               [1m[91m^^^[0m [1m[91mPLR2004[0m
+[1m[94m57 |[0m                             self._public_keys = await response.json()
+[1m[94m58 |[0m                         else:
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m61[36m:[0m33[36m:[0m [1;31mLOG014[0m `exc_info=` outside exception handlers
+   [1m[94m|[0m
+[1m[94m59 |[0m [1m[94m…[0m                     logger.exception(
+[1m[94m60 |[0m [1m[94m…[0m                         "Failed to fetch Google public keys",
+[1m[94m61 |[0m [1m[94m…[0m                         exc_info=True,
+   [1m[94m|[0m                           [1m[91m^^^^^^^^^^^^^[0m [1m[91mLOG014[0m
+[1m[94m62 |[0m [1m[94m…[0m                         extra={"status": response.status},
+[1m[94m63 |[0m [1m[94m…[0m                     )
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove `exc_info=`
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m64[36m:[0m29[36m:[0m [1;31mTRY301[0m Abstract `raise` to an inner function
+   [1m[94m|[0m
+[1m[94m62 |[0m                                 extra={"status": response.status},
+[1m[94m63 |[0m                             )
+[1m[94m64 |[0m                             raise ValueError("Failed to fetch Google public keys")
+   [1m[94m|[0m                             [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY301[0m
+[1m[94m65 |[0m             except Exception as e:
+[1m[94m66 |[0m                 logger.exception("Error fetching Google public keys", exc_info=True)
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m64[36m:[0m35[36m:[0m [1;31mTRY003[0m Avoid specifying long messages outside the exception class
+   [1m[94m|[0m
+[1m[94m62 |[0m                                 extra={"status": response.status},
+[1m[94m63 |[0m                             )
+[1m[94m64 |[0m                             raise ValueError("Failed to fetch Google public keys")
+   [1m[94m|[0m                                   [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY003[0m
+[1m[94m65 |[0m             except Exception as e:
+[1m[94m66 |[0m                 logger.exception("Error fetching Google public keys", exc_info=True)
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m64[36m:[0m46[36m:[0m [1;31mEM101[0m Exception must not use a string literal, assign to variable first
+   [1m[94m|[0m
+[1m[94m62 |[0m                                 extra={"status": response.status},
+[1m[94m63 |[0m                             )
+[1m[94m64 |[0m                             raise ValueError("Failed to fetch Google public keys")
+   [1m[94m|[0m                                              [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mEM101[0m
+[1m[94m65 |[0m             except Exception as e:
+[1m[94m66 |[0m                 logger.exception("Error fetching Google public keys", exc_info=True)
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Assign to variable; remove string literal
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m66[36m:[0m71[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+   [1m[94m|[0m
+[1m[94m64 |[0m                             raise ValueError("Failed to fetch Google public keys")
+[1m[94m65 |[0m             except Exception as e:
+[1m[94m66 |[0m                 logger.exception("Error fetching Google public keys", exc_info=True)
+   [1m[94m|[0m                                                                       [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m67 |[0m                 raise ValueError(f"Error fetching Google public keys: {e}")
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m67[36m:[0m17[36m:[0m [1;31mB904[0m Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+   [1m[94m|[0m
+[1m[94m65 |[0m             except Exception as e:
+[1m[94m66 |[0m                 logger.exception("Error fetching Google public keys", exc_info=True)
+[1m[94m67 |[0m                 raise ValueError(f"Error fetching Google public keys: {e}")
+   [1m[94m|[0m                 [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mB904[0m
+[1m[94m68 |[0m
+[1m[94m69 |[0m         return self._public_keys
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m67[36m:[0m23[36m:[0m [1;31mTRY003[0m Avoid specifying long messages outside the exception class
+   [1m[94m|[0m
+[1m[94m65 |[0m             except Exception as e:
+[1m[94m66 |[0m                 logger.exception("Error fetching Google public keys", exc_info=True)
+[1m[94m67 |[0m                 raise ValueError(f"Error fetching Google public keys: {e}")
+   [1m[94m|[0m                       [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY003[0m
+[1m[94m68 |[0m
+[1m[94m69 |[0m         return self._public_keys
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m67[36m:[0m34[36m:[0m [1;31mEM102[0m Exception must not use an f-string literal, assign to variable first
+   [1m[94m|[0m
+[1m[94m65 |[0m             except Exception as e:
+[1m[94m66 |[0m                 logger.exception("Error fetching Google public keys", exc_info=True)
+[1m[94m67 |[0m                 raise ValueError(f"Error fetching Google public keys: {e}")
+   [1m[94m|[0m                                  [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mEM102[0m
+[1m[94m68 |[0m
+[1m[94m69 |[0m         return self._public_keys
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Assign to variable; remove f-string literal
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m79[36m:[0m17[36m:[0m [1;31mTRY301[0m Abstract `raise` to an inner function
+   [1m[94m|[0m
+[1m[94m78 |[0m             if not kid:
+[1m[94m79 |[0m                 raise ValueError("No 'kid' in token header")
+   [1m[94m|[0m                 [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY301[0m
+[1m[94m80 |[0m
+[1m[94m81 |[0m             # Получаем публичные ключи
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m79[36m:[0m23[36m:[0m [1;31mTRY003[0m Avoid specifying long messages outside the exception class
+   [1m[94m|[0m
+[1m[94m78 |[0m             if not kid:
+[1m[94m79 |[0m                 raise ValueError("No 'kid' in token header")
+   [1m[94m|[0m                       [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY003[0m
+[1m[94m80 |[0m
+[1m[94m81 |[0m             # Получаем публичные ключи
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m79[36m:[0m34[36m:[0m [1;31mEM101[0m Exception must not use a string literal, assign to variable first
+   [1m[94m|[0m
+[1m[94m78 |[0m             if not kid:
+[1m[94m79 |[0m                 raise ValueError("No 'kid' in token header")
+   [1m[94m|[0m                                  [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mEM101[0m
+[1m[94m80 |[0m
+[1m[94m81 |[0m             # Получаем публичные ключи
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Assign to variable; remove string literal
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m84[36m:[0m17[36m:[0m [1;31mTRY301[0m Abstract `raise` to an inner function
+   [1m[94m|[0m
+[1m[94m82 |[0m             public_keys = self._public_keys
+[1m[94m83 |[0m             if not public_keys or kid not in public_keys:
+[1m[94m84 |[0m                 raise ValueError(f"Public key with kid '{kid}' not found")
+   [1m[94m|[0m                 [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY301[0m
+[1m[94m85 |[0m
+[1m[94m86 |[0m             # Получаем публичный ключ
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m84[36m:[0m23[36m:[0m [1;31mTRY003[0m Avoid specifying long messages outside the exception class
+   [1m[94m|[0m
+[1m[94m82 |[0m             public_keys = self._public_keys
+[1m[94m83 |[0m             if not public_keys or kid not in public_keys:
+[1m[94m84 |[0m                 raise ValueError(f"Public key with kid '{kid}' not found")
+   [1m[94m|[0m                       [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY003[0m
+[1m[94m85 |[0m
+[1m[94m86 |[0m             # Получаем публичный ключ
+   [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m84[36m:[0m34[36m:[0m [1;31mEM102[0m Exception must not use an f-string literal, assign to variable first
+   [1m[94m|[0m
+[1m[94m82 |[0m             public_keys = self._public_keys
+[1m[94m83 |[0m             if not public_keys or kid not in public_keys:
+[1m[94m84 |[0m                 raise ValueError(f"Public key with kid '{kid}' not found")
+   [1m[94m|[0m                                  [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mEM102[0m
+[1m[94m85 |[0m
+[1m[94m86 |[0m             # Получаем публичный ключ
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Assign to variable; remove f-string literal
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m100[36m:[0m13[36m:[0m [1;31mTRY300[0m Consider moving this statement to an `else` block
+    [1m[94m|[0m
+[1m[94m 98 |[0m             )
+[1m[94m 99 |[0m
+[1m[94m100 |[0m             return payload
+    [1m[94m|[0m             [1m[91m^^^^^^^^^^^^^^[0m [1m[91mTRY300[0m
+[1m[94m101 |[0m
+[1m[94m102 |[0m         except jwt.InvalidTokenError as e:
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m104[36m:[0m44[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+    [1m[94m|[0m
+[1m[94m102 |[0m         except jwt.InvalidTokenError as e:
+[1m[94m103 |[0m             logger.exception(
+[1m[94m104 |[0m                 "Invalid Google id_token", exc_info=True, extra={"id_token": id_token}
+    [1m[94m|[0m                                            [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m105 |[0m             )
+[1m[94m106 |[0m             raise ValueError(f"Invalid Google id_token: {e}")
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m106[36m:[0m13[36m:[0m [1;31mB904[0m Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    [1m[94m|[0m
+[1m[94m104 |[0m                 "Invalid Google id_token", exc_info=True, extra={"id_token": id_token}
+[1m[94m105 |[0m             )
+[1m[94m106 |[0m             raise ValueError(f"Invalid Google id_token: {e}")
+    [1m[94m|[0m             [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mB904[0m
+[1m[94m107 |[0m         except Exception as e:
+[1m[94m108 |[0m             logger.exception(
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m106[36m:[0m19[36m:[0m [1;31mTRY003[0m Avoid specifying long messages outside the exception class
+    [1m[94m|[0m
+[1m[94m104 |[0m                 "Invalid Google id_token", exc_info=True, extra={"id_token": id_token}
+[1m[94m105 |[0m             )
+[1m[94m106 |[0m             raise ValueError(f"Invalid Google id_token: {e}")
+    [1m[94m|[0m                   [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY003[0m
+[1m[94m107 |[0m         except Exception as e:
+[1m[94m108 |[0m             logger.exception(
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m106[36m:[0m30[36m:[0m [1;31mEM102[0m Exception must not use an f-string literal, assign to variable first
+    [1m[94m|[0m
+[1m[94m104 |[0m                 "Invalid Google id_token", exc_info=True, extra={"id_token": id_token}
+[1m[94m105 |[0m             )
+[1m[94m106 |[0m             raise ValueError(f"Invalid Google id_token: {e}")
+    [1m[94m|[0m                              [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mEM102[0m
+[1m[94m107 |[0m         except Exception as e:
+[1m[94m108 |[0m             logger.exception(
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Assign to variable; remove f-string literal
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m110[36m:[0m17[36m:[0m [1;31mG202[0m Logging statement has redundant `exc_info`
+    [1m[94m|[0m
+[1m[94m108 |[0m             logger.exception(
+[1m[94m109 |[0m                 "Error verifying Google id_token",
+[1m[94m110 |[0m                 exc_info=True,
+    [1m[94m|[0m                 [1m[91m^^^^^^^^^^^^^[0m [1m[91mG202[0m
+[1m[94m111 |[0m                 extra={"id_token": id_token},
+[1m[94m112 |[0m             )
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m113[36m:[0m13[36m:[0m [1;31mB904[0m Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    [1m[94m|[0m
+[1m[94m111 |[0m                 extra={"id_token": id_token},
+[1m[94m112 |[0m             )
+[1m[94m113 |[0m             raise ValueError(f"Error verifying Google id_token: {e}")
+    [1m[94m|[0m             [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mB904[0m
+[1m[94m114 |[0m
+[1m[94m115 |[0m     def get_authorization_params(self, state: str) -> dict[str, str]:
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m113[36m:[0m19[36m:[0m [1;31mTRY003[0m Avoid specifying long messages outside the exception class
+    [1m[94m|[0m
+[1m[94m111 |[0m                 extra={"id_token": id_token},
+[1m[94m112 |[0m             )
+[1m[94m113 |[0m             raise ValueError(f"Error verifying Google id_token: {e}")
+    [1m[94m|[0m                   [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY003[0m
+[1m[94m114 |[0m
+[1m[94m115 |[0m     def get_authorization_params(self, state: str) -> dict[str, str]:
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m113[36m:[0m30[36m:[0m [1;31mEM102[0m Exception must not use an f-string literal, assign to variable first
+    [1m[94m|[0m
+[1m[94m111 |[0m                 extra={"id_token": id_token},
+[1m[94m112 |[0m             )
+[1m[94m113 |[0m             raise ValueError(f"Error verifying Google id_token: {e}")
+    [1m[94m|[0m                              [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mEM102[0m
+[1m[94m114 |[0m
+[1m[94m115 |[0m     def get_authorization_params(self, state: str) -> dict[str, str]:
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Assign to variable; remove f-string literal
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m120[36m:[0m22[36m:[0m [1;31mFLY002[0m Consider f-string instead of string join
+    [1m[94m|[0m
+[1m[94m118 |[0m               "redirect_uri": self.redirect_uri,
+[1m[94m119 |[0m               "response_type": "code",
+[1m[94m120 |[0m               "scope": " ".join(
+    [1m[94m|[0m  [1m[91m______________________^[0m
+[1m[94m121 |[0m [1m[91m|[0m                 [
+[1m[94m122 |[0m [1m[91m|[0m                     "openid",
+[1m[94m123 |[0m [1m[91m|[0m                     "profile",
+[1m[94m124 |[0m [1m[91m|[0m                     "email",
+[1m[94m125 |[0m [1m[91m|[0m                     "https://www.googleapis.com/auth/drive.readonly",
+[1m[94m126 |[0m [1m[91m|[0m                 ]
+[1m[94m127 |[0m [1m[91m|[0m             ),
+    [1m[94m|[0m [1m[91m|_____________^[0m [1m[91mFLY002[0m
+[1m[94m128 |[0m               "access_type": "offline",
+[1m[94m129 |[0m               "state": state,
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Replace with f-string
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m145[36m:[0m19[36m:[0m [1;31mTRY003[0m Avoid specifying long messages outside the exception class
+    [1m[94m|[0m
+[1m[94m143 |[0m         id_token = raw_data.get("id_token")
+[1m[94m144 |[0m         if not id_token:
+[1m[94m145 |[0m             raise ValueError("No id_token in Google response")
+    [1m[94m|[0m                   [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mTRY003[0m
+[1m[94m146 |[0m
+[1m[94m147 |[0m         # TODO: Добавить проверку подписи id_token
+    [1m[94m|[0m
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m145[36m:[0m30[36m:[0m [1;31mEM101[0m Exception must not use a string literal, assign to variable first
+    [1m[94m|[0m
+[1m[94m143 |[0m         id_token = raw_data.get("id_token")
+[1m[94m144 |[0m         if not id_token:
+[1m[94m145 |[0m             raise ValueError("No id_token in Google response")
+    [1m[94m|[0m                              [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mEM101[0m
+[1m[94m146 |[0m
+[1m[94m147 |[0m         # TODO: Добавить проверку подписи id_token
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Assign to variable; remove string literal
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m150[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+    [1m[94m|[0m
+[1m[94m148 |[0m         # # Получаем публичные ключи Google (если еще не получены)
+[1m[94m149 |[0m         # if self._public_keys is None:
+[1m[94m150 |[0m         #     await self._get_google_public_keys()
+    [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m151 |[0m
+[1m[94m152 |[0m         # # Проверяем подпись id_token
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m153[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+    [1m[94m|[0m
+[1m[94m152 |[0m         # # Проверяем подпись id_token
+[1m[94m153 |[0m         # try:
+    [1m[94m|[0m         [1m[91m^^^^^^[0m [1m[91mERA001[0m
+[1m[94m154 |[0m         #     user_info = self._verify_google_id_token(id_token)
+[1m[94m155 |[0m         # except Exception as e:
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m154[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+    [1m[94m|[0m
+[1m[94m152 |[0m         # # Проверяем подпись id_token
+[1m[94m153 |[0m         # try:
+[1m[94m154 |[0m         #     user_info = self._verify_google_id_token(id_token)
+    [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m155 |[0m         # except Exception as e:
+[1m[94m156 |[0m         #     logger.exception("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m155[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+    [1m[94m|[0m
+[1m[94m153 |[0m         # try:
+[1m[94m154 |[0m         #     user_info = self._verify_google_id_token(id_token)
+[1m[94m155 |[0m         # except Exception as e:
+    [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m156 |[0m         #     logger.exception("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
+[1m[94m157 |[0m         #     raise ValueError(f"Error verifying Google id_token: {e}")
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m156[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+    [1m[94m|[0m
+[1m[94m154 |[0m         #     user_info = self._verify_google_id_token(id_token)
+[1m[94m155 |[0m         # except Exception as e:
+[1m[94m156 |[0m         #     logger.exception("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
+    [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m157 |[0m         #     raise ValueError(f"Error verifying Google id_token: {e}")
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/ows/auth/google/provider.py[0m[36m:[0m157[36m:[0m9[36m:[0m [1;31mERA001[0m Found commented-out code
+    [1m[94m|[0m
+[1m[94m155 |[0m         # except Exception as e:
+[1m[94m156 |[0m         #     logger.exception("Error verifying Google id_token", exc_info=True, extra={"id_token": id_token})
+[1m[94m157 |[0m         #     raise ValueError(f"Error verifying Google id_token: {e}")
+    [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mERA001[0m
+[1m[94m158 |[0m
+[1m[94m159 |[0m         # Декодируем id_token без проверки подписи (для демо)
+    [1m[94m|[0m
+    [1m[94m= [0m[1m[96mhelp[0m: Remove commented-out code
+
+[1mbackend/ows/auth/state_storage.py[0m[36m:[0m82[36m:[0m68[36m:[0m [1;31mLOG014[0m `exc_info=` outside exception handlers
+   [1m[94m|[0m
+[1m[94m80 |[0m         if not self.validate_state(state, provider):
+[1m[94m81 |[0m             logger.exception(
+[1m[94m82 |[0m                 "Invalid state parameter", extra={"state": state}, exc_info=True
+   [1m[94m|[0m                                                                    [1m[91m^^^^^^^^^^^^^[0m [1m[91mLOG014[0m
+[1m[94m83 |[0m             )
+[1m[94m84 |[0m             raise HTTPException(status_code=400, detail="Invalid state parameter")
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove `exc_info=`
+
+[1mbackend/ows/auth/yandex/provider.py[0m[36m:[0m48[36m:[0m22[36m:[0m [1;31mFLY002[0m Consider `"login:email login:info cloud_api:disk.read"` instead of string join
+   [1m[94m|[0m
+[1m[94m46 |[0m               "redirect_uri": self.redirect_uri,
+[1m[94m47 |[0m               "response_type": "code",
+[1m[94m48 |[0m               "scope": " ".join(
+   [1m[94m|[0m  [1m[91m______________________^[0m
+[1m[94m49 |[0m [1m[91m|[0m                 [
+[1m[94m50 |[0m [1m[91m|[0m                     "login:email",
+[1m[94m51 |[0m [1m[91m|[0m                     "login:info",
+[1m[94m52 |[0m [1m[91m|[0m                     "cloud_api:disk.read",  # Доступ к Яндекс.Диску
+[1m[94m53 |[0m [1m[91m|[0m                 ]
+[1m[94m54 |[0m [1m[91m|[0m             ),
+   [1m[94m|[0m [1m[91m|_____________^[0m [1m[91mFLY002[0m
+[1m[94m55 |[0m               "state": state,
+[1m[94m56 |[0m           }
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Replace with `"login:email login:info cloud_api:disk.read"`
+
+[1mbackend/ows/google/drive.py[0m[36m:[0m23[36m:[0m9[36m:[0m [1;31mSIM117[0m Use a single `with` statement with multiple contexts instead of nested `with` statements
+   [1m[94m|[0m
+[1m[94m21 |[0m           drive_url = f"{self.api_base_url}/files"
+[1m[94m22 |[0m
+[1m[94m23 |[0m [1m[91m/[0m         async with aiohttp.ClientSession() as session:
+[1m[94m24 |[0m [1m[91m|[0m             async with session.get(
+[1m[94m25 |[0m [1m[91m|[0m                 url=drive_url,
+[1m[94m26 |[0m [1m[91m|[0m                 headers={"Authorization": f"Bearer {access_token}"},
+[1m[94m27 |[0m [1m[91m|[0m                 params={
+[1m[94m28 |[0m [1m[91m|[0m                     "fields": ("files(id,name,size,mimeType,modifiedTime,webViewLink)"),
+[1m[94m29 |[0m [1m[91m|[0m                     "pageSize": 100,
+[1m[94m30 |[0m [1m[91m|[0m                 },
+[1m[94m31 |[0m [1m[91m|[0m                 ssl=False,
+[1m[94m32 |[0m [1m[91m|[0m             ) as response:
+   [1m[94m|[0m [1m[91m|__________________________^[0m [1m[91mSIM117[0m
+[1m[94m33 |[0m                   if response.status != 200:
+[1m[94m34 |[0m                       error_text = await response.text()
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Combine `with` statements
+
+[1mbackend/ows/google/drive.py[0m[36m:[0m33[36m:[0m39[36m:[0m [1;31mPLR2004[0m Magic value used in comparison, consider replacing `200` with a constant variable
+   [1m[94m|[0m
+[1m[94m31 |[0m                 ssl=False,
+[1m[94m32 |[0m             ) as response:
+[1m[94m33 |[0m                 if response.status != 200:
+   [1m[94m|[0m                                       [1m[91m^^^[0m [1m[91mPLR2004[0m
+[1m[94m34 |[0m                     error_text = await response.text()
+[1m[94m35 |[0m                     logger.exception(
+   [1m[94m|[0m
+
+[1mbackend/ows/google/drive.py[0m[36m:[0m37[36m:[0m25[36m:[0m [1;31mLOG014[0m `exc_info=` outside exception handlers
+   [1m[94m|[0m
+[1m[94m35 |[0m                     logger.exception(
+[1m[94m36 |[0m                         "Failed to get Google Drive files",
+[1m[94m37 |[0m                         exc_info=True,
+   [1m[94m|[0m                         [1m[91m^^^^^^^^^^^^^[0m [1m[91mLOG014[0m
+[1m[94m38 |[0m                         extra={"status": response.status, "response": error_text},
+[1m[94m39 |[0m                     )
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove `exc_info=`
+
+[1mbackend/ows/yandex/disk.py[0m[36m:[0m23[36m:[0m9[36m:[0m [1;31mSIM117[0m Use a single `with` statement with multiple contexts instead of nested `with` statements
+   [1m[94m|[0m
+[1m[94m21 |[0m           disk_url = f"{self.api_base_url}/resources/files"
+[1m[94m22 |[0m
+[1m[94m23 |[0m [1m[91m/[0m         async with aiohttp.ClientSession() as session:
+[1m[94m24 |[0m [1m[91m|[0m             async with session.get(
+[1m[94m25 |[0m [1m[91m|[0m                 url=disk_url,
+[1m[94m26 |[0m [1m[91m|[0m                 headers={
+[1m[94m27 |[0m [1m[91m|[0m                     "Authorization": f"OAuth {access_token}",
+[1m[94m28 |[0m [1m[91m|[0m                     "Content-Type": "application/json",
+[1m[94m29 |[0m [1m[91m|[0m                     "Accept": "application/json",
+[1m[94m30 |[0m [1m[91m|[0m                 },
+[1m[94m31 |[0m [1m[91m|[0m                 ssl=False,
+[1m[94m32 |[0m [1m[91m|[0m             ) as response:
+   [1m[94m|[0m [1m[91m|__________________________^[0m [1m[91mSIM117[0m
+[1m[94m33 |[0m                   if response.status != 200:
+[1m[94m34 |[0m                       error_text = await response.text()
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Combine `with` statements
+
+[1mbackend/ows/yandex/disk.py[0m[36m:[0m33[36m:[0m39[36m:[0m [1;31mPLR2004[0m Magic value used in comparison, consider replacing `200` with a constant variable
+   [1m[94m|[0m
+[1m[94m31 |[0m                 ssl=False,
+[1m[94m32 |[0m             ) as response:
+[1m[94m33 |[0m                 if response.status != 200:
+   [1m[94m|[0m                                       [1m[91m^^^[0m [1m[91mPLR2004[0m
+[1m[94m34 |[0m                     error_text = await response.text()
+[1m[94m35 |[0m                     logger.exception(
+   [1m[94m|[0m
+
+[1mbackend/ows/yandex/disk.py[0m[36m:[0m37[36m:[0m25[36m:[0m [1;31mLOG014[0m `exc_info=` outside exception handlers
+   [1m[94m|[0m
+[1m[94m35 |[0m                     logger.exception(
+[1m[94m36 |[0m                         "Failed to get Yandex.Disk files",
+[1m[94m37 |[0m                         exc_info=True,
+   [1m[94m|[0m                         [1m[91m^^^^^^^^^^^^^[0m [1m[91mLOG014[0m
+[1m[94m38 |[0m                         extra={"status": response.status, "response": error_text},
+[1m[94m39 |[0m                     )
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Remove `exc_info=`
+
+[1mbackend/prometheus/router.py[0m[36m:[0m11[36m:[0m19[36m:[0m [1;31mPLR2004[0m Magic value used in comparison, consider replacing `0.5` with a constant variable
+   [1m[94m|[0m
+[1m[94m 9 |[0m @router.get("/get_error")
+[1m[94m10 |[0m def get_error():
+[1m[94m11 |[0m     if random() > 0.5:
+   [1m[94m|[0m                   [1m[91m^^^[0m [1m[91mPLR2004[0m
+[1m[94m12 |[0m         raise ZeroDivisionError
+[1m[94m13 |[0m     raise KeyError
+   [1m[94m|[0m
+
+[1mbackend/prometheus/router.py[0m[36m:[0m24[36m:[0m9[36m:[0m [1;31mC416[0m Unnecessary list comprehension (rewrite using `list()`)
+   [1m[94m|[0m
+[1m[94m22 |[0m @router.get("/memory_consumer")
+[1m[94m23 |[0m def memory_consumer():
+[1m[94m24 |[0m     _ = [i for i in range(30_000_000)]
+   [1m[94m|[0m         [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mC416[0m
+[1m[94m25 |[0m     return 1
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Rewrite using `list()`
+
+[1mbackend/test_main.py[0m[36m:[0m31[36m:[0m12[36m:[0m [1;31mC408[0m Unnecessary `dict()` call (rewrite as a literal)
+   [1m[94m|[0m
+[1m[94m29 |[0m async def index():
+[1m[94m30 |[0m     await asyncio.sleep(3)
+[1m[94m31 |[0m     return dict(hello="world")
+   [1m[94m|[0m            [1m[91m^^^^^^^^^^^^^^^^^^^[0m [1m[91mC408[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Rewrite as a literal
+
+[1mtg_bot/bot.py[0m[36m:[0m28[36m:[0m5[36m:[0m [1;31mPLR1722[0m Use `sys.exit()` instead of `exit`
+   [1m[94m|[0m
+[1m[94m26 |[0m if not BOT_TOKEN:
+[1m[94m27 |[0m     logger.exception("TELEGRAM_BOT_TOKEN не найден в переменных окружения!")
+[1m[94m28 |[0m     exit(1)
+   [1m[94m|[0m     [1m[91m^^^^[0m [1m[91mPLR1722[0m
+[1m[94m29 |[0m
+[1m[94m30 |[0m # URL вашего Web App (замените на реальный URL)
+   [1m[94m|[0m
+   [1m[94m= [0m[1m[96mhelp[0m: Replace `exit` with `sys.exit()`
+
+Found 97 errors.
+No fixes available (25 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+ruff format..............................................................[42mPassed[m
+autoflake................................................................[42mPassed[m
+mypy.....................................................................[41mFailed[m
+[2m- hook id: mypy[m
+[2m- exit code: 2[m
+
+backend/entities/game_session/dao.py: [1m[31merror:(B[m Duplicate module named (B[m[1m"dao"(B[m (also at (B[m[1m"backend/entities/assemblers/dao.py"(B[m)(B[m[33m(B[m
+backend/entities/game_session/dao.py: [34mnote:(B[m See [4mhttps://mypy.readthedocs.io/en/stable/running_mypy.html#mapping-file-paths-to-modules(B[m for more info(B[m
+backend/entities/game_session/dao.py: [34mnote:(B[m Common resolutions include: a) using `--exclude` to avoid checking one of them, b) adding `__init__.py` somewhere, c) using `--explicit-package-bases` or adjusting MYPYPATH(B[m
+[1m[31mFound 1 error in 1 file (errors prevented further checking)(B[m
+
+fix end of files.........................................................[42mPassed[m
+check for added large files..............................................[42mPassed[m
+prettier frontend....................................(no files to check)[46;30mSkipped[m

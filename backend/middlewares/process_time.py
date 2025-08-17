@@ -1,4 +1,5 @@
 import time
+
 from fastapi import Request
 from starlette.middleware.base import (
     BaseHTTPMiddleware,
@@ -7,7 +8,6 @@ from starlette.middleware.base import (
 from starlette.responses import Response
 
 from backend.core.logger import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -33,8 +33,7 @@ class ProcessTimeMiddleware(BaseHTTPMiddleware):
 
         # Логируем время обработки запроса
         logger.info(
-            "Request handling time",
-            extra={"process_time": round(process_time, 4)}
+            "Request handling time", extra={"process_time": round(process_time, 4)}
         )
 
         return response
