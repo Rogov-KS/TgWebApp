@@ -1,10 +1,15 @@
 from datetime import UTC, datetime
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy import and_, select
 
 from backend.core.base_dao import BaseDAO
-from backend.core.database import async_session_maker
+from backend.core.database import async_session_maker, AsyncSessionDep
+from backend.core.logger import get_logger
 from backend.entities.refresh_token.models import RefreshToken
+
+logger = get_logger(__name__)
 
 
 class RefreshTokenDAO(BaseDAO[RefreshToken]):
@@ -13,63 +18,68 @@ class RefreshTokenDAO(BaseDAO[RefreshToken]):
 
     model = RefreshToken
 
-    @classmethod
-    async def get_by_token(cls, token: str) -> RefreshToken | None:
+    async def get_by_token(self, token: str) -> RefreshToken | None:
         """Получить refresh token по токену."""
-        return await cls.get_one_or_none(token=token)
+        return await self.get_one_or_none(token=token)
 
-    @classmethod
-    async def get_active_by_user_id(cls, user_id: int) -> list[RefreshToken]:
+    async def get_active_by_user_id(self, user_id: int) -> list[RefreshToken]:
         """Получить все активные refresh токены пользователя."""
-        async with async_session_maker() as session:
-            stmt = select(cls.model).where(
-                and_(
-                    cls.model.user_id == user_id,
-                    cls.model.is_revoked == False,  # noqa: E712
-                    cls.model.expires_at > datetime.now(UTC),
-                )
+        stmt = select(self.model).where(
+            and_(
+                self.model.user_id == user_id,
+                self.model.is_revoked == False,  # noqa: E712
+                self.model.expires_at > datetime.now(UTC),
             )
-            result = await session.execute(stmt)
-            return list(result.scalars().all())
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    @classmethod
-    async def revoke_by_token(cls, token: str) -> None:
+    async def revoke_by_token(self, token: str) -> None:
         """Отозвать refresh token."""
-        await cls.update({"token": token}, {"is_revoked": True})
+        await self.update({"token": token}, {"is_revoked": True})
 
-    @classmethod
-    async def revoke_all_by_user_id(cls, user_id: int) -> None:
+    async def revoke_all_by_user_id(self, user_id: int) -> None:
         """Отозвать все refresh токены пользователя."""
-        active_tokens = await cls.get_active_by_user_id(user_id)
+        active_tokens = await self.get_active_by_user_id(user_id)
         for token in active_tokens:
-            await cls.update({"id": token.id}, {"is_revoked": True})
+            await self.update({"id": token.id}, {"is_revoked": True})
 
-    @classmethod
-    async def delete_expired(cls) -> None:
+    async def delete_expired(self) -> None:
         """Удалить истекшие refresh токены."""
-        async with async_session_maker() as session:
-            stmt = select(cls.model).where(cls.model.expires_at <= datetime.now(UTC))
-            result = await session.execute(stmt)
-            expired_tokens = result.scalars().all()
+        stmt = select(self.model).where(
+            self.model.expires_at <= datetime.now(UTC)
+        )
+        result = await self.session.execute(stmt)
+        expired_tokens = result.scalars().all()
 
-            for token in expired_tokens:
-                await session.delete(token)
-            await session.commit()
+        for token in expired_tokens:
+            await self.session.delete(token)
+        await self.session.commit()
 
-    @classmethod
-    async def count_active_by_user_id(cls, user_id: int) -> int:
+    async def count_active_by_user_id(self, user_id: int) -> int:
         """Подсчитать количество активных токенов пользователя."""
-        active_tokens = await cls.get_active_by_user_id(user_id)
+        active_tokens = await self.get_active_by_user_id(user_id)
         return len(active_tokens)
 
-    @classmethod
     async def create_refresh_token(
-        cls,
+        self,
         user_id: int,
         token: str,
         expires_at: datetime,
     ) -> RefreshToken | None:
         """Создать новый refresh token."""
-        return await cls.create(
-            user_id=user_id, token=token, expires_at=expires_at, is_revoked=False
+        return await self.create(
+            user_id=user_id,
+            token=token,
+            expires_at=expires_at,
+            is_revoked=False
         )
+
+
+def get_refresh_token_dao(session: AsyncSessionDep) -> RefreshTokenDAO:
+    """Dependency для получения RefreshTokenDAO."""
+    return RefreshTokenDAO(session)
+
+
+# Тип для использования в других модулях
+RefreshTokenDAODep = Annotated[RefreshTokenDAO, Depends(get_refresh_token_dao)]

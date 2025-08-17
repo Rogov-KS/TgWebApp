@@ -7,8 +7,11 @@ import aiohttp
 from fastapi import HTTPException, Response
 
 from backend.celery_app.tasks.email import send_welcome_email_task
+from backend.core.database import async_session_maker
 from backend.core.logger import get_logger
-from backend.entities.auth.utils import set_tokens_to_cookies
+from backend.entities.auth import utils as auth_utils
+from backend.entities.refresh_token.dao import RefreshTokenDAO
+from backend.entities.refresh_token.service import RefreshTokenService
 from backend.entities.oauth2_token.schemas import (
     CloudFile,
     OAuth2TokenData,
@@ -243,7 +246,14 @@ class OAuth2Provider(ABC):
                     username=user_data.username or user_data.email,
                 )
 
-        access_token, refresh_token = await set_tokens_to_cookies(response, user)
+        async with async_session_maker() as session:
+            refresh_token_dao = RefreshTokenDAO(session)
+            user_dao = UserDAO(session)
+            refresh_service = RefreshTokenService(refresh_token_dao, user_dao)
+            tokens = await refresh_service.set_tokens_to_cookies(
+                response, user, auth_utils
+            )
+            access_token, refresh_token = tokens
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,

@@ -1,17 +1,12 @@
 from datetime import UTC, datetime, timedelta
-import secrets
 
 from fastapi import Response
 from jose import jwt
 from passlib.context import CryptContext
-from pydantic import EmailStr, ValidationError
+from pydantic import EmailStr
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
-from backend.entities.refresh_token.dao import RefreshTokenDAO
-from backend.entities.user.dao import UserDAO
-from backend.entities.user.models import User
-from backend.entities.user.schemas import User as UserSchema
 
 logger = get_logger(__name__)
 
@@ -19,84 +14,40 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def get_password_hash(password: str) -> str:
+    """Захэшировать пароль."""
     return str(pwd_context.hash(password))
 
 
 def verify_password(password: str, hashed_password: str | None) -> bool:
+    """Проверить пароль."""
     if not hashed_password:
         return False
-    return pwd_context.verify(password, hashed_password)
+    return bool(pwd_context.verify(password, hashed_password))
 
 
 def is_valid_email(email: str) -> bool:
+    """Проверить валидность email."""
     try:
+        # Используем валидацию Pydantic для проверки email
         EmailStr.validate(email)
         return True
     except Exception:
         return False
 
 
-async def authenticate_user(username_or_email: str, password: str) -> UserSchema | None:
-    """
-    Аутентификация пользователя по username или email.
-    Если пользователь не найден, возвращает None.
-    Если пользователь найден, но пароль неверный, возвращает None.
-    Если пользователь найден и пароль верный, возвращает пользователя.
-
-    Args:
-        username_or_email: str - username или email пользователя
-        password: str - пароль пользователя
-
-    Returns:
-        User | None - пользователь или None, если пользователь не найден или пароль неверный
-    """
-    user = None
-
-    # Сначала проверяем, является ли введенная строка email
-    if is_valid_email(username_or_email):
-        # Если это email, ищем пользователя по email
-        user = await UserDAO.get_one_or_none(email=username_or_email)
-    else:
-        # Если это не email, ищем по username
-        user = await UserDAO.get_one_or_none(username=username_or_email)
-
-    if not user or not verify_password(password, user.hashed_password):
-        return None
-
-    try:
-        schema_user = UserSchema.model_validate(user)
-    except ValidationError as err:
-        raise IncorrectTokenFormatException from err
-
-    return schema_user
-
-
-async def authenticate_admin_user(
-    username_or_email: str, password: str
-) -> UserSchema | None:
-    """
-    Аутентификация администратора по username или email.
-    Если пользователь не найден, возвращает None.
-    Если пользователь найден, но пароль неверный, возвращает None.
-    Если пользователь найден и пароль верный, но пользователь не админ, возвращает None.
-    Если пользователь найден, пароль верный и пользователь админ, возвращает пользователя.
-
-    Args:
-        username_or_email: str - username или email пользователя
-        password: str - пароль пользователя
-
-    Returns:
-        User | None - пользователь или None, если пользователь не найден или пароль неверный или не админ
-    """
-    user = await authenticate_user(username_or_email, password)
-    if not user or not user.is_admin:
-        return None
-    return user
-
-
 def create_access_token(data: dict) -> str:
+    """
+    Создать access token.
+
+    Args:
+        data: данные для включения в токен
+
+    Returns:
+        str: сгенерированный JWT токен
+    """
     to_encode = data.copy()
-    expire = datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    expire = datetime.now(UTC) + timedelta(minutes=expire_minutes)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
@@ -104,26 +55,18 @@ def create_access_token(data: dict) -> str:
     return str(encoded_jwt)
 
 
-def create_refresh_token(user_id: int) -> tuple[str, datetime]:
-    """Создать refresh token для пользователя."""
-    # Генерируем случайный токен
-    logger.info("create_refresh_token", extra={"user_id": user_id})
-    token = secrets.token_urlsafe(32)
+def set_auth_cookies(
+    response: Response, access_token: str, refresh_token: str
+) -> None:
+    """
+    Установить cookies для аутентификации.
 
-    # Вычисляем время истечения
-    expire = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-
-    return token, expire
-
-
-async def set_tokens_to_cookies(response: Response, user: User) -> tuple[str, str]:
-    # Создаем access token
-    access_token = create_access_token(data={"sub": str(user.id)})
-
-    # Создаем refresh token
-    refresh_token = await create_user_refresh_token(user.id)
-
-    # Устанавливаем cookies
+    Args:
+        response: HTTP response объект
+        access_token: access token
+        refresh_token: refresh token
+    """
+    # Устанавливаем access token cookie
     response.set_cookie(
         settings.ACCESS_TOKEN_COOKIE_NAME,
         access_token,
@@ -131,6 +74,8 @@ async def set_tokens_to_cookies(response: Response, user: User) -> tuple[str, st
         samesite="none",
         secure=True,
     )
+
+    # Устанавливаем refresh token cookie
     response.set_cookie(
         settings.REFRESH_TOKEN_COOKIE_NAME,
         refresh_token,
@@ -140,73 +85,7 @@ async def set_tokens_to_cookies(response: Response, user: User) -> tuple[str, st
         path="/auth/refresh",
     )
 
-    logger.info("Access token created", extra={"access_token": access_token})
-    logger.info("Refresh token created for user", extra={"user_id": user.id})
-
-    return access_token, refresh_token
-
-
-async def verify_refresh_token(token: str) -> User | None:
-    """
-    Верификация refresh token.
-    Возвращает пользователя, если токен валиден, иначе None.
-    """
-    refresh_token = await RefreshTokenDAO.get_by_token(token)
-    logger.info(
-        "get info about refresh_token",
-        extra={
-            "refresh_token": {
-                "token": refresh_token.token if refresh_token else None,
-                "user_id": refresh_token.user_id if refresh_token else None,
-                "is_revoked": refresh_token.is_revoked if refresh_token else None,
-                "expires_at": (
-                    refresh_token.expires_at.isoformat()
-                    if refresh_token and refresh_token.expires_at
-                    else None
-                ),
-            }
-        },
-    )
-    if not refresh_token:
-        return None
-
-    # Проверяем, что токен активен и не истек
-    if refresh_token.is_revoked or refresh_token.expires_at <= datetime.now(UTC):
-        return None
-
-    # Получаем пользователя
-    user = await UserDAO.get_one_or_none(id=refresh_token.user_id)
-    return user
-
-
-async def revoke_refresh_token(token: str) -> None:
-    """Отозвать refresh token."""
-    await RefreshTokenDAO.revoke_by_token(token)
-
-
-async def revoke_user_refresh_tokens(user_id: int) -> None:
-    """Отозвать все refresh токены пользователя."""
-    await RefreshTokenDAO.revoke_all_by_user_id(user_id)
-
-
-async def create_user_refresh_token(user_id: int) -> str:
-    """Создать refresh token для пользователя с ограничением количества."""
-    # Проверяем количество активных токенов
-    active_count = await RefreshTokenDAO.count_active_by_user_id(user_id)
-
-    if active_count >= settings.MAX_REFRESH_TOKENS_PER_USER:
-        # Удаляем самый старый токен
-        active_tokens = await RefreshTokenDAO.get_active_by_user_id(user_id)
-        if active_tokens:
-            oldest_token = min(active_tokens, key=lambda t: t.created_at)
-            await RefreshTokenDAO.revoke_by_token(oldest_token.token)
-
-    # Создаем новый токен
-    token, expires_at = create_refresh_token(user_id)
-
-    # Сохраняем в базу
-    await RefreshTokenDAO.create_refresh_token(
-        user_id=user_id, token=token, expires_at=expires_at
-    )
-
-    return token
+    logger.info("Auth cookies set", extra={
+        "access_token_set": True,
+        "refresh_token_set": True
+    })
