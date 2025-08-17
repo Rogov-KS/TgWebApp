@@ -1,12 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from fastapi_versioning import version
 
-from backend.core.dependecies import get_current_user
-from backend.entities.game_session.dao import GameSessionDAO
-from backend.entities.leaderboard.dao import get_db_leaderboard
+from backend.core.dependecies import CurrentUserDep
 from backend.entities.leaderboard.schemas import LeaderboardPlace
-from backend.entities.user.schemas import User
+from backend.entities.leaderboard.service import LeaderboardServiceDep
 
 router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
 
@@ -15,21 +13,32 @@ router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
 @version(1)
 @cache(expire=60)
 async def get_leaderboard(
+    leaderboard_service: LeaderboardServiceDep,
     limit: int = 10,
     offset: int = 0,
     sort_order: str = "desc",
 ) -> list[LeaderboardPlace]:
     """Получить топ игроков в рейтинге."""
-    top_scores = await get_db_leaderboard(limit, offset, sort_order)
-    return top_scores
+    return await leaderboard_service.get_leaderboard(limit, offset, sort_order)
 
 
 @router.get("/my_max_score")
 @version(1)
 @cache(expire=60)
 async def get_my_max_score(
-    user: User = Depends(get_current_user),
+    leaderboard_service: LeaderboardServiceDep,
+    user: CurrentUserDep,
 ) -> int | None:
     """Получить максимальный счет текущего пользователя."""
-    max_score = await GameSessionDAO.get_max_score(user.id)
-    return max_score
+    return await leaderboard_service.get_user_max_score(user)
+
+
+@router.get("/my_position")
+@version(1)
+@cache(expire=120)
+async def get_my_position(
+    leaderboard_service: LeaderboardServiceDep,
+    user: CurrentUserDep,
+) -> int | None:
+    """Получить позицию текущего пользователя в рейтинге."""
+    return await leaderboard_service.get_user_position_in_leaderboard(user)

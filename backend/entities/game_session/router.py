@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi_versioning import version
 
 from backend.core.dependecies import CurrentUserDep
