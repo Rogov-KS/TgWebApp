@@ -1,24 +1,21 @@
 from fastapi import APIRouter
 from fastapi_versioning import version
 
-from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAO
 from backend.entities.user.schemas import User
+from backend.entities.user.service import UserServiceDep
 
 router = APIRouter(prefix="/users", tags=["Users"])
-
-logger = get_logger(__name__)
 
 
 @router.get("/", response_model=list[User])
 @version(1)
-async def get_users() -> list[User]:
-    users = await UserDAO.get_all()
-    logger.info("Retrieved users", extra={"count": len(users)})
-    return users
+async def get_users(user_service: UserServiceDep) -> list[User]:
+    """Получить всех пользователей."""
+    return await user_service.get_all_users()
 
 
 @router.get("/{user_id}", response_model=User | None)
 @version(1)
-async def get_user(user_id: int) -> User | None:
-    return await UserDAO.get_one_or_none(id=user_id)
+async def get_user(user_id: int, user_service: UserServiceDep) -> User | None:
+    """Получить пользователя по ID."""
+    return await user_service.get_user_by_id(user_id)

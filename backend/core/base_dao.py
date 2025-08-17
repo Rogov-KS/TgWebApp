@@ -3,8 +3,9 @@ from typing import Generic, TypeVar
 
 from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.database import Base, async_session_maker
+from backend.core.database import Base
 from backend.core.logger import get_logger
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -17,57 +18,51 @@ class BaseDAO(Generic[ModelType]):
 
     model: type[ModelType]
 
-    @classmethod
-    async def get_all(cls, **filter_by) -> list[ModelType]:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def get_all(self, **filter_by) -> list[ModelType]:
         """Получить все записи."""
-        async with async_session_maker() as session:
-            query = select(cls.model).filter_by(**filter_by)
-            result = await session.execute(query)
-            return result.scalars().all()
+        query = select(self.model).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        return result.scalars().all()
 
-    @classmethod
-    async def get_one_or_none(cls, **filter_by) -> ModelType | None:
+    async def get_one_or_none(self, **filter_by) -> ModelType | None:
         """Получить запись по ID."""
-        async with async_session_maker() as session:
-            query = select(cls.model).filter_by(**filter_by)
-            result = await session.execute(query)
-            return result.scalar_one_or_none()
+        query = select(self.model).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
 
-    @classmethod
-    async def create(cls, **data) -> ModelType | None:
+    async def create(self, **data) -> ModelType | None:
         """Создать новую запись."""
         try:
-            query = insert(cls.model).values(**data).returning(cls.model)
-            async with async_session_maker() as session:
-                result = await session.execute(query)
-                await session.commit()
-                # return result.mappings().first() # noqa
-                return result.scalar_one_or_none()
+            query = insert(self.model).values(**data).returning(self.model)
+            result = await self.session.execute(query)
+            await self.session.commit()
+            return result.scalar_one_or_none()
         except (SQLAlchemyError, Exception) as e:
+            await self.session.rollback()
             if isinstance(e, SQLAlchemyError):
                 msg = "Database Exc: Cannot insert data into table"
             elif isinstance(e, Exception):
                 msg = "Unknown Exc: Cannot insert data into table"
 
             logger.exception(
-                msg, extra={"table": cls.model.__tablename__}, exc_info=True
+                msg, extra={"table": self.model.__tablename__}, exc_info=True
             )
             return None
 
-    @classmethod
-    async def delete(cls, **filter_by) -> bool:
+    async def delete(self, **filter_by) -> bool:
         """Удалить запись."""
-        async with async_session_maker() as session:
-            query = delete(cls.model).filter_by(**filter_by)
-            result = await session.execute(query)
-            await session.commit()
-            return bool(result.rowcount > 0)
+        query = delete(self.model).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        await self.session.commit()
+        return bool(result.rowcount > 0)
 
-    @classmethod
     async def update(
-        cls,
+        self,
         filters: dict,  # Условия для выбора записи (например, {"id": 1})
-        update_data: dict,  # Данные для обновления (например, {"name": "New Name"})
+        update_data: dict,  # Данные для обновления
     ) -> ModelType | None:
         """
         Обновляет запись по фильтру и возвращает обновленный объект.
@@ -86,36 +81,35 @@ class BaseDAO(Generic[ModelType]):
             )
             raise ValueError(msg)
 
-        async with async_session_maker() as session:
-            try:
-                # Формируем условие WHERE из фильтров
-                where_clause = and_(
-                    *[
-                        getattr(cls.model, key) == value
-                        for key, value in filters.items()
-                    ]
-                )
+        try:
+            # Формируем условие WHERE из фильтров
+            where_clause = and_(
+                *[
+                    getattr(self.model, key) == value
+                    for key, value in filters.items()
+                ]
+            )
 
-                # Выполняем обновление
-                query = (
-                    update(cls.model)
-                    .where(where_clause)
-                    .values(**update_data)
-                    .returning(
-                        cls.model
-                    )  # Возвращаем обновленную запись (если СУБД поддерживает)
-                )
+            # Выполняем обновление
+            query = (
+                update(self.model)
+                .where(where_clause)
+                .values(**update_data)
+                .returning(
+                    self.model
+                )  # Возвращаем обновленную запись (если СУБД поддерживает)
+            )
 
-                result = await session.execute(query)
-                updated_record = result.scalar_one_or_none()
+            result = await self.session.execute(query)
+            updated_record = result.scalar_one_or_none()
 
-                await session.commit()
-                return updated_record  # noqa
+            await self.session.commit()
+            return updated_record  # noqa
 
-            except SQLAlchemyError as e:
-                await session.rollback()
-                msg = "Error updating record"
-                logger.exception(
-                    msg, extra={"table": cls.model.__tablename__}, exc_info=True
-                )
-                raise ValueError(msg) from e
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            msg = "Error updating record"
+            logger.exception(
+                msg, extra={"table": self.model.__tablename__}, exc_info=True
+            )
+            raise ValueError(msg) from e
