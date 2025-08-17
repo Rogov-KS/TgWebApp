@@ -1,0 +1,12 @@
+"""
+Фикстуры для аутентификации в тестах
+"""
+import pytest
+from typing import AsyncGenerator, Generator
+
+# Здесь будут фикстуры:
+# - test_user (тестовый пользователь)
+# - authenticated_client (клиент с аутентификацией)
+# - admin_user (пользователь-администратор)
+# - auth_headers (заголовки с токенами)
+# - refresh_token (токен обновления)
