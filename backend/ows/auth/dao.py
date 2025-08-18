@@ -1,5 +1,5 @@
 from backend.core.base_dao import BaseDAO
-from backend.entities.oauth2_token.models import OAuth2Token
+from backend.ows.auth.models import OAuth2Token
 
 
 class OAuth2TokenDAO(BaseDAO[OAuth2Token]):
