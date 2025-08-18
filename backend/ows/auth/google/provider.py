@@ -5,7 +5,7 @@ import jwt
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
-from backend.entities.oauth2_token.schemas import CloudFile, OAuth2UserData
+from backend.ows.auth.schemas import CloudFile, OAuth2UserData
 from backend.ows.auth.base_provider import OAuth2Provider
 from backend.ows.cloud_storage.google.drive import GoogleDriveIntegration
 

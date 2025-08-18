@@ -3,7 +3,7 @@ from backend.entities.game_session.schemas import (
     GameSessionBase,
     GameSessionCreate,
 )
-from backend.entities.oauth2_token.schemas import (
+from backend.ows.auth.schemas import (
     CloudFile,
     OAuth2TokenData,
     OAuth2UserData,
