@@ -32,8 +32,6 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
-        finally:
-            await session.close()
 
 
 # Тип для использования в DAO и других местах
