@@ -1,14 +1,14 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body, HTTPException, Query, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Response
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import version
 
 from backend.core.logger import get_logger
 from backend.ows.auth.service import OAuth2Service
-from backend.ows.auth.google.provider import google_provider
+from backend.ows.auth.google.provider import GoogleOAuth2ServiceDep
 from backend.ows.auth.state_storage import state_storage
-from backend.ows.auth.yandex.provider import yandex_provider
+from backend.ows.auth.yandex.provider import YandexOAuth2ServiceDep
 
 logger = get_logger(__name__)
 
@@ -18,38 +18,50 @@ router = APIRouter(
 )
 
 # Реестр провайдеров
-PROVIDERS: dict[str, OAuth2Service] = {
-    "google": google_provider,
-    "yandex": yandex_provider,
-}
+
+def get_oauth2_services(
+    google_provider: GoogleOAuth2ServiceDep,
+    yandex_provider: YandexOAuth2ServiceDep,
+) -> dict[str, OAuth2Service]:
+    """Dependency для получения OAuth2Service."""
+    return {
+        "google": google_provider,
+        "yandex": yandex_provider,
+    }
+
+
+# Тип для использования в роутерах
+OAuth2ServicesDep = Annotated[
+    dict[str, OAuth2Service], Depends(get_oauth2_services)
+]
 
 
 @router.get("/providers")
 @version(1)
-def get_available_providers() -> dict[str, Any]:
+def get_available_providers(oauth2_services: OAuth2ServicesDep) -> dict[str, Any]:
     """Получить список доступных OAuth2 провайдеров"""
-    return {"providers": list(PROVIDERS.keys()), "count": len(PROVIDERS)}
+    return {"providers": list(oauth2_services.keys()), "count": len(oauth2_services)}
 
 
 @router.get("/{provider}/url")
 @version(1)
-def get_oauth_redirect_uri(provider: str) -> RedirectResponse:
+def get_oauth_redirect_uri(provider: str, oauth2_services: OAuth2ServicesDep) -> RedirectResponse:
     """
     Получить URL для авторизации через указанного провайдера
 
     Args:
         provider: Имя провайдера (google, yandex)
     """
-    if provider not in PROVIDERS:
+    if provider not in oauth2_services:
         raise HTTPException(
             status_code=404,
             detail=(
                 f"Provider '{provider}' not found. "
-                f"Available providers: {list(PROVIDERS.keys())}"
+                f"Available providers: {list(oauth2_services.keys())}"
             ),
         )
 
-    oauth_provider = PROVIDERS[provider]
+    oauth_provider = oauth2_services[provider]
     state = state_storage.generate_state(provider)
 
     # Формируем URL авторизации
@@ -67,6 +79,7 @@ def get_oauth_redirect_uri(provider: str) -> RedirectResponse:
 @version(1)
 async def handle_oauth_callback(
     provider: str,
+    oauth2_services: OAuth2ServicesDep,
     code: Annotated[str, Body()],
     state: Annotated[str, Body()],
     response: Response,
@@ -79,12 +92,12 @@ async def handle_oauth_callback(
         code: Authorization code от провайдера
         state: State для защиты от CSRF
     """
-    if provider not in PROVIDERS:
+    if provider not in oauth2_services:
         raise HTTPException(
             status_code=404,
             detail=(
                 f"Provider '{provider}' not found. "
-                f"Available providers: {list(PROVIDERS.keys())}"
+                f"Available providers: {list(oauth2_services.keys())}"
             ),
         )
 
@@ -92,7 +105,7 @@ async def handle_oauth_callback(
         "OAuth callback", extra={"provider": provider, "code": code, "state": state}
     )
 
-    oauth_provider = PROVIDERS[provider]
+    oauth_provider = oauth2_services[provider]
 
     try:
         # Выполняем аутентификацию
@@ -117,7 +130,9 @@ async def handle_oauth_callback(
 @router.get("/{provider}/files")
 @version(1)
 async def get_cloud_files(
-    provider: str, access_token: Annotated[str, Query()]
+    provider: str,
+    oauth2_services: OAuth2ServicesDep,
+    access_token: Annotated[str, Query()]
 ) -> dict[str, Any]:
     """
     Получить файлы из облачного хранилища провайдера
@@ -126,16 +141,16 @@ async def get_cloud_files(
         provider: Имя провайдера (google, yandex)
         access_token: Access token для доступа к API
     """
-    if provider not in PROVIDERS:
+    if provider not in oauth2_services:
         raise HTTPException(
             status_code=404,
             detail=(
                 f"Provider '{provider}' not found. "
-                f"Available providers: {list(PROVIDERS.keys())}"
+                f"Available providers: {list(oauth2_services.keys())}"
             ),
         )
 
-    oauth_provider = PROVIDERS[provider]
+    oauth_provider = oauth2_services[provider]
 
     try:
         cloud_files = await oauth_provider.get_cloud_files(access_token)

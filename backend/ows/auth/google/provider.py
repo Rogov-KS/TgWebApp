@@ -1,4 +1,5 @@
-from typing import Any
+from typing import Annotated, Any
+from fastapi import Depends
 
 import aiohttp
 import jwt
@@ -6,8 +7,8 @@ import jwt
 from backend.core.config import settings
 from backend.core.database import get_async_session
 from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAO, get_user_dao
-from backend.entities.refresh_token.dao import RefreshTokenDAO, get_refresh_token_dao
+from backend.entities.user.dao import UserDAODep, get_user_dao
+from backend.entities.refresh_token.dao import RefreshTokenDAODep, get_refresh_token_dao
 from backend.ows.auth.dao import OAuth2TokenDAODep, get_oauth2_token_dao
 from backend.ows.auth.schemas import CloudFile, OAuth2UserData
 from backend.ows.auth.service import OAuth2Service
@@ -185,8 +186,8 @@ class GoogleOAuth2Service(OAuth2Service):
 
 def get_google_oauth2_service(
     oauth2_token_dao: OAuth2TokenDAODep,
-    user_dao: UserDAO,
-    refresh_token_dao: RefreshTokenDAO
+    user_dao: UserDAODep,
+    refresh_token_dao: RefreshTokenDAODep
 ) -> GoogleOAuth2Service:
     return GoogleOAuth2Service(
         oauth2_token_dao=oauth2_token_dao,
@@ -194,13 +195,19 @@ def get_google_oauth2_service(
         refresh_token_dao=refresh_token_dao
     )
 
-def get_google_oauth2_service_instance() -> GoogleOAuth2Service:
-    session = get_async_session()
-    return get_google_oauth2_service(
-        oauth2_token_dao=get_oauth2_token_dao(session),
-        user_dao=get_user_dao(session),
-        refresh_token_dao=get_refresh_token_dao(session)
-    )
 
-# Глобальный экземпляр
-google_provider = get_google_oauth2_service_instance()
+# Тип для использования в роутерах
+GoogleOAuth2ServiceDep = Annotated[
+    GoogleOAuth2Service, Depends(get_google_oauth2_service)
+]
+
+# def get_google_oauth2_service_instance() -> GoogleOAuth2Service:
+#     session = get_async_session()
+#     return get_google_oauth2_service(
+#         oauth2_token_dao=get_oauth2_token_dao(session),
+#         user_dao=get_user_dao(session),
+#         refresh_token_dao=get_refresh_token_dao(session)
+#     )
+
+# # Глобальный экземпляр
+# google_provider = get_google_oauth2_service_instance()
