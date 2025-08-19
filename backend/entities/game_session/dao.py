@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Type
 
 from fastapi import Depends
 from sqlalchemy import func, select
@@ -57,10 +57,13 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
             raise ValueError(msg) from e
 
 
+GameSessionDAO: Type[IGameSessionDAO]
+
+
 def get_game_session_dao(session: AsyncSessionDep) -> IGameSessionDAO:
     """Dependency для получения GameSessionDAO."""
     return GameSessionDAO(session)
 
 
 # Тип для использования в других модулях
-GameSessionDAODep = Annotated[GameSessionDAO, Depends(get_game_session_dao)]
+GameSessionDAODep = Annotated[IGameSessionDAO, Depends(get_game_session_dao)]

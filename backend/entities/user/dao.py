@@ -1,5 +1,5 @@
 # mypy: ignore-errors
-from typing import Annotated
+from typing import Annotated, Type
 
 from fastapi import Depends
 
@@ -17,6 +17,9 @@ class UserDAO(BaseDAO[User]):
     """
 
     model = User
+
+
+UserDAO: Type[IUserDAO]
 
 
 def get_user_dao(session: AsyncSessionDep) -> IUserDAO:

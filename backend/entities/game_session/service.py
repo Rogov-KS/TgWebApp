@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Annotated, List
+from typing import Annotated, List, Type
 
 from fastapi import Depends, HTTPException, status
 
@@ -21,7 +21,7 @@ from backend.entities.user.schemas import User
 logger = get_logger(__name__)
 
 
-class GameSessionService(IGameSessionService):
+class GameSessionService:
     """
     Сервисный слой для работы с игровыми сессиями.
 
@@ -289,6 +289,9 @@ class GameSessionService(IGameSessionService):
             extra={"game_session_id": game_session_id}
         )
         return deleted
+
+
+GameSessionService: Type[IGameSessionService]
 
 
 def get_game_session_service(

@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Type
 
 from fastapi import Depends
 
@@ -10,7 +10,7 @@ from backend.entities.user.schemas import User
 logger = get_logger(__name__)
 
 
-class UserService(IUserService):
+class UserService:
     """
     Сервисный слой для работы с пользователями.
 
@@ -160,6 +160,9 @@ class UserService(IUserService):
                 )
                 return User.model_validate(updated_user)
         return User.model_validate(user) if user else None
+
+
+UserService: Type[IUserService]
 
 
 def get_user_service(user_dao: UserDAODep) -> IUserService:
