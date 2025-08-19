@@ -11,7 +11,7 @@ from backend.core.database import engine
 from backend.core.logger import get_logger, setup_logging
 from backend.entities.assemblers.routers import include_routers_into_app
 from backend.middlewares import add_middlewares
-from backend.ows.auth.cleanup import start_cleanup_task
+from backend.ows.auth.state_storage import start_cleanup_task
 from backend.prometheus import init_prometheus
 from backend.sentry import init_sentry
 

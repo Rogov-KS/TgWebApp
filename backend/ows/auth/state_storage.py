@@ -1,5 +1,6 @@
-from datetime import UTC, datetime, timedelta
+import asyncio
 import secrets
+from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException
 
@@ -99,6 +100,26 @@ class StateStorage:
             logger.info(
                 "Cleaned up expired states", extra={"count": len(expired_states)}
             )
+
+
+async def cleanup_oauth_data() -> None:
+    """Периодическая очистка OAuth данных"""
+    while True:
+        try:
+            # Очищаем истекшие state
+            state_storage.cleanup_expired_states()
+            logger.debug("OAuth data cleanup completed")
+
+        except Exception:
+            logger.exception("Error during OAuth cleanup", exc_info=True)
+
+        # Очищаем каждые 5 минут
+        await asyncio.sleep(300)
+
+
+def start_cleanup_task() -> None:
+    """Запускает задачу очистки"""
+    asyncio.create_task(cleanup_oauth_data())
 
 
 # Глобальный экземпляр
