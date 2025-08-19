@@ -27,7 +27,9 @@ def get_token(request: Request) -> str:
         raise TokenAbsentException
     return str(token)
 
+
 AccessTokenDep = Annotated[str, Depends(get_token)]
+
 
 async def get_current_user(
     token: AccessTokenDep,

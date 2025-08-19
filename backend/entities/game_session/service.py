@@ -4,7 +4,11 @@ from typing import Annotated, List
 from fastapi import Depends, HTTPException, status
 
 from backend.core.logger import get_logger
-from backend.entities.game_session.dao import GameSessionDAO, GameSessionDAODep
+from backend.entities.game_session.dao import GameSessionDAODep
+from backend.entities.game_session.interfaces import (
+    IGameSessionDAO,
+    IGameSessionService,
+)
 from backend.entities.game_session.schemas import (
     GameSession,
     GameSessionCreate,
@@ -17,10 +21,16 @@ from backend.entities.user.schemas import User
 logger = get_logger(__name__)
 
 
-class GameSessionService:
-    """Сервисный слой для работы с игровыми сессиями."""
+class GameSessionService(IGameSessionService):
+    """
+    Сервисный слой для работы с игровыми сессиями.
 
-    def __init__(self, game_session_dao: GameSessionDAO, user_dao: IUserDAO):
+    Implements `IGameSessionService` interface.
+    """
+
+    def __init__(
+        self, game_session_dao: IGameSessionDAO, user_dao: IUserDAO
+    ):
         self.game_session_dao = game_session_dao
         self.user_dao = user_dao
 
@@ -283,12 +293,12 @@ class GameSessionService:
 
 def get_game_session_service(
     game_session_dao: GameSessionDAODep, user_dao: UserDAODep
-) -> GameSessionService:
+) -> IGameSessionService:
     """Dependency для получения GameSessionService."""
     return GameSessionService(game_session_dao, user_dao)
 
 
 # Тип для использования в роутерах
 GameSessionServiceDep = Annotated[
-    GameSessionService, Depends(get_game_session_service)
+    IGameSessionService, Depends(get_game_session_service)
 ]

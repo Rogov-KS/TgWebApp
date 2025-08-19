@@ -10,8 +10,12 @@ from backend.entities.user.schemas import User
 logger = get_logger(__name__)
 
 
-class UserService:
-    """Сервисный слой для работы с пользователями."""
+class UserService(IUserService):
+    """
+    Сервисный слой для работы с пользователями.
+
+    Implements `IUserService` interface.
+    """
 
     def __init__(self, user_dao: IUserDAO):
         self.user_dao = user_dao

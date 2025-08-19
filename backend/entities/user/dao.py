@@ -10,7 +10,11 @@ from backend.entities.user.interfaces import IUserDAO
 
 
 class UserDAO(BaseDAO[User]):
-    """DAO для работы с пользователями."""
+    """
+    DAO (Data Access Object) для работы с пользователями.
+
+    Implements `IUserDAO` interface.
+    """
 
     model = User
 

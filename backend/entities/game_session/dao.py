@@ -7,13 +7,18 @@ from sqlalchemy.exc import SQLAlchemyError
 from backend.core.base_dao import BaseDAO
 from backend.core.database import AsyncSessionDep
 from backend.core.logger import get_logger
+from backend.entities.game_session.interfaces import IGameSessionDAO
 from backend.entities.game_session.models import GameSession as GameSessionDB
 
 logger = get_logger(__name__)
 
 
 class GameSessionDAO(BaseDAO[GameSessionDB]):
-    """DAO для работы с игровыми сессиями."""
+    """
+    DAO (Data Access Object) для работы с игровыми сессиями.
+
+    Implements `IGameSessionDAO` interface.
+    """
 
     model = GameSessionDB
 
@@ -52,7 +57,7 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
             raise ValueError(msg) from e
 
 
-def get_game_session_dao(session: AsyncSessionDep) -> GameSessionDAO:
+def get_game_session_dao(session: AsyncSessionDep) -> IGameSessionDAO:
     """Dependency для получения GameSessionDAO."""
     return GameSessionDAO(session)
 
