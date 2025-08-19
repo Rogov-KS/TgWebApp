@@ -16,14 +16,14 @@ from backend.entities.auth.utils import (
     is_valid_email,
 )
 from backend.entities.user.dao import UserDAODep
-from backend.entities.user.interfaces import IUserDAO
 from backend.entities.user.schemas import (
     UserAuth, UserLogin, User as SUser
 )
 from backend.entities.refresh_token.service import (
-    RefreshTokenService,
     RefreshTokenServiceDep,
 )
+from backend.entities.refresh_token.interfaces import IRefreshTokenService
+from backend.entities.user.interfaces import IUserDAO
 
 logger = get_logger(__name__)
 
@@ -34,7 +34,7 @@ class AuthService:
     def __init__(
         self,
         user_dao: IUserDAO,
-        refresh_service: RefreshTokenService,
+        refresh_service: IRefreshTokenService,
     ):
         self.user_dao = user_dao
         self.refresh_service = refresh_service
@@ -297,10 +297,10 @@ class AuthService:
 def get_auth_service(
     user_dao: UserDAODep,
     refresh_service: RefreshTokenServiceDep
-) -> AuthService:
+) -> IAuthService:
     """Dependency для получения AuthService."""
     return AuthService(user_dao, refresh_service)
 
 
 # Тип для использования в роутерах
-AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+AuthServiceDep = Annotated[IAuthService, Depends(get_auth_service)]
