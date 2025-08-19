@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from fastapi_versioning import version
 
 from backend.core.logger import get_logger
-from backend.ows.auth.service import OAuth2Provider
+from backend.ows.auth.service import OAuth2Service
 from backend.ows.auth.google.provider import google_provider
 from backend.ows.auth.state_storage import state_storage
 from backend.ows.auth.yandex.provider import yandex_provider
@@ -18,7 +18,7 @@ router = APIRouter(
 )
 
 # Реестр провайдеров
-PROVIDERS: dict[str, OAuth2Provider] = {
+PROVIDERS: dict[str, OAuth2Service] = {
     "google": google_provider,
     "yandex": yandex_provider,
 }

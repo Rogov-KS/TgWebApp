@@ -1,19 +1,23 @@
 from typing import Any
 
 from backend.core.config import settings
+from backend.core.database import get_async_session
 from backend.core.logger import get_logger
+from backend.entities.user.dao import UserDAO, get_user_dao
+from backend.entities.refresh_token.dao import RefreshTokenDAO, get_refresh_token_dao
+from backend.ows.auth.dao import OAuth2TokenDAODep, get_oauth2_token_dao
 from backend.ows.auth.schemas import CloudFile, OAuth2UserData
-from backend.ows.auth.service import OAuth2Provider
+from backend.ows.auth.service import OAuth2Service
 from backend.ows.cloud_storage.yandex.disk import YandexDiskIntegration
 
 logger = get_logger(__name__)
 
 
-class YandexOAuth2Provider(OAuth2Provider):
+class YandexOAuth2Service(OAuth2Service):
     """Провайдер для Yandex OAuth2"""
 
-    def __init__(self) -> None:
-        super().__init__("yandex")
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(provider_name="yandex", *args, **kwargs)
         self._disk_integration = YandexDiskIntegration()
 
     @property
@@ -90,5 +94,25 @@ class YandexOAuth2Provider(OAuth2Provider):
         return files
 
 
+def get_yandex_oauth2_service(
+    oauth2_token_dao: OAuth2TokenDAODep,
+    user_dao: UserDAO,
+    refresh_token_dao: RefreshTokenDAO
+) -> YandexOAuth2Service:
+    return YandexOAuth2Service(
+        oauth2_token_dao=oauth2_token_dao,
+        user_dao=user_dao,
+        refresh_token_dao=refresh_token_dao
+    )
+
+def get_yandex_oauth2_service_instance() -> YandexOAuth2Service:
+    session = get_async_session()
+    return get_yandex_oauth2_service(
+        oauth2_token_dao=get_oauth2_token_dao(session),
+        user_dao=get_user_dao(session),
+        refresh_token_dao=get_refresh_token_dao(session)
+    )
+
+
 # Глобальный экземпляр
-yandex_provider = YandexOAuth2Provider()
+yandex_provider = get_yandex_oauth2_service_instance()

@@ -1,17 +1,18 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Any
+from typing import Annotated, Any
 
 import aiohttp
-from fastapi import HTTPException, Response
+from fastapi import Depends, HTTPException, Response
 
 from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.core.database import async_session_maker
 from backend.core.logger import get_logger
-from backend.entities.auth import utils as auth_utils
+
 from backend.entities.refresh_token.dao import RefreshTokenDAO
 from backend.entities.refresh_token.service import RefreshTokenService
+from backend.ows.auth.dao import OAuth2TokenDAODep, OAuth2TokenDAO
 from backend.ows.auth.schemas import (
     CloudFile,
     OAuth2TokenData,
@@ -22,12 +23,21 @@ from backend.entities.user.dao import UserDAO
 logger = get_logger(__name__)
 
 
-class OAuth2Provider(ABC):
+class OAuth2Service(ABC):
     """Абстрактный базовый класс для OAuth2 провайдеров"""
 
-    def __init__(self, provider_name: str):
+    def __init__(self,
+                 provider_name: str,
+                 oauth2_token_dao: OAuth2TokenDAO,
+                 user_dao: UserDAO,
+                 refresh_token_dao: RefreshTokenDAO
+                 ):
         self.provider_name = provider_name
         self._processing_requests: dict[str, bool] = {}
+
+        self.oauth2_token_dao = oauth2_token_dao
+        self.user_dao = user_dao
+        self.refresh_token_dao = refresh_token_dao
 
     @property
     @abstractmethod
@@ -72,7 +82,9 @@ class OAuth2Provider(ABC):
         """Парсинг данных пользователя из ответа провайдера"""
 
     @abstractmethod
-    async def get_cloud_files(self, access_token: str) -> list[CloudFile]:
+    async def get_cloud_files(
+        self, access_token: str
+    ) -> list[CloudFile]:
         """Получение списка файлов из облачного хранилища провайдера"""
 
     @contextmanager
@@ -83,7 +95,8 @@ class OAuth2Provider(ABC):
         """
         if request_key in self._processing_requests:
             logger.warning(
-                "Request already being processed", extra={"request_key": request_key}
+                "Request already being processed",
+                extra={"request_key": request_key}
             )
             raise HTTPException(
                 status_code=429,
@@ -197,19 +210,28 @@ class OAuth2Provider(ABC):
                 user_data = await self.parse_user_data(token_data.raw_data or {})
             else:
                 # Для других провайдеров делаем запрос к API
-                user_data = await self.get_user_data(token_data.access_token)
+                user_data = await self.get_user_data(
+                    token_data.access_token
+                )
 
             # Получаем файлы из облачного хранилища
             # Чисто для примера, в будущем будет использоваться для получения файлов
             # из облачного хранилища по сторонему АПИ и токену
             try:
-                cloud_files = await self.get_cloud_files(token_data.access_token)
-                logger.info("Found cloud files", extra={"count": len(cloud_files)})
+                cloud_files = await self.get_cloud_files(
+                    token_data.access_token
+                )
+                logger.info(
+                    "Found cloud files", extra={"count": len(cloud_files)}
+                )
             except Exception as e:
                 logger.warning(
                     "Failed to get cloud files",
                     exc_info=True,
-                    extra={"provider_name": self.provider_name, "error": str(e)},
+                    extra={
+                        "provider_name": self.provider_name,
+                        "error": str(e)
+                    },
                 )
                 cloud_files = []
 
@@ -227,10 +249,10 @@ class OAuth2Provider(ABC):
             )
 
         # Проверяем есть ли пользователь в нашей базе данных
-        user = await UserDAO.get_one_or_none(email=user_data.email)
+        user = await self.user_dao.get_one_or_none(email=user_data.email)
 
         if not user:
-            user = await UserDAO.create(
+            user = await self.user_dao.create(
                 username=user_data.username,
                 email=user_data.email,
                 hashed_password=None,
@@ -239,23 +261,38 @@ class OAuth2Provider(ABC):
             # Отправляем приветственное письмо для новых пользователей
             if user_data.email:
                 logger.info(
-                    "Try to send welcome email", extra={"email": user_data.email}
+                    "Try to send welcome email",
+                    extra={"email": user_data.email}
                 )
                 await send_welcome_email_task(
                     user_email=user_data.email,
-                    username=user_data.username or user_data.email,
+                    username=(
+                        user_data.username or user_data.email
+                    ),
                 )
-
-        async with async_session_maker() as session:
-            refresh_token_dao = RefreshTokenDAO(session)
-            user_dao = UserDAO(session)
-            refresh_service = RefreshTokenService(refresh_token_dao, user_dao)
-            tokens = await refresh_service.set_tokens_to_cookies(
-                response, user, auth_utils
-            )
-            access_token, refresh_token = tokens
+        refresh_service = RefreshTokenService(self.refresh_token_dao,
+                                              self.user_dao)
+        tokens = await refresh_service.set_tokens_to_cookies(
+            response, user
+        )
+        access_token, refresh_token = tokens
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer",
         }
+
+
+def get_oauth2_token_service(
+    oauth2_token_dao: OAuth2TokenDAODep,
+    user_dao: UserDAO,
+    refresh_token_dao: RefreshTokenDAO
+) -> OAuth2Service:
+    """Dependency для получения OAuth2Service."""
+    return OAuth2Service(oauth2_token_dao, user_dao, refresh_token_dao)
+
+
+# Тип для использования в роутерах
+OAuth2ServiceDep = Annotated[
+    OAuth2Service, Depends(get_oauth2_token_service)
+]

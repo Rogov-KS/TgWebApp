@@ -4,19 +4,23 @@ import aiohttp
 import jwt
 
 from backend.core.config import settings
+from backend.core.database import get_async_session
 from backend.core.logger import get_logger
+from backend.entities.user.dao import UserDAO, get_user_dao
+from backend.entities.refresh_token.dao import RefreshTokenDAO, get_refresh_token_dao
+from backend.ows.auth.dao import OAuth2TokenDAODep, get_oauth2_token_dao
 from backend.ows.auth.schemas import CloudFile, OAuth2UserData
-from backend.ows.auth.service import OAuth2Provider
+from backend.ows.auth.service import OAuth2Service
 from backend.ows.cloud_storage.google.drive import GoogleDriveIntegration
 
 logger = get_logger(__name__)
 
 
-class GoogleOAuth2Provider(OAuth2Provider):
+class GoogleOAuth2Service(OAuth2Service):
     """Провайдер для Google OAuth2"""
 
-    def __init__(self) -> None:
-        super().__init__("google")
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(provider_name="google", *args, **kwargs)
         self._drive_integration = GoogleDriveIntegration()
         self._public_keys = None
 
@@ -179,6 +183,24 @@ class GoogleOAuth2Provider(OAuth2Provider):
         files = await self._drive_integration.get_files(access_token)
         return files
 
+def get_google_oauth2_service(
+    oauth2_token_dao: OAuth2TokenDAODep,
+    user_dao: UserDAO,
+    refresh_token_dao: RefreshTokenDAO
+) -> GoogleOAuth2Service:
+    return GoogleOAuth2Service(
+        oauth2_token_dao=oauth2_token_dao,
+        user_dao=user_dao,
+        refresh_token_dao=refresh_token_dao
+    )
+
+def get_google_oauth2_service_instance() -> GoogleOAuth2Service:
+    session = get_async_session()
+    return get_google_oauth2_service(
+        oauth2_token_dao=get_oauth2_token_dao(session),
+        user_dao=get_user_dao(session),
+        refresh_token_dao=get_refresh_token_dao(session)
+    )
 
 # Глобальный экземпляр
-google_provider = GoogleOAuth2Provider()
+google_provider = get_google_oauth2_service_instance()
