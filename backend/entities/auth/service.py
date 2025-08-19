@@ -15,9 +15,11 @@ from backend.entities.auth.utils import (
     get_password_hash,
     is_valid_email,
 )
-from backend.entities.user.dao import UserDAO, UserDAODep
-from backend.entities.user.schemas import User, UserAuth, UserLogin
-from backend.entities.user.schemas import User as UserSchema
+from backend.entities.user.dao import UserDAODep
+from backend.entities.user.interfaces import IUserDAO
+from backend.entities.user.schemas import (
+    UserAuth, UserLogin, User as SUser
+)
 from backend.entities.refresh_token.service import (
     RefreshTokenService,
     RefreshTokenServiceDep,
@@ -31,7 +33,7 @@ class AuthService:
 
     def __init__(
         self,
-        user_dao: UserDAO,
+        user_dao: IUserDAO,
         refresh_service: RefreshTokenService,
     ):
         self.user_dao = user_dao
@@ -41,7 +43,7 @@ class AuthService:
         self,
         username_or_email: str,
         password: str
-    ) -> UserSchema | None:
+    ) -> SUser | None:
         """
         Аутентификация пользователя по username или email.
 
@@ -50,7 +52,7 @@ class AuthService:
             password: пароль пользователя
 
         Returns:
-            UserSchema | None: пользователь или None, если
+            SUser | None: пользователь или None, если
                               аутентификация не удалась
         """
 
@@ -70,7 +72,7 @@ class AuthService:
             return None
 
         try:
-            schema_user = UserSchema.model_validate(user)
+            schema_user = SUser.model_validate(user)
         except ValidationError as err:
             raise IncorrectTokenFormatException from err
 
@@ -78,7 +80,7 @@ class AuthService:
 
     async def authenticate_admin_user(
         self, username_or_email: str, password: str
-    ) -> UserSchema | None:
+    ) -> SUser | None:
         """
         Аутентификация администратора по username или email.
 
@@ -87,7 +89,7 @@ class AuthService:
             password: пароль пользователя
 
         Returns:
-            UserSchema | None: пользователь-админ или None, если
+            SUser | None: пользователь-админ или None, если
                               аутентификация не удалась или пользователь
                               не является администратором
         """
@@ -96,7 +98,7 @@ class AuthService:
             return None
         return user
 
-    async def register_user(self, user_data: UserAuth) -> User:
+    async def register_user(self, user_data: UserAuth) -> SUser:
         """
         Регистрация нового пользователя.
 
@@ -150,6 +152,9 @@ class AuthService:
                 email=user_data.email,
                 hashed_password=hashed_password,
             )
+            if not model_user:
+                logger.error("Failed to create user - returned None")
+                raise UserAlreadyExistsException
         except Exception as e:
             logger.exception("Error creating user", exc_info=True)
             raise UserAlreadyExistsException from e
@@ -157,7 +162,7 @@ class AuthService:
         logger.info(
             "User registered successfully", extra={"user_id": model_user.id}
         )
-        return model_user
+        return SUser.model_validate(model_user)
 
     async def login_user(
         self,
@@ -178,18 +183,26 @@ class AuthService:
         Raises:
             InvalidCredentialsException: если учетные данные неверны
         """
-        logger.info("Logging in user", extra={"user_data": user_data.model_dump()})
-        user = await self.authenticate_user(
+        logger.info(
+            "Logging in user", extra={"user_data": user_data.model_dump()}
+        )
+        user_schema = await self.authenticate_user(
             user_data.username_or_email, user_data.password
         )
-        if not user:
+        if not user_schema:
             logger.info(
-                "Invalid credentials", extra={"user_data": user_data.model_dump()}
+                "Invalid credentials",
+                extra={"user_data": user_data.model_dump()}
             )
             raise InvalidCredentialsException
 
+        # Получаем модель пользователя для set_tokens_to_cookies
+        user_model = await self.user_dao.get_one_or_none(id=user_schema.id)
+        if not user_model:
+            raise InvalidCredentialsException
+
         tokens = await self.refresh_service.set_tokens_to_cookies(
-            response, user
+            response, user_model
         )
         access_token, refresh_token = tokens
 
@@ -254,7 +267,7 @@ class AuthService:
         }
 
     async def logout_user(
-        self, user: User, response: Response
+        self, user: SUser, response: Response
     ) -> dict[str, str]:
         """
         Выход пользователя из системы.

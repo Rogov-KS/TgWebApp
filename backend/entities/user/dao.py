@@ -6,6 +6,7 @@ from fastapi import Depends
 from backend.core.base_dao import BaseDAO
 from backend.core.database import AsyncSessionDep
 from backend.entities.user.models import User
+from backend.entities.user.interfaces import IUserDAO
 
 
 class UserDAO(BaseDAO[User]):
@@ -14,10 +15,10 @@ class UserDAO(BaseDAO[User]):
     model = User
 
 
-def get_user_dao(session: AsyncSessionDep) -> UserDAO:
+def get_user_dao(session: AsyncSessionDep) -> IUserDAO:
     """Dependency для получения UserDAO."""
     return UserDAO(session)
 
 
 # Тип для использования в других модулях
-UserDAODep = Annotated[UserDAO, Depends(get_user_dao)]
+UserDAODep = Annotated[IUserDAO, Depends(get_user_dao)]

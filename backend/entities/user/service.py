@@ -3,7 +3,8 @@ from typing import Annotated, List, Optional
 from fastapi import Depends
 
 from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAODep, UserDAO
+from backend.entities.user.dao import UserDAODep
+from backend.entities.user.interfaces import IUserDAO, IUserService
 from backend.entities.user.schemas import User
 
 logger = get_logger(__name__)
@@ -12,7 +13,7 @@ logger = get_logger(__name__)
 class UserService:
     """Сервисный слой для работы с пользователями."""
 
-    def __init__(self, user_dao: UserDAO):
+    def __init__(self, user_dao: IUserDAO):
         self.user_dao = user_dao
 
     async def get_all_users(self) -> List[User]:
@@ -157,10 +158,10 @@ class UserService:
         return User.model_validate(user) if user else None
 
 
-def get_user_service(user_dao: UserDAODep) -> UserService:
+def get_user_service(user_dao: UserDAODep) -> IUserService:
     """Dependency для получения UserService."""
     return UserService(user_dao)
 
 
 # Тип для использования в роутерах
-UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+UserServiceDep = Annotated[IUserService, Depends(get_user_service)]

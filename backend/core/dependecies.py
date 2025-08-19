@@ -15,7 +15,7 @@ from backend.core.exception import (
     UserNotFoundException,
 )
 from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAO, UserDAODep
+from backend.entities.user.dao import UserDAODep
 from backend.entities.user.schemas import User as UserSchema
 
 logger = get_logger(__name__)

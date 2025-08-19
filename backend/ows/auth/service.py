@@ -19,6 +19,7 @@ from backend.ows.auth.schemas import (
     OAuth2UserData,
 )
 from backend.entities.user.dao import UserDAO
+from backend.entities.user.interfaces import IUserDAO
 
 logger = get_logger(__name__)
 
@@ -29,7 +30,7 @@ class OAuth2Service(ABC):
     def __init__(self,
                  provider_name: str,
                  oauth2_token_dao: OAuth2TokenDAO,
-                 user_dao: UserDAO,
+                 user_dao: IUserDAO,
                  refresh_token_dao: RefreshTokenDAO
                  ):
         self.provider_name = provider_name
@@ -285,7 +286,7 @@ class OAuth2Service(ABC):
 
 def get_oauth2_token_service(
     oauth2_token_dao: OAuth2TokenDAODep,
-    user_dao: UserDAO,
+    user_dao: IUserDAO,
     refresh_token_dao: RefreshTokenDAO
 ) -> OAuth2Service:
     """Dependency для получения OAuth2Service."""

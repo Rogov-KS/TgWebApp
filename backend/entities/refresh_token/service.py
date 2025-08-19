@@ -12,7 +12,8 @@ from backend.entities.refresh_token.dao import (
     RefreshTokenDAODep
 )
 from backend.entities.refresh_token.models import RefreshToken
-from backend.entities.user.dao import UserDAO, UserDAODep
+from backend.entities.user.dao import UserDAODep
+from backend.entities.user.interfaces import IUserDAO
 from backend.entities.user.models import User
 
 
@@ -25,7 +26,7 @@ class RefreshTokenService:
     def __init__(
         self,
         refresh_token_dao: RefreshTokenDAO,
-        user_dao: UserDAO
+        user_dao: IUserDAO
     ):
         self.refresh_token_dao = refresh_token_dao
         self.user_dao = user_dao

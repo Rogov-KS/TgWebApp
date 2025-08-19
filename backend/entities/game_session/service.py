@@ -10,7 +10,8 @@ from backend.entities.game_session.schemas import (
     GameSessionCreate,
     GameSessionUpdate,
 )
-from backend.entities.user.dao import UserDAO, UserDAODep
+from backend.entities.user.dao import UserDAODep
+from backend.entities.user.interfaces import IUserDAO
 from backend.entities.user.schemas import User
 
 logger = get_logger(__name__)
@@ -19,7 +20,7 @@ logger = get_logger(__name__)
 class GameSessionService:
     """Сервисный слой для работы с игровыми сессиями."""
 
-    def __init__(self, game_session_dao: GameSessionDAO, user_dao: UserDAO):
+    def __init__(self, game_session_dao: GameSessionDAO, user_dao: IUserDAO):
         self.game_session_dao = game_session_dao
         self.user_dao = user_dao
 
