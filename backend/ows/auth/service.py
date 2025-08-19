@@ -1,38 +1,40 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Annotated, Any
+from typing import Any
 
 import aiohttp
-from fastapi import Depends, HTTPException, Response
+from fastapi import HTTPException, Response
 
 from backend.celery_app.tasks.email import send_welcome_email_task
-from backend.core.database import async_session_maker
 from backend.core.logger import get_logger
 
-from backend.entities.refresh_token.dao import RefreshTokenDAO
+from backend.entities.refresh_token.interfaces import IRefreshTokenDAO
 from backend.entities.refresh_token.service import RefreshTokenService
-from backend.ows.auth.dao import OAuth2TokenDAODep, OAuth2TokenDAO
+from backend.ows.auth.interfaces import IOAuth2TokenDAO
 from backend.ows.auth.schemas import (
     CloudFile,
     OAuth2TokenData,
     OAuth2UserData,
 )
-from backend.entities.user.dao import UserDAO
+from backend.entities.user.dao import UserDAODep
 from backend.entities.user.interfaces import IUserDAO
 
 logger = get_logger(__name__)
 
 
 class OAuth2Service(ABC):
-    """Абстрактный базовый класс для OAuth2 провайдеров"""
+    """
+    Абстрактный базовый класс для OAuth2 провайдеров.
+    """
 
-    def __init__(self,
-                 provider_name: str,
-                 oauth2_token_dao: OAuth2TokenDAO,
-                 user_dao: IUserDAO,
-                 refresh_token_dao: RefreshTokenDAO
-                 ):
+    def __init__(
+        self,
+        provider_name: str,
+        oauth2_token_dao: IOAuth2TokenDAO,
+        user_dao: IUserDAO,
+        refresh_token_dao: IRefreshTokenDAO
+    ):
         self.provider_name = provider_name
         self._processing_requests: dict[str, bool] = {}
 
@@ -282,18 +284,3 @@ class OAuth2Service(ABC):
             "refresh_token": refresh_token,
             "token_type": "bearer",
         }
-
-
-def get_oauth2_token_service(
-    oauth2_token_dao: OAuth2TokenDAODep,
-    user_dao: IUserDAO,
-    refresh_token_dao: RefreshTokenDAO
-) -> OAuth2Service:
-    """Dependency для получения OAuth2Service."""
-    return OAuth2Service(oauth2_token_dao, user_dao, refresh_token_dao)
-
-
-# Тип для использования в роутерах
-OAuth2ServiceDep = Annotated[
-    OAuth2Service, Depends(get_oauth2_token_service)
-]

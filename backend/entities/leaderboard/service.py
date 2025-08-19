@@ -1,10 +1,15 @@
-from typing import Annotated, List
+from typing import Annotated, List, Type
 
 from fastapi import Depends
 
 from backend.core.logger import get_logger
-from backend.entities.game_session.dao import GameSessionDAO, GameSessionDAODep
-from backend.entities.leaderboard.dao import LeaderboardDAO, LeaderboardDAODep
+from backend.entities.game_session.dao import GameSessionDAODep
+from backend.entities.game_session.interfaces import IGameSessionDAO
+from backend.entities.leaderboard.dao import LeaderboardDAODep
+from backend.entities.leaderboard.interfaces import (
+    ILeaderboardDAO,
+    ILeaderboardService,
+)
 from backend.entities.leaderboard.schemas import LeaderboardPlace
 from backend.entities.user.schemas import User
 
@@ -12,12 +17,16 @@ logger = get_logger(__name__)
 
 
 class LeaderboardService:
-    """Сервисный слой для работы с рейтингом игроков."""
+    """
+    Сервисный слой для работы с рейтингом игроков.
+
+    Implements `ILeaderboardService` interface.
+    """
 
     def __init__(
         self,
-        leaderboard_dao: LeaderboardDAO,
-        game_session_dao: GameSessionDAO
+        leaderboard_dao: ILeaderboardDAO,
+        game_session_dao: IGameSessionDAO
     ):
         self.leaderboard_dao = leaderboard_dao
         self.game_session_dao = game_session_dao
@@ -156,15 +165,18 @@ class LeaderboardService:
         return position
 
 
+LeaderboardService: Type[ILeaderboardService]
+
+
 def get_leaderboard_service(
     leaderboard_dao: LeaderboardDAODep,
     game_session_dao: GameSessionDAODep
-) -> LeaderboardService:
+) -> ILeaderboardService:
     """Dependency для получения LeaderboardService."""
     return LeaderboardService(leaderboard_dao, game_session_dao)
 
 
 # Тип для использования в роутерах
 LeaderboardServiceDep = Annotated[
-    LeaderboardService, Depends(get_leaderboard_service)
+    ILeaderboardService, Depends(get_leaderboard_service)
 ]

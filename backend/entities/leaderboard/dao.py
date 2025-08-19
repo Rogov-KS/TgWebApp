@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Type
 
 from fastapi import Depends
 from sqlalchemy import func, select
@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import AsyncSessionDep
 from backend.core.logger import get_logger
 from backend.entities.game_session.models import GameSession
+from backend.entities.leaderboard.interfaces import ILeaderboardDAO
 from backend.entities.leaderboard.schemas import LeaderboardPlace
 from backend.entities.user.models import User
 
@@ -14,7 +15,11 @@ logger = get_logger(__name__)
 
 
 class LeaderboardDAO:
-    """DAO для работы с рейтингом игроков."""
+    """
+    DAO (Data Access Object) для работы с рейтингом игроков.
+
+    Implements `ILeaderboardDAO` interface.
+    """
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -72,10 +77,13 @@ class LeaderboardDAO:
         return leaderboard
 
 
-def get_leaderboard_dao(session: AsyncSessionDep) -> LeaderboardDAO:
+LeaderboardDAO: Type[ILeaderboardDAO]
+
+
+def get_leaderboard_dao(session: AsyncSessionDep) -> ILeaderboardDAO:
     """Dependency для получения LeaderboardDAO."""
     return LeaderboardDAO(session)
 
 
 # Тип для использования в других модулях
-LeaderboardDAODep = Annotated[LeaderboardDAO, Depends(get_leaderboard_dao)]
+LeaderboardDAODep = Annotated[ILeaderboardDAO, Depends(get_leaderboard_dao)]

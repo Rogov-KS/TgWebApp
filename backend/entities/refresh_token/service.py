@@ -1,15 +1,16 @@
 from datetime import UTC, datetime, timedelta
 import secrets
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Type
 
 from fastapi import Depends, HTTPException, Response, status
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
 from backend.entities.auth import utils as auth_utils
-from backend.entities.refresh_token.dao import (
-    RefreshTokenDAO,
-    RefreshTokenDAODep
+from backend.entities.refresh_token.dao import RefreshTokenDAODep
+from backend.entities.refresh_token.interfaces import (
+    IRefreshTokenDAO,
+    IRefreshTokenService,
 )
 from backend.entities.refresh_token.models import RefreshToken
 from backend.entities.user.dao import UserDAODep
@@ -21,11 +22,15 @@ logger = get_logger(__name__)
 
 
 class RefreshTokenService:
-    """Сервисный слой для работы с refresh токенами."""
+    """
+    Сервисный слой для работы с refresh токенами.
+
+    Implements `IRefreshTokenService` interface.
+    """
 
     def __init__(
         self,
-        refresh_token_dao: RefreshTokenDAO,
+        refresh_token_dao: IRefreshTokenDAO,
         user_dao: IUserDAO
     ):
         self.refresh_token_dao = refresh_token_dao
@@ -340,15 +345,18 @@ class RefreshTokenService:
         return access_token, refresh_token
 
 
+RefreshTokenService: Type[IRefreshTokenService]
+
+
 def get_refresh_token_service(
     refresh_token_dao: RefreshTokenDAODep,
     user_dao: UserDAODep
-) -> RefreshTokenService:
+) -> IRefreshTokenService:
     """Dependency для получения RefreshTokenService."""
     return RefreshTokenService(refresh_token_dao, user_dao)
 
 
 # Тип для использования в роутерах
 RefreshTokenServiceDep = Annotated[
-    RefreshTokenService, Depends(get_refresh_token_service)
+    IRefreshTokenService, Depends(get_refresh_token_service)
 ]
