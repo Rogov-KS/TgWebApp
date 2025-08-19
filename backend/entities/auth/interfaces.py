@@ -37,5 +37,7 @@ class IAuthService(Protocol):
     ) -> dict[str, str]:
         """Обновить токены."""
 
-    async def logout_user(self, user: SUser, response: Response) -> dict[str, str]:
+    async def logout_user(
+        self, user: SUser, response: Response
+    ) -> dict[str, str]:
         """Выполнить выход пользователя."""
