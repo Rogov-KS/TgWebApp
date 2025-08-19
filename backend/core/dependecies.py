@@ -64,7 +64,6 @@ async def get_current_user(
 
     return schema_user
 
-
 CurrentUserDep = Annotated[UserSchema, Depends(get_current_user)]
 
 
@@ -75,6 +74,8 @@ async def get_current_admin_user(
         raise ForbiddenException
     return user
 
+CurrentAdminUserDep = Annotated[UserSchema, Depends(get_current_admin_user)]
+
 
 async def get_current_admin_user_by_token(
     token: AccessTokenDep,
@@ -84,3 +85,5 @@ async def get_current_admin_user_by_token(
     if not user or not user.is_admin:
         raise ForbiddenException
     return user
+
+CurrentAdminUserByTokenDep = Annotated[UserSchema, Depends(get_current_admin_user_by_token)]

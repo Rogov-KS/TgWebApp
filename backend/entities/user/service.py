@@ -44,6 +44,19 @@ class UserService:
         user = await self.user_dao.get_one_or_none(id=user_id)
         return User.model_validate(user) if user else None
 
+    async def get_user_by(self, **filter_by) -> Optional[User]:
+        """
+        Получить пользователя по фильтру.
+
+        Args:
+            filter_by (dict): именованные аргументы для фильтрации пользователя
+
+        Returns:
+            Optional[User]: Пользователь или None, если не найден
+        """
+        user = await self.user_dao.get_one_or_none(**filter_by)
+        return User.model_validate(user) if user else None
+
     async def get_user_by_telegram_id(
         self, telegram_id: int
     ) -> Optional[User]:
@@ -56,8 +69,7 @@ class UserService:
         Returns:
             Optional[User]: Пользователь или None, если не найден
         """
-        user = await self.user_dao.get_one_or_none(telegram_id=telegram_id)
-        return User.model_validate(user) if user else None
+        return await self.get_user_by(telegram_id=telegram_id)
 
     async def get_user_by_email(self, email: str) -> Optional[User]:
         """
@@ -69,8 +81,7 @@ class UserService:
         Returns:
             Optional[User]: Пользователь или None, если не найден
         """
-        user = await self.user_dao.get_one_or_none(email=email)
-        return User.model_validate(user) if user else None
+        return await self.get_user_by(email=email)
 
     async def get_user_by_username(self, username: str) -> Optional[User]:
         """
@@ -82,8 +93,7 @@ class UserService:
         Returns:
             Optional[User]: Пользователь или None, если не найден
         """
-        user = await self.user_dao.get_one_or_none(username=username)
-        return User.model_validate(user) if user else None
+        return await self.get_user_by(username=username)
 
     async def create_user(self, user_data: dict) -> Optional[User]:
         """

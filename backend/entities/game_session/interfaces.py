@@ -2,6 +2,7 @@
 
 from typing import Any, List, Protocol
 
+from backend.core.base_dao import IBaseDAO
 from backend.entities.game_session.models import (
     GameSession as GameSessionModel,
 )
@@ -10,29 +11,9 @@ from backend.entities.game_session.schemas import (
 )
 
 
-class IGameSessionDAO(Protocol):
+class IGameSessionDAO(IBaseDAO[GameSessionModel]):
     """Интерфейс для DAO игровых сессий."""
-
-    async def get_all(self, **filter_by: Any) -> List[GameSessionModel]:
-        """Получить все записи игровых сессий."""
-
-    async def get_one_or_none(
-        self, **filter_by: Any
-    ) -> GameSessionModel | None:
-        """Получить игровую сессию по фильтру или None."""
-
-    async def create(self, **data: Any) -> GameSessionModel | None:
-        """Создать новую игровую сессию."""
-
-    async def delete(self, **filter_by: Any) -> bool:
-        """Удалить игровую сессию."""
-
-    async def update(
-        self,
-        filters: dict[str, Any],
-        update_data: dict[str, Any],
-    ) -> GameSessionModel | None:
-        """Обновить игровую сессию."""
+    # Базовые методы уже определены в IBaseDAO
 
     async def get_max_score(self, user_id: int) -> int | None:
         """Получить максимальный счет пользователя."""

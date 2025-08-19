@@ -1,5 +1,5 @@
 # mypy: ignore-errors
-from typing import Generic, TypeVar
+from typing import Any, Generic, List, Protocol, TypeVar
 
 from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,6 +11,29 @@ from backend.core.logger import get_logger
 ModelType = TypeVar("ModelType", bound=Base)
 
 logger = get_logger(__name__)
+
+
+class IBaseDAO(Protocol[ModelType]):
+    """Базовый интерфейс для DAO."""
+
+    async def get_all(self, **filter_by: Any) -> List[ModelType]:
+        """Получить все записи."""
+
+    async def get_one_or_none(self, **filter_by: Any) -> ModelType | None:
+        """Получить запись по фильтру или None."""
+
+    async def create(self, **data: Any) -> ModelType | None:
+        """Создать новую запись."""
+
+    async def delete(self, **filter_by: Any) -> bool:
+        """Удалить запись."""
+
+    async def update(
+        self,
+        filters: dict[str, Any],
+        update_data: dict[str, Any],
+    ) -> ModelType | None:
+        """Обновить запись."""
 
 
 class BaseDAO(Generic[ModelType]):

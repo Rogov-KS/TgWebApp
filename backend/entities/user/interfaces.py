@@ -2,31 +2,14 @@
 
 from typing import Any, List, Optional, Protocol
 
+from backend.core.base_dao import IBaseDAO
 from backend.entities.user.models import User as UserModel
 from backend.entities.user.schemas import User as UserSchema
 
 
-class IUserDAO(Protocol):
+class IUserDAO(IBaseDAO[UserModel]):
     """Интерфейс для DAO пользователей."""
-
-    async def get_all(self, **filter_by: Any) -> List[UserModel]:
-        """Получить все записи пользователей."""
-
-    async def get_one_or_none(self, **filter_by: Any) -> UserModel | None:
-        """Получить пользователя по фильтру или None."""
-
-    async def create(self, **data: Any) -> UserModel | None:
-        """Создать нового пользователя."""
-
-    async def delete(self, **filter_by: Any) -> bool:
-        """Удалить пользователя."""
-
-    async def update(
-        self,
-        filters: dict[str, Any],
-        update_data: dict[str, Any],
-    ) -> UserModel | None:
-        """Обновить пользователя."""
+    # Базовые методы уже определены в IBaseDAO
 
 
 class IUserService(Protocol):
@@ -34,6 +17,9 @@ class IUserService(Protocol):
 
     async def get_all_users(self) -> List[UserSchema]:
         """Получить всех пользователей."""
+
+    async def get_user_by(self, **filter_by) -> Optional[UserSchema]:
+        """Получить пользователя по фильтру."""
 
     async def get_user_by_id(self, user_id: int) -> Optional[UserSchema]:
         """Получить пользователя по ID."""
