@@ -23,7 +23,6 @@ class IUserService(Protocol):
 
     async def get_user_by_id(self, user_id: int) -> Optional[UserSchema]:
         """Получить пользователя по ID."""
-
     async def get_user_by_telegram_id(
         self, telegram_id: int
     ) -> Optional[UserSchema]:

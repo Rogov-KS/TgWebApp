@@ -24,6 +24,7 @@ from backend.entities.refresh_token.service import (
 )
 from backend.entities.refresh_token.interfaces import IRefreshTokenService
 from backend.entities.user.interfaces import IUserDAO
+from backend.entities.auth.interfaces import IAuthService
 
 logger = get_logger(__name__)
 
