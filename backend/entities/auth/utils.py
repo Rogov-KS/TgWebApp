@@ -35,7 +35,12 @@ def is_valid_email(email: str) -> bool:
         return False
 
 
-def create_access_token(data: dict) -> str:
+def create_access_token(user_id: int) -> str:
+    """Создать access token."""
+    return _create_access_token_with_data({"user_id": user_id})
+
+
+def _create_access_token_with_data(data: dict) -> str:
     """
     Создать access token.
 

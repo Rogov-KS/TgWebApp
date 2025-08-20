@@ -8,12 +8,15 @@ from backend.core.exception import (
     InvalidCredentialsException,
     InvalidEmailException,
     UserAlreadyExistsException,
+    InvalidOAuth2TokenException,
 )
 from backend.core.logger import get_logger
 from backend.entities.auth.utils import (
     verify_password,
     get_password_hash,
     is_valid_email,
+    create_access_token,
+    set_auth_cookies,
 )
 from backend.entities.user.dao import UserDAODep
 from backend.entities.user.schemas import (
@@ -25,6 +28,8 @@ from backend.entities.refresh_token.service import (
 from backend.entities.refresh_token.interfaces import IRefreshTokenService
 from backend.entities.user.interfaces import IUserDAO
 from backend.entities.auth.interfaces import IAuthService
+from backend.core.config import settings
+
 
 logger = get_logger(__name__)
 
@@ -80,7 +85,9 @@ class AuthService:
         return schema_user
 
     async def authenticate_admin_user(
-        self, username_or_email: str, password: str
+        self,
+        username_or_email: str,
+        password: str
     ) -> SUser | None:
         """
         Аутентификация администратора по username или email.
@@ -202,10 +209,16 @@ class AuthService:
         if not user_model:
             raise InvalidCredentialsException
 
-        tokens = await self.refresh_service.set_tokens_to_cookies(
-            response, user_model
+        access_token = create_access_token(user_model.id)
+        refresh_token = await self.refresh_service.create_refresh_token(
+            user_model.id
         )
-        access_token, refresh_token = tokens
+
+        set_auth_cookies(
+            response=response,
+            access_token=access_token,
+            refresh_token=refresh_token,
+        )
 
         return {
             "access_token": access_token,
@@ -232,8 +245,6 @@ class AuthService:
         Raises:
             InvalidOAuth2TokenException: если токен невалидный
         """
-        from backend.core.config import settings
-        from backend.core.exception import InvalidOAuth2TokenException
 
         logger.info("Refreshing token")
 
@@ -256,14 +267,19 @@ class AuthService:
             extra={"user_id": user.id},
         )
 
-        tokens = await self.refresh_service.set_tokens_to_cookies(
-            response, user
+        access_token = create_access_token(user.id)
+        refresh_token = await self.refresh_service.create_refresh_token(
+            user.id
         )
-        access_token, new_refresh_token = tokens
+        set_auth_cookies(
+            response=response,
+            access_token=access_token,
+            refresh_token=refresh_token,
+        )
 
         return {
             "access_token": access_token,
-            "refresh_token": new_refresh_token,
+            "refresh_token": refresh_token,
             "token_type": "bearer",
         }
 
