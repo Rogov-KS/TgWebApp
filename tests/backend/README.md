@@ -101,3 +101,9 @@ uv run pytest --cov=backend --cov-report=html
 - `@pytest.mark.database` - Тесты базы данных
 - `@pytest.mark.redis` - Тесты Redis
 - `@pytest.mark.celery` - Тесты Celery
+
+
+## EventLoop с асинхронными фикстурами и тестами
+
+- в итоге поставил `asyncio_default_test_loop_scope = session` - а это означает что у всех тестов один event_loop, а это означает что один зависший тест может потянуть и остальные
+- мб от этого стоит отказаться

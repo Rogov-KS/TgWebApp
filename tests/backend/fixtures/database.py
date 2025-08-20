@@ -5,13 +5,13 @@ from typing import AsyncGenerator
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import (
-    create_async_engine,
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
 from backend.core.config import get_settings
+from backend.core.database import Base
 
 
 settings = get_settings(env_files=["envs/.env-base", "envs/.env-test"])
@@ -23,24 +23,40 @@ async def test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
     Фикстура для создания тестового движка базы данных.
     Запускается один раз в начале сессии тестов.
     """
-    print(f"{settings.DATABASE_URL=}")
-    test_db_url = (
-        "postgresql+asyncpg://postgres:postgres@localhost:5432/"
-        "tg_web_app_test"
-    )
+    import asyncio
+    current_loop = asyncio.get_running_loop()
+    print(f"Current event loop (async def test_db_engine): {current_loop}")
+    print(f"{settings.MODE=}")
+    assert settings.MODE == "TEST"
+    test_db_url = settings.DATABASE_URL
 
     engine = create_async_engine(test_db_url, echo=False)
 
+    # Создаем все таблицы в начале сессии
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+        print("✅ Все таблицы созданы успешно")
+
     yield engine
+
+    # Удаляем все таблицы в конце сессии
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        print("🗑️ Все таблицы удалены успешно")
 
     await engine.dispose()
 
-
 @pytest_asyncio.fixture(scope="session")
-def test_db_session_maker(test_db_engine: AsyncEngine) -> AsyncGenerator[async_sessionmaker, None]:
+async def test_db_session_maker(test_db_engine: AsyncEngine) -> async_sessionmaker:
+    """
+    Фикстура для создания тестового движка базы данных.
+    Запускается один раз в начале сессии тестов.
+    """
+    import asyncio
+    current_loop = asyncio.get_running_loop()
+    print(f"Current event loop (async def test_db_session): {current_loop}")
     session_maker = async_sessionmaker(test_db_engine, expire_on_commit=False)
-    yield session_maker
-
+    return session_maker
 
 @pytest_asyncio.fixture
 async def test_db_session(test_db_session_maker: async_sessionmaker) -> AsyncGenerator[AsyncSession, None]:
@@ -48,6 +64,9 @@ async def test_db_session(test_db_session_maker: async_sessionmaker) -> AsyncGen
     Фикстура для создания сессии БД для каждого теста.
     Автоматически создает и закрывает сессию для каждого теста.
     """
+    import asyncio
+    current_loop = asyncio.get_running_loop()
+    print(f"Current event loop (async def test_db_session): {current_loop}")
     async with test_db_session_maker() as session:
         try:
             yield session

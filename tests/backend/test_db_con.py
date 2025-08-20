@@ -12,6 +12,9 @@ async def test_db_connection(test_db_session: AsyncSession):
     """Тест подключения к БД"""
     # Создаем подключение к тестовой БД
     # Замените параметры на ваши реальные данные
+    import asyncio
+    current_loop = asyncio.get_running_loop()
+    print(f"Current event loop: {current_loop}")
     print(f"{test_db_session=}")
 
     try:
@@ -19,6 +22,11 @@ async def test_db_connection(test_db_session: AsyncSession):
         result = await test_db_session.execute(text("SELECT 1 as test_value"))
         row = result.fetchone()
         assert row.test_value == 1
+
+        # # Читаем все таблицы
+        # result = await test_db_session.execute(text("SELECT * FROM game_session"))
+        # row = result.fetchone()
+        # print(f"{row=}")
 
         print("✅ Подключение к БД успешно!")
 
