@@ -5,6 +5,8 @@
 # Импортируем фикстуры базы данных
 from tests.backend.fixtures.database import (
     test_db_engine,
+    test_db_session_maker,
+    test_db_session,
 )
 
 # Здесь будут основные фикстуры:
