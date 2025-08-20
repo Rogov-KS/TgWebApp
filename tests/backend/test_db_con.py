@@ -8,11 +8,12 @@ settings = get_settings(env_files=["envs/.env-base", "envs/.env-test"])
 
 
 @pytest.mark.asyncio
-async def test_db_connection():
+async def test_db_connection(test_db_engine):
     """Тест подключения к БД"""
     # Создаем подключение к тестовой БД
     # Замените параметры на ваши реальные данные
     print()
+    print(f"{test_db_engine=}")
     print(f"{settings.MODE=}")
     print(f"{settings.DATABASE_URL=}")
     test_db_url = (
