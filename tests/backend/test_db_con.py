@@ -2,6 +2,9 @@
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
+from backend.core.config import get_settings
+
+settings = get_settings(env_files=["envs/.env-base", "envs/.env-test"])
 
 
 @pytest.mark.asyncio
@@ -9,6 +12,9 @@ async def test_db_connection():
     """Тест подключения к БД"""
     # Создаем подключение к тестовой БД
     # Замените параметры на ваши реальные данные
+    print()
+    print(f"{settings.MODE=}")
+    print(f"{settings.DATABASE_URL=}")
     test_db_url = (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/"
         "tg_web_app_test"

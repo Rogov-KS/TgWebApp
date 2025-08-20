@@ -90,29 +90,3 @@ dev = [
     "ruff>=0.12.0",
     "testcontainers>=4.12.0",
 ]
-
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-testpaths = ["tests/backend"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = [
-    "--strict-markers",
-    "--disable-warnings",
-    "--cov=backend",
-    "--cov-report=term-missing",
-    "--cov-report=html:htmlcov",
-    "--cov-report=xml:coverage.xml",
-]
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "e2e: End-to-end tests",
-    "slow: Slow running tests",
-    "auth: Authentication tests",
-    "oauth: OAuth tests",
-    "database: Database tests",
-    "redis: Redis tests",
-    "celery: Celery tests",
-]

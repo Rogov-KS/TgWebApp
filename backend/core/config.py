@@ -121,7 +121,6 @@ class Settings(BaseSettings):
 def get_env_files(env_dir: str = "./envs") -> list[str]:
     """Возвращает список .env файлов для загрузки"""
     env_mode = os.getenv("ENV_MODE", "dev").lower()
-
     # Базовый файл
     files = [".env-base"]
 
@@ -137,12 +136,15 @@ def get_env_files(env_dir: str = "./envs") -> list[str]:
     return files
 
 
-def get_settings() -> Settings:
+def get_settings(env_files: list[str] | None = None) -> Settings:
     """Получение настроек с кэшированием"""
     # env_dir = os.getenv("ENV_DIR", "envs")
-    env_dir = "./envs"
+    if env_files is None:
+        env_dir = "./envs"
+        env_files = get_env_files(env_dir=env_dir)
+
     return Settings(
-        _env_file=get_env_files(env_dir=env_dir),
+        _env_file=env_files,
         _env_file_encoding="utf-8",
     )
 
