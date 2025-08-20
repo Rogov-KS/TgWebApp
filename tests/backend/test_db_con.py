@@ -12,16 +12,7 @@ async def test_db_connection(test_db_engine):
     """Тест подключения к БД"""
     # Создаем подключение к тестовой БД
     # Замените параметры на ваши реальные данные
-    print()
-    print(f"{test_db_engine=}")
-    print(f"{settings.MODE=}")
-    print(f"{settings.DATABASE_URL=}")
-    test_db_url = (
-        "postgresql+asyncpg://postgres:postgres@localhost:5432/"
-        "tg_web_app_test"
-    )
-
-    engine = create_async_engine(test_db_url, echo=False)
+    engine = test_db_engine
 
     try:
         # Проверяем подключение
