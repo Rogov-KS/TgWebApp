@@ -1,7 +1,7 @@
 """
 Фикстуры для работы с базой данных в тестах
 """
-from typing import Generator
+from typing import AsyncGenerator
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import (
@@ -18,7 +18,7 @@ settings = get_settings(env_files=["envs/.env-base", "envs/.env-test"])
 
 
 @pytest_asyncio.fixture(scope="session")
-async def test_db_engine() -> Generator[AsyncEngine, None, None]:
+async def test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
     """
     Фикстура для создания тестового движка базы данных.
     Запускается один раз в начале сессии тестов.
@@ -37,13 +37,13 @@ async def test_db_engine() -> Generator[AsyncEngine, None, None]:
 
 
 @pytest_asyncio.fixture(scope="session")
-def test_db_session_maker(test_db_engine: AsyncEngine) -> Generator[async_sessionmaker, None, None]:
+def test_db_session_maker(test_db_engine: AsyncEngine) -> AsyncGenerator[async_sessionmaker, None]:
     session_maker = async_sessionmaker(test_db_engine, expire_on_commit=False)
     yield session_maker
 
 
 @pytest_asyncio.fixture
-async def test_db_session(test_db_session_maker: async_sessionmaker) -> Generator[AsyncSession, None, None]:
+async def test_db_session(test_db_session_maker: async_sessionmaker) -> AsyncGenerator[AsyncSession, None]:
     """
     Фикстура для создания сессии БД для каждого теста.
     Автоматически создает и закрывает сессию для каждого теста.
