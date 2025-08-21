@@ -1,6 +1,11 @@
 """
 Основные фикстуры для тестов бекенда
 """
+import logging
+
+# Отключаем логи Faker
+logging.getLogger('faker.factory').setLevel(logging.WARNING)
+
 
 # Импортируем фикстуры базы данных
 # ruff: noqa: F401

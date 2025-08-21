@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy import text
 from backend.core.config import get_settings
 from backend.core.database import Base
 
@@ -19,7 +20,29 @@ settings = get_settings(env_files=["envs/.env-base", "envs/.env-test"])
 async def create_tables(engine: AsyncEngine):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.commit()
         print("✅ Все таблицы созданы успешно")
+
+
+async def truncate_tables(engine: AsyncEngine):
+    """
+    Очищает все таблицы в правильном порядке с учетом внешних ключей.
+    Сначала удаляем данные из таблиц с внешними ключами,
+    затем из основных таблиц.
+    """
+    async with engine.begin() as conn:
+
+        # Получаем все таблицы из метаданных
+        tables = Base.metadata.tables.values()
+
+        # Очищаем все таблицы
+        for table in tables:
+            await conn.execute(
+                text(f"TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE;")
+            )
+
+        await conn.commit()
+        print("🗑️ Все таблицы очищены успешно")
 
 
 async def drop_tables(engine: AsyncEngine):
@@ -30,6 +53,17 @@ async def drop_tables(engine: AsyncEngine):
     except Exception as e:
         print(f"Ошибка при удалении таблиц: {e}")
 
+
+async def start_up_db_tables(engine: AsyncEngine):
+    await drop_tables(engine)
+    await create_tables(engine)
+    await truncate_tables(engine)
+
+
+async def tear_down_db_tables(engine: AsyncEngine):
+    await truncate_tables(engine)
+    await drop_tables(engine)
+    await engine.dispose()
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -44,13 +78,12 @@ async def test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
 
     engine = create_async_engine(test_db_url, echo=False)
 
-    await create_tables(engine)
+    await start_up_db_tables(engine)
 
     try:
         yield engine
     finally:
-        # await drop_tables(engine)
-        await engine.dispose()
+        await tear_down_db_tables(engine)
 
 
 @pytest_asyncio.fixture(scope="function")

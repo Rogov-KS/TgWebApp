@@ -28,7 +28,14 @@ async def test_db_connection(test_db_session: AsyncSession):
         # Пользователи
         result = await test_db_session.execute(text("SELECT * FROM users"))
         users = result.fetchall()
-        print(f"{users=}")
+        print("users:", *users, sep="\n")
+
+        # Пользователи
+        await test_db_session.execute(text("INSERT INTO users (username, is_admin, is_bot, is_active, max_score) VALUES ('John_3', false, false, true, 10)"))
+        await test_db_session.commit()
+        result = await test_db_session.execute(text("SELECT * FROM users"))
+        users = result.fetchall()
+        print("users:", *users, sep="\n")
 
         print("✅ Подключение к БД успешно!")
 
