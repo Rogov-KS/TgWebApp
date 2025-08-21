@@ -2,12 +2,12 @@ from datetime import UTC, datetime
 import logging
 from pathlib import Path
 
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
 
 from backend.core.config import settings
 
 
-class CustomJsonFormatter(jsonlogger.JsonFormatter):
+class CustomJsonFormatter(JsonFormatter):
     """Форматтер для логирования в формате JSON"""
 
     def add_fields(
@@ -40,7 +40,8 @@ logger.setLevel(settings.LOG_LEVEL)
 
 
 def setup_logging() -> None:
-    """Настройка базовой конфигурации логирования с использованием python-json-logger"""
+    """Настройка базовой конфигурации логирования с использованием
+    python-json-logger"""
     logs_dir = Path("logs")
     logs_dir.mkdir(exist_ok=True)
 

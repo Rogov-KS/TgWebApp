@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class LeaderboardPlace(BaseModel):
@@ -6,5 +6,4 @@ class LeaderboardPlace(BaseModel):
     max_score: int
     place: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
