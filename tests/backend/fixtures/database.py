@@ -2,7 +2,6 @@
 Фикстуры для работы с базой данных в тестах
 """
 from typing import AsyncGenerator
-import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -50,7 +49,7 @@ async def test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
     try:
         yield engine
     finally:
-        await drop_tables(engine)
+        # await drop_tables(engine)
         await engine.dispose()
 
 

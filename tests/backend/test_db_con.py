@@ -2,20 +2,12 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
-from backend.core.config import get_settings
-
-settings = get_settings(env_files=["envs/.env-base", "envs/.env-test"])
 
 
 @pytest.mark.asyncio
 async def test_db_connection(test_db_session: AsyncSession):
     """Тест подключения к БД"""
     # Создаем подключение к тестовой БД
-    # Замените параметры на ваши реальные данные
-    import asyncio
-    current_loop = asyncio.get_running_loop()
-    print(f"Current event loop: {current_loop}")
-    print(f"{test_db_session=}")
 
     try:
         # Проверяем подключение
@@ -23,10 +15,20 @@ async def test_db_connection(test_db_session: AsyncSession):
         row = result.fetchone()
         assert row.test_value == 1
 
-        # # Читаем все таблицы
-        # result = await test_db_session.execute(text("SELECT * FROM game_session"))
-        # row = result.fetchone()
-        # print(f"{row=}")
+        # Читаем все таблицы
+        result = await test_db_session.execute(text("SELECT version()"))
+        row = result.fetchone()
+        print(f"{row=}")
+
+        # Созданные таблицы
+        result = await test_db_session.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"))
+        tables = result.fetchall()
+        print(f"{tables=}")
+
+        # Пользователи
+        result = await test_db_session.execute(text("SELECT * FROM users"))
+        users = result.fetchall()
+        print(f"{users=}")
 
         print("✅ Подключение к БД успешно!")
 

@@ -11,8 +11,3 @@ import pytest
 # - test_update_user
 # - test_delete_user
 # - test_get_all_users
-
-@pytest.mark.unit
-def test_example():
-    """Простой тест для проверки работы pytest"""
-    assert True
