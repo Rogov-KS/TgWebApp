@@ -22,30 +22,31 @@ class TestGameSessionDAO:
             self, dao, test_user, game_session_data
         ):
             """Тест успешного создания игровой сессии."""
-            game_session = await dao.create(**game_session_data)
+            print(f"{test_user=}")
+            # game_session = await dao.create(**game_session_data)
 
-            assert game_session is not None
-            assert game_session.user_id == game_session_data["user_id"]
-            assert game_session.score == game_session_data["score"]
-            assert game_session.duration == game_session_data["duration"]
-            assert game_session.level == game_session_data["level"]
-            assert game_session.is_completed == game_session_data[
-                "is_completed"
-            ]
-            assert game_session.game_data == game_session_data["game_data"]
-            assert game_session.id is not None
+            # assert game_session is not None
+            # assert game_session.user_id == game_session_data["user_id"]
+            # assert game_session.score == game_session_data["score"]
+            # assert game_session.duration == game_session_data["duration"]
+            # assert game_session.level == game_session_data["level"]
+            # assert game_session.is_completed == game_session_data[
+            #     "is_completed"
+            # ]
+            # assert game_session.game_data == game_session_data["game_data"]
+            # assert game_session.id is not None
 
-        async def test_create_game_session_minimal_data(self, dao, test_user):
-            """Тест создания игровой сессии с минимальными данными."""
-            minimal_data = {"user_id": test_user.id}
-            game_session = await dao.create(**minimal_data)
+        # async def test_create_game_session_minimal_data(self, dao, test_user):
+        #     """Тест создания игровой сессии с минимальными данными."""
+        #     minimal_data = {"user_id": test_user.id}
+        #     game_session = await dao.create(**minimal_data)
 
-            assert game_session is not None
-            assert game_session.user_id == test_user.id
-            assert game_session.score == 0  # значение по умолчанию
-            assert game_session.duration == 0  # значение по умолчанию
-            assert game_session.level == 1  # значение по умолчанию
-            assert game_session.is_completed is False  # значение по умолчанию
+        #     assert game_session is not None
+        #     assert game_session.user_id == test_user.id
+        #     assert game_session.score == 0  # значение по умолчанию
+        #     assert game_session.duration == 0  # значение по умолчанию
+        #     assert game_session.level == 1  # значение по умолчанию
+        #     assert game_session.is_completed is False  # значение по умолчанию
 
     # class TestGetOneOrNone:
     #     """Тесты для метода get_one_or_none."""

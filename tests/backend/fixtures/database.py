@@ -48,7 +48,14 @@ async def truncate_tables(engine: AsyncEngine):
 async def drop_tables(engine: AsyncEngine):
     try:
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
+            # Получаем все таблицы из метаданных
+            tables = Base.metadata.tables.values()
+
+            # Очищаем все таблицы
+            for table in tables:
+                await conn.execute(
+                    text(f"DROP TABLE {table.name} CASCADE;")
+                )
             print("🗑️ Все таблицы удалены успешно")
     except Exception as e:
         print(f"Ошибка при удалении таблиц: {e}")
