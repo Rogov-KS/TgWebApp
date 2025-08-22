@@ -5,7 +5,7 @@ import pytest
 import pytest_asyncio
 from backend.entities.game_session.dao import GameSessionDAO, IGameSessionDAO
 from sqlalchemy.orm.exc import MultipleResultsFound
-from backend.entities.game_session.schemas import GameSession as SGameSession
+from backend.entities.game_session.models import GameSession as GameSessionDB
 
 
 class TestGameSessionDAO:
@@ -87,7 +87,7 @@ class TestGameSessionDAO:
             result = await dao.get_all()
 
             assert len(result) == len(test_game_sessions)
-            assert all(isinstance(session, SGameSession) for session in result)
+            assert all(isinstance(session, GameSessionDB) for session in result)
 
         async def test_get_game_sessions_by_user_id(
             self, dao, test_game_sessions
