@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import Response
 from jose import jwt
 from passlib.context import CryptContext
+# import bcrypt
 from pydantic import EmailStr
 
 from backend.core.config import settings
@@ -15,6 +16,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password: str) -> str:
     """Захэшировать пароль."""
+    # return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     return str(pwd_context.hash(password))
 
 
@@ -22,6 +24,7 @@ def verify_password(password: str, hashed_password: str | None) -> bool:
     """Проверить пароль."""
     if not hashed_password:
         return False
+    # return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
     return bool(pwd_context.verify(password, hashed_password))
 
 
@@ -94,3 +97,8 @@ def set_auth_cookies(
         "access_token_set": True,
         "refresh_token_set": True
     })
+
+
+if __name__ == "__main__":
+    print(get_password_hash("123456"))
+    print(verify_password("123456", get_password_hash("123456")))

@@ -65,6 +65,7 @@ async def start_up_db_tables(engine: AsyncEngine):
     await drop_tables(engine)
     await create_tables(engine)
     await truncate_tables(engine)
+    print("💾 STARTUP-ed - FROM MAIN CONFTEST")
 
 
 async def tear_down_db_tables(engine: AsyncEngine):
