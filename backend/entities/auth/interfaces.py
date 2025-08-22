@@ -4,10 +4,10 @@ from typing import Protocol
 
 from fastapi import Request, Response
 
-from backend.entities.user.schemas import (
-    User as SUser,
-    UserAuth,
-    UserLogin,
+from backend.entities.assemblers.schemas import (
+    SUser,
+    SUserAuth,
+    SUserLogin,
 )
 
 
@@ -24,11 +24,11 @@ class IAuthService(Protocol):
     ) -> SUser | None:
         """Аутентифицировать администратора."""
 
-    async def register_user(self, user_data: UserAuth) -> SUser:
+    async def register_user(self, user_data: SUserAuth) -> SUser:
         """Зарегистрировать нового пользователя."""
 
     async def login_user(
-        self, user_data: UserLogin, response: Response
+        self, user_data: SUserLogin, response: Response
     ) -> dict[str, str]:
         """Выполнить вход пользователя."""
 

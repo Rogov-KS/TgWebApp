@@ -8,7 +8,7 @@ from backend.core.database import AsyncSessionDep
 from backend.core.logger import get_logger
 from backend.entities.game_session.models import GameSessionDB
 from backend.entities.leaderboard.interfaces import ILeaderboardDAO
-from backend.entities.leaderboard.schemas import LeaderboardPlace
+from backend.entities.assemblers.schemas import SLeaderboardPlace
 from backend.entities.user.models import UserDB
 
 logger = get_logger(__name__)
@@ -29,7 +29,7 @@ class LeaderboardDAO:
         limit: int = 10,
         offset: int = 0,
         sort_order: str = "desc",
-    ) -> list[LeaderboardPlace]:
+    ) -> list[SLeaderboardPlace]:
         """Получить топ игроков по максимальному количеству очков."""
         logger.info(
             "Fetching leaderboard",
@@ -61,7 +61,7 @@ class LeaderboardDAO:
         rows = result.fetchall()
 
         leaderboard = [
-            LeaderboardPlace(
+            SLeaderboardPlace(
                 user_id=user.id,
                 max_score=max_score,
                 place=index + offset + 1

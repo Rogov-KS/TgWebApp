@@ -6,8 +6,8 @@ from backend.core.base_dao import IBaseDAO
 from backend.entities.game_session.models import (
     GameSession as GameSessionModel,
 )
-from backend.entities.game_session.schemas import (
-    GameSession as GameSessionSchema,
+from backend.entities.assemblers.schemas import (
+    SGameSession
 )
 
 
@@ -22,22 +22,22 @@ class IGameSessionDAO(IBaseDAO[GameSessionModel]):
 class IGameSessionService(Protocol):
     """Интерфейс для сервиса игровых сессий."""
 
-    async def get_all_game_sessions(self) -> List[GameSessionSchema]:
+    async def get_all_game_sessions(self) -> List[SGameSession]:
         """Получить все игровые сессии."""
 
     async def get_user_game_sessions(
         self, user_id: int
-    ) -> List[GameSessionSchema]:
+    ) -> List[SGameSession]:
         """Получить все игровые сессии пользователя."""
 
     async def get_game_session_by_id(
         self, game_session_id: int, user: Any
-    ) -> GameSessionSchema:
+    ) -> SGameSession:
         """Получить игровую сессию по ID с проверкой доступа."""
 
     async def create_game_session(
         self, game_session_data: Any, user: Any
-    ) -> GameSessionSchema:
+    ) -> SGameSession:
         """Создать новую игровую сессию."""
 
     async def update_game_session(
@@ -45,7 +45,7 @@ class IGameSessionService(Protocol):
         game_session_id: int,
         game_session_update: Any,
         user: Any,
-    ) -> GameSessionSchema:
+    ) -> SGameSession:
         """Обновить игровую сессию."""
 
     async def delete_game_session(

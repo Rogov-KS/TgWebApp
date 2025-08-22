@@ -4,7 +4,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict
 
 
-class GameSessionBase(BaseModel):
+class SGameSessionBase(BaseModel):
     """Базовая схема игровой сессии."""
 
     user_id: int
@@ -15,11 +15,11 @@ class GameSessionBase(BaseModel):
     game_data: dict[str, Any] | None = None
 
 
-class GameSessionCreate(GameSessionBase):
+class SGameSessionCreate(SGameSessionBase):
     """Схема для создания игровой сессии."""
 
 
-class GameSessionUpdate(BaseModel):
+class SGameSessionUpdate(BaseModel):
     """Схема для обновления игровой сессии."""
 
     score: int
@@ -28,7 +28,7 @@ class GameSessionUpdate(BaseModel):
     game_data: dict[str, Any] | None = None
 
 
-class GameSession(GameSessionBase):
+class SGameSession(SGameSessionBase):
     """Схема игровой сессии для ответов."""
 
     id: int

@@ -9,14 +9,14 @@ from backend.entities.game_session.interfaces import (
     IGameSessionDAO,
     IGameSessionService,
 )
-from backend.entities.game_session.schemas import (
-    GameSession,
-    GameSessionCreate,
-    GameSessionUpdate,
+from backend.entities.assemblers.schemas import (
+    SGameSession,
+    SGameSessionCreate,
+    SGameSessionUpdate,
 )
 from backend.entities.user.dao import UserDAODep
 from backend.entities.user.interfaces import IUserDAO
-from backend.entities.user.schemas import User
+from backend.entities.assemblers.schemas import SUser
 
 logger = get_logger(__name__)
 
@@ -34,12 +34,12 @@ class GameSessionService:
         self.game_session_dao = game_session_dao
         self.user_dao = user_dao
 
-    async def get_all_game_sessions(self) -> List[GameSession]:
+    async def get_all_game_sessions(self) -> List[SGameSession]:
         """
         Получить все игровые сессии.
 
         Returns:
-            List[GameSession]: Список всех игровых сессий
+            List[SGameSession]: Список всех игровых сессий
         """
         game_sessions = await self.game_session_dao.get_all()
         logger.info(
@@ -47,10 +47,10 @@ class GameSessionService:
             extra={"count": len(game_sessions)}
         )
         return [
-            GameSession.model_validate(session) for session in game_sessions
+            SGameSession.model_validate(session) for session in game_sessions
         ]
 
-    async def get_user_game_sessions(self, user_id: int) -> List[GameSession]:
+    async def get_user_game_sessions(self, user_id: int) -> List[SGameSession]:
         """
         Получить все игровые сессии пользователя.
 
@@ -58,7 +58,7 @@ class GameSessionService:
             user_id (int): ID пользователя
 
         Returns:
-            List[GameSession]: Список игровых сессий пользователя
+            List[SGameSession]: Список игровых сессий пользователя
         """
         game_sessions = await self.game_session_dao.get_all(user_id=user_id)
         logger.info(
@@ -66,12 +66,12 @@ class GameSessionService:
             extra={"count": len(game_sessions), "user_id": user_id},
         )
         return [
-            GameSession.model_validate(session) for session in game_sessions
+            SGameSession.model_validate(session) for session in game_sessions
         ]
 
     async def get_game_session_by_id(
-        self, game_session_id: int, user: User
-    ) -> GameSession:
+        self, game_session_id: int, user: SUser
+    ) -> SGameSession:
         """
         Получить игровую сессию по ID с проверкой доступа.
 
@@ -103,11 +103,11 @@ class GameSessionService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You are not allowed to access this game session",
             )
-        return GameSession.model_validate(game_session)
+        return SGameSession.model_validate(game_session)
 
     async def create_game_session(
-        self, game_session_data: GameSessionCreate, user: User
-    ) -> GameSession:
+        self, game_session_data: SGameSessionCreate, user: SUser
+    ) -> SGameSession:
         """
         Создать новую игровую сессию.
 
@@ -178,14 +178,14 @@ class GameSessionService:
                 update_data={"max_score": game_session.score},
             )
 
-        return GameSession.model_validate(game_session)
+        return SGameSession.model_validate(game_session)
 
     async def update_game_session(
         self,
         game_session_id: int,
-        game_session_update: GameSessionUpdate,
-        user: User,
-    ) -> GameSession:
+        game_session_update: SGameSessionUpdate,
+        user: SUser,
+    ) -> SGameSession:
         """
         Обновить игровую сессию.
 
@@ -260,9 +260,9 @@ class GameSessionService:
                 }
             },
         )
-        return GameSession.model_validate(updated_game_session)
+        return SGameSession.model_validate(updated_game_session)
 
-    async def delete_game_session(self, game_session_id: int, user: User) -> bool:
+    async def delete_game_session(self, game_session_id: int, user: SUser) -> bool:
         """
         Удалить игровую сессию.
 

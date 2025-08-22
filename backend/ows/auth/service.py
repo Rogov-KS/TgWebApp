@@ -12,7 +12,7 @@ from backend.core.logger import get_logger
 from backend.entities.refresh_token.interfaces import IRefreshTokenDAO
 from backend.entities.refresh_token.service import RefreshTokenService
 from backend.ows.auth.interfaces import IOAuth2TokenDAO
-from backend.ows.auth.schemas import (
+from backend.entities.assemblers.schemas import (
     CloudFile,
     OAuth2TokenData,
     OAuth2UserData,

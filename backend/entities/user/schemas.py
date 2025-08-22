@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, ConfigDict
 
 
-class User(BaseModel):
+class SUser(BaseModel):
     id: int
     telegram_id: int | None = None
     email: str | None = None
@@ -19,12 +19,12 @@ class User(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class UserAuth(BaseModel):
+class SUserAuth(BaseModel):
     username: str
     email: EmailStr
     password: str
 
 
-class UserLogin(BaseModel):
+class SUserLogin(BaseModel):
     username_or_email: str
     password: str

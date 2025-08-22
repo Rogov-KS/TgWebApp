@@ -2,8 +2,8 @@
 
 from typing import List, Protocol
 
-from backend.entities.leaderboard.schemas import LeaderboardPlace
-from backend.entities.user.schemas import User
+from backend.entities.assemblers.schemas import SLeaderboardPlace
+from backend.entities.assemblers.schemas import SUser
 
 
 class ILeaderboardDAO(Protocol):
@@ -14,7 +14,7 @@ class ILeaderboardDAO(Protocol):
         limit: int = 10,
         offset: int = 0,
         sort_order: str = "desc",
-    ) -> List[LeaderboardPlace]:
+    ) -> List[SLeaderboardPlace]:
         """Получить топ игроков по максимальному количеству очков."""
 
 
@@ -26,13 +26,13 @@ class ILeaderboardService(Protocol):
         limit: int = 10,
         offset: int = 0,
         sort_order: str = "desc",
-    ) -> List[LeaderboardPlace]:
+    ) -> List[SLeaderboardPlace]:
         """Получить рейтинг игроков."""
 
-    async def get_user_max_score(self, user: User) -> int | None:
+    async def get_user_max_score(self, user: SUser) -> int | None:
         """Получить максимальный счет пользователя."""
 
     async def get_user_position_in_leaderboard(
-        self, user: User
+        self, user: SUser
     ) -> int | None:
         """Получить позицию пользователя в общем рейтинге."""

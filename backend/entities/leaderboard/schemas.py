@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class LeaderboardPlace(BaseModel):
+class SLeaderboardPlace(BaseModel):
     user_id: int
     max_score: int
     place: int

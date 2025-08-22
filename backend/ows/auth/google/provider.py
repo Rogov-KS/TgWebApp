@@ -10,7 +10,7 @@ from backend.core.logger import get_logger
 from backend.entities.user.dao import UserDAODep, get_user_dao
 from backend.entities.refresh_token.dao import RefreshTokenDAODep, get_refresh_token_dao
 from backend.ows.auth.dao import OAuth2TokenDAODep, get_oauth2_token_dao
-from backend.ows.auth.schemas import CloudFile, OAuth2UserData
+from backend.entities.assemblers.schemas import CloudFile, OAuth2UserData
 from backend.ows.auth.service import OAuth2Service
 from backend.ows.cloud_storage.google.drive import GoogleDriveIntegration
 

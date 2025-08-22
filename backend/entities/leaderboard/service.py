@@ -10,8 +10,8 @@ from backend.entities.leaderboard.interfaces import (
     ILeaderboardDAO,
     ILeaderboardService,
 )
-from backend.entities.leaderboard.schemas import LeaderboardPlace
-from backend.entities.user.schemas import User
+from backend.entities.assemblers.schemas import LeaderboardPlace
+from backend.entities.assemblers.schemas import SUser
 
 logger = get_logger(__name__)
 
@@ -80,7 +80,7 @@ class LeaderboardService:
 
         return leaderboard
 
-    async def get_user_max_score(self, user: User) -> int | None:
+    async def get_user_max_score(self, user: SUser) -> int | None:
         """
         Получить максимальный счет пользователя.
 
@@ -104,7 +104,7 @@ class LeaderboardService:
 
         return max_score
 
-    async def get_user_position_in_leaderboard(self, user: User) -> int | None:
+    async def get_user_position_in_leaderboard(self, user: SUser) -> int | None:
         """
         Получить позицию пользователя в общем рейтинге.
 

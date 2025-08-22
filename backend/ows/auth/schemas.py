@@ -5,7 +5,7 @@ from typing import Any
 from pydantic import BaseModel
 
 
-class OAuth2UserData(BaseModel):
+class SOAuth2UserData(BaseModel):
     """Стандартизированные данные пользователя от OAuth2 провайдера"""
 
     provider_id: str  # ID пользователя в системе провайдера
@@ -18,7 +18,7 @@ class OAuth2UserData(BaseModel):
     raw_data: dict[str, Any] | None = None
 
 
-class OAuth2TokenData(BaseModel):
+class SOAuth2TokenData(BaseModel):
     """Данные токенов от OAuth2 провайдера"""
 
     access_token: str
@@ -30,7 +30,7 @@ class OAuth2TokenData(BaseModel):
     raw_data: dict[str, Any] | None = None
 
 
-class CloudFile(BaseModel):
+class SCloudFile(BaseModel):
     """Информация о файле в облачном хранилище"""
 
     name: str

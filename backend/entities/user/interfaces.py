@@ -4,7 +4,7 @@ from typing import List, Optional, Protocol
 
 from backend.core.base_dao import IBaseDAO
 from backend.entities.user.models import UserDB
-from backend.entities.user.schemas import User as UserSchema
+from backend.entities.assemblers.schemas import SUser
 
 
 class IUserDAO(IBaseDAO[UserDB]):
@@ -15,8 +15,8 @@ class IUserDAO(IBaseDAO[UserDB]):
 class IUserService(Protocol):
     """Интерфейс для сервиса пользователей."""
 
-    async def get_all_users(self) -> List[UserSchema]:
+    async def get_all_users(self) -> List[SUser]:
         """Получить всех пользователей."""
 
-    async def get_user_by_id(self, user_id: int) -> Optional[UserSchema]:
+    async def get_user_by_id(self, user_id: int) -> Optional[SUser]:
         """Получить пользователя по ID."""

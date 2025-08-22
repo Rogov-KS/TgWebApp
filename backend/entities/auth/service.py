@@ -19,8 +19,8 @@ from backend.entities.auth.utils import (
     set_auth_cookies,
 )
 from backend.entities.user.dao import UserDAODep
-from backend.entities.user.schemas import (
-    UserAuth, UserLogin, User as SUser
+from backend.entities.assemblers.schemas import (
+    SUserAuth, SUserLogin, SUser
 )
 from backend.entities.refresh_token.service import (
     RefreshTokenServiceDep,
@@ -106,7 +106,7 @@ class AuthService:
             return None
         return user
 
-    async def register_user(self, user_data: UserAuth) -> SUser:
+    async def register_user(self, user_data: SUserAuth) -> SUser:
         """
         Регистрация нового пользователя.
 
@@ -174,7 +174,7 @@ class AuthService:
 
     async def login_user(
         self,
-        user_data: UserLogin,
+        user_data: SUserLogin,
         response: Response,
     ) -> dict[str, str]:
         """

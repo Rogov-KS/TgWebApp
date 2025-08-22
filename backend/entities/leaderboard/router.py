@@ -3,7 +3,7 @@ from fastapi_cache.decorator import cache
 from fastapi_versioning import version
 
 from backend.core.dependecies import CurrentUserDep
-from backend.entities.leaderboard.schemas import LeaderboardPlace
+from backend.entities.assemblers.schemas import LeaderboardPlace
 from backend.entities.leaderboard.service import LeaderboardServiceDep
 
 router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])

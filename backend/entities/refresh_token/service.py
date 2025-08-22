@@ -36,7 +36,7 @@ class RefreshTokenService:
         self.refresh_token_dao = refresh_token_dao
         self.user_dao = user_dao
 
-    async def get_token_by_value(self, token: str) -> Optional[RefreshToken]:
+    async def get_token_by_value(self, token: str) -> Optional[SRefreshToken]:
         """
         Получить refresh token по значению токена.
 
