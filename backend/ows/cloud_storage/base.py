@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from backend.entities.assemblers.schemas import CloudFile
+from backend.entities.assemblers.schemas import SCloudFile
 
 
 class CloudIntegration(ABC):
@@ -12,5 +12,5 @@ class CloudIntegration(ABC):
         self.service_name = service_name
 
     @abstractmethod
-    async def get_files(self, access_token: str) -> list[CloudFile]:
+    async def get_files(self, access_token: str) -> list[SCloudFile]:
         """Получение списка файлов из облачного хранилища"""

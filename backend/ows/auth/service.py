@@ -13,11 +13,10 @@ from backend.entities.refresh_token.interfaces import IRefreshTokenDAO
 from backend.entities.refresh_token.service import RefreshTokenService
 from backend.ows.auth.interfaces import IOAuth2TokenDAO
 from backend.entities.assemblers.schemas import (
-    CloudFile,
-    OAuth2TokenData,
-    OAuth2UserData,
+    SCloudFile,
+    SOAuth2TokenData,
+    SOAuth2UserData,
 )
-from backend.entities.user.dao import UserDAODep
 from backend.entities.user.interfaces import IUserDAO
 
 logger = get_logger(__name__)
@@ -81,13 +80,13 @@ class OAuth2Service(ABC):
         """Параметры для запроса токенов"""
 
     @abstractmethod
-    async def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
+    async def parse_user_data(self, raw_data: dict[str, Any]) -> SOAuth2UserData:
         """Парсинг данных пользователя из ответа провайдера"""
 
     @abstractmethod
     async def get_cloud_files(
         self, access_token: str
-    ) -> list[CloudFile]:
+    ) -> list[SCloudFile]:
         """Получение списка файлов из облачного хранилища провайдера"""
 
     @contextmanager
@@ -111,7 +110,7 @@ class OAuth2Service(ABC):
         finally:
             self._processing_requests.pop(request_key, None)
 
-    async def exchange_code_for_tokens(self, code: str) -> OAuth2TokenData:
+    async def exchange_code_for_tokens(self, code: str) -> SOAuth2TokenData:
         """Обмен authorization code на токены"""
         async with aiohttp.ClientSession() as session:
             async with session.post(
@@ -140,7 +139,7 @@ class OAuth2Service(ABC):
                     )
 
                 data = await response.json()
-                return OAuth2TokenData(
+                return SOAuth2TokenData(
                     access_token=data.get("access_token", ""),
                     refresh_token=data.get("refresh_token"),
                     token_type=data.get("token_type", "Bearer"),
@@ -150,7 +149,7 @@ class OAuth2Service(ABC):
                     raw_data=data,
                 )
 
-    async def get_user_data(self, access_token: str) -> OAuth2UserData | None:
+    async def get_user_data(self, access_token: str) -> SOAuth2UserData | None:
         """Получение данных пользователя через API провайдера"""
         if not self.user_info_url:
             raise NotImplementedError(
@@ -195,7 +194,7 @@ class OAuth2Service(ABC):
 
     async def get_oauth2_user_data(
         self, code: str, state: str
-    ) -> OAuth2UserData | None:
+    ) -> SOAuth2UserData | None:
         """Полный процесс аутентификации"""
         from backend.ows.auth.state_storage import state_storage
 
@@ -241,7 +240,7 @@ class OAuth2Service(ABC):
             return user_data
 
     async def authenticate_by_user_data(
-        self, user_data: OAuth2UserData | None, response: Response
+        self, user_data: SOAuth2UserData | None, response: Response
     ) -> dict[str, str]:
         """Аутентификация пользователя"""
 

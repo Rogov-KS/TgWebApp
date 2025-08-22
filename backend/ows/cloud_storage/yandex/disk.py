@@ -3,7 +3,7 @@
 import aiohttp
 
 from backend.core.logger import get_logger
-from backend.entities.assemblers.schemas import CloudFile
+from backend.entities.assemblers.schemas import SCloudFile
 from backend.ows.cloud_storage.base import CloudIntegration
 
 logger = get_logger(__name__)
@@ -16,7 +16,7 @@ class YandexDiskIntegration(CloudIntegration):
         super().__init__("yandex_disk")
         self.api_base_url = "https://cloud-api.yandex.net/v1/disk"
 
-    async def get_files(self, access_token: str) -> list[CloudFile]:
+    async def get_files(self, access_token: str) -> list[SCloudFile]:
         """Получение файлов из Яндекс.Диска"""
         disk_url = f"{self.api_base_url}/resources/files"
 
@@ -43,7 +43,7 @@ class YandexDiskIntegration(CloudIntegration):
                 items = data.get("items", [])
 
                 return [
-                    CloudFile(
+                    SCloudFile(
                         name=item.get("name", ""),
                         id=item.get("resource_id"),
                         size=item.get("size"),

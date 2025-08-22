@@ -8,7 +8,7 @@ from backend.core.logger import get_logger
 from backend.entities.user.dao import UserDAODep, get_user_dao
 from backend.entities.refresh_token.dao import RefreshTokenDAODep, get_refresh_token_dao
 from backend.ows.auth.dao import OAuth2TokenDAODep, get_oauth2_token_dao
-from backend.entities.assemblers.schemas import CloudFile, OAuth2UserData
+from backend.entities.assemblers.schemas import SCloudFile, SOAuth2UserData
 from backend.ows.auth.service import OAuth2Service
 from backend.ows.cloud_storage.yandex.disk import YandexDiskIntegration
 
@@ -70,9 +70,9 @@ class YandexOAuth2Service(OAuth2Service):
             "code": code,
         }
 
-    async def parse_user_data(self, raw_data: dict[str, Any]) -> OAuth2UserData:
+    async def parse_user_data(self, raw_data: dict[str, Any]) -> SOAuth2UserData:
         """Парсинг данных пользователя из ответа Yandex API"""
-        return OAuth2UserData(
+        return SOAuth2UserData(
             provider_id=raw_data.get("id", ""),
             email=raw_data.get("default_email", ""),
             first_name=raw_data.get("first_name", ""),
@@ -90,7 +90,7 @@ class YandexOAuth2Service(OAuth2Service):
             return f"https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200"
         return ""
 
-    async def get_cloud_files(self, access_token: str) -> list[CloudFile]:
+    async def get_cloud_files(self, access_token: str) -> list[SCloudFile]:
         """Получение файлов из Яндекс.Диска через интеграцию"""
         files = await self._disk_integration.get_files(access_token)
         return files

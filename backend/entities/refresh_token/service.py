@@ -3,6 +3,7 @@ import secrets
 from typing import Annotated, List, Optional, Type
 
 from fastapi import Depends, HTTPException, Response, status
+from pydantic import ValidationError
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
@@ -12,10 +13,9 @@ from backend.entities.refresh_token.interfaces import (
     IRefreshTokenDAO,
     IRefreshTokenService,
 )
-from backend.entities.refresh_token.models import RefreshTokenDB
 from backend.entities.user.dao import UserDAODep
 from backend.entities.user.interfaces import IUserDAO
-from backend.entities.user.models import UserDB
+from backend.entities.assemblers.schemas import SRefreshToken, SUser
 
 
 logger = get_logger(__name__)
@@ -33,8 +33,8 @@ class RefreshTokenService:
         refresh_token_dao: IRefreshTokenDAO,
         user_dao: IUserDAO
     ):
-        self.refresh_token_dao = refresh_token_dao
-        self.user_dao = user_dao
+        self.refresh_token_dao: IRefreshTokenDAO = refresh_token_dao
+        self.user_dao: IUserDAO = user_dao
 
     async def get_token_by_value(self, token: str) -> Optional[SRefreshToken]:
         """
@@ -47,11 +47,22 @@ class RefreshTokenService:
             Optional[RefreshToken]: Токен или None, если не найден
         """
         logger.info("Getting refresh token by value")
-        return await self.refresh_token_dao.get_by_token(token)
+
+        refresh_token = await self.refresh_token_dao.get_by_token(token)
+        if refresh_token:
+            try:
+                return SRefreshToken.model_validate(refresh_token)
+            except ValidationError as e:
+                logger.error(
+                    "Error validating refresh token",
+                    extra={"error": str(e)},
+                    exc_info=True
+                )
+        return None
 
     async def get_active_tokens_by_user_id(
         self, user_id: int
-    ) -> List[RefreshToken]:
+    ) -> List[SRefreshToken]:
         """
         Получить все активные refresh токены пользователя.
 
@@ -67,13 +78,21 @@ class RefreshTokenService:
         )
 
         tokens = await self.refresh_token_dao.get_active_by_user_id(user_id)
-
         logger.info(
             "Retrieved active refresh tokens",
             extra={"user_id": user_id, "count": len(tokens)}
         )
-
-        return tokens
+        if tokens:
+            try:
+                tokens_list = [SRefreshToken.model_validate(token) for token in tokens]
+                return tokens_list
+            except ValidationError as e:
+                logger.error(
+                    "Error validating refresh tokens",
+                    extra={"error": str(e)},
+                    exc_info=True
+                )
+        return []
 
     async def create_refresh_token(self, user_id: int) -> str:
         """
@@ -144,7 +163,7 @@ class RefreshTokenService:
 
         return token_value
 
-    async def verify_refresh_token(self, token: str) -> Optional[UserDB]:
+    async def verify_refresh_token(self, token: str) -> Optional[SUser]:
         """
         Верифицировать refresh token и вернуть пользователя.
 
@@ -316,7 +335,7 @@ class RefreshTokenService:
         return token, expire
 
     async def set_tokens_to_cookies(
-        self, response: Response, user: UserDB
+        self, response: Response, user: SUser
     ) -> tuple[str, str]:
         """
         Создать токены и установить их в cookies.

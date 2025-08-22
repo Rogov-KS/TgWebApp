@@ -3,7 +3,7 @@
 import aiohttp
 
 from backend.core.logger import get_logger
-from backend.entities.assemblers.schemas import CloudFile
+from backend.entities.assemblers.schemas import SCloudFile
 from backend.ows.cloud_storage.base import CloudIntegration
 
 logger = get_logger(__name__)
@@ -16,7 +16,7 @@ class GoogleDriveIntegration(CloudIntegration):
         super().__init__("google_drive")
         self.api_base_url = "https://www.googleapis.com/drive/v3"
 
-    async def get_files(self, access_token: str) -> list[CloudFile]:
+    async def get_files(self, access_token: str) -> list[SCloudFile]:
         """Получение файлов из Google Drive"""
         drive_url = f"{self.api_base_url}/files"
 
@@ -43,7 +43,7 @@ class GoogleDriveIntegration(CloudIntegration):
                 files = data.get("files", [])
 
                 return [
-                    CloudFile(
+                    SCloudFile(
                         name=file.get("name", ""),
                         id=file.get("id"),
                         size=(int(file.get("size", 0)) if file.get("size") else None),

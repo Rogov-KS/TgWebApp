@@ -21,10 +21,10 @@ oauth2_integrations/
 ### Базовые классы
 
 ```python
-from backend.ows.auth_integrations import CloudFile, CloudIntegration
+from backend.ows.auth_integrations import SCloudFile, CloudIntegration
 
-# CloudFile - информация о файле в облачном хранилище
-file = CloudFile(
+# SCloudFile - информация о файле в облачном хранилище
+file = SCloudFile(
     name="document.pdf",
     id="12345",
     size=1024,
@@ -35,7 +35,7 @@ file = CloudFile(
 
 # CloudIntegration - базовый класс для интеграций
 class MyCloudIntegration(CloudIntegration):
-    async def get_files(self, access_token: str) -> List[CloudFile]:
+    async def get_files(self, access_token: str) -> List[SCloudFile]:
         # Реализация получения файлов
         pass
 ```

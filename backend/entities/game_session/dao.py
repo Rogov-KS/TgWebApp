@@ -8,7 +8,7 @@ from backend.core.base_dao import BaseDAO
 from backend.core.database import AsyncSessionDep
 from backend.core.logger import get_logger
 from backend.entities.game_session.interfaces import IGameSessionDAO
-from backend.entities.game_session.models import GameSession as GameSessionDB
+from backend.entities.game_session.models import GameSessionDB
 
 logger = get_logger(__name__)
 

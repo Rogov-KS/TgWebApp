@@ -3,15 +3,11 @@
 from typing import Any, List, Protocol
 
 from backend.core.base_dao import IBaseDAO
-from backend.entities.game_session.models import (
-    GameSession as GameSessionModel,
-)
-from backend.entities.assemblers.schemas import (
-    SGameSession
-)
+from backend.entities.assemblers.schemas import SGameSession
+from backend.entities.game_session.models import GameSessionDB
 
 
-class IGameSessionDAO(IBaseDAO[GameSessionModel]):
+class IGameSessionDAO(IBaseDAO[GameSessionDB]):
     """Интерфейс для DAO игровых сессий."""
     # Базовые методы уже определены в IBaseDAO
 
