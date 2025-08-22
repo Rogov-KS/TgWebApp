@@ -3,7 +3,7 @@ from fastapi_cache.decorator import cache
 from fastapi_versioning import version
 
 from backend.core.dependecies import CurrentUserDep
-from backend.entities.assemblers.schemas import LeaderboardPlace
+from backend.entities.assemblers.schemas import SLeaderboardPlace
 from backend.entities.leaderboard.service import LeaderboardServiceDep
 
 router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
@@ -17,7 +17,7 @@ async def get_leaderboard(
     limit: int = 10,
     offset: int = 0,
     sort_order: str = "desc",
-) -> list[LeaderboardPlace]:
+) -> list[SLeaderboardPlace]:
     """Получить топ игроков в рейтинге."""
     return await leaderboard_service.get_leaderboard(limit, offset, sort_order)
 

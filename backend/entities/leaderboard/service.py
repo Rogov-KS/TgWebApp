@@ -10,7 +10,7 @@ from backend.entities.leaderboard.interfaces import (
     ILeaderboardDAO,
     ILeaderboardService,
 )
-from backend.entities.assemblers.schemas import LeaderboardPlace
+from backend.entities.assemblers.schemas import SLeaderboardPlace
 from backend.entities.assemblers.schemas import SUser
 
 logger = get_logger(__name__)
@@ -36,7 +36,7 @@ class LeaderboardService:
         limit: int = 10,
         offset: int = 0,
         sort_order: str = "desc",
-    ) -> List[LeaderboardPlace]:
+    ) -> List[SLeaderboardPlace]:
         """
         Получить рейтинг игроков.
 
