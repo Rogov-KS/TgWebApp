@@ -74,7 +74,7 @@ async def tear_down_db_tables(engine: AsyncEngine):
     await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture
 async def test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
     """
     Фикстура для создания тестового движка базы данных.
@@ -94,8 +94,10 @@ async def test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
         await tear_down_db_tables(engine)
 
 
-@pytest_asyncio.fixture(scope="function")
-async def test_db_session_maker(test_db_engine: AsyncEngine) -> async_sessionmaker:
+@pytest_asyncio.fixture
+async def test_db_session_maker(
+    test_db_engine: AsyncEngine,
+) -> async_sessionmaker:
     """
     Фикстура для создания тестового движка базы данных.
     Запускается один раз в начале сессии тестов.
@@ -104,8 +106,10 @@ async def test_db_session_maker(test_db_engine: AsyncEngine) -> async_sessionmak
     return session_maker
 
 
-@pytest_asyncio.fixture(scope="function")
-async def test_db_session(test_db_session_maker: async_sessionmaker) -> AsyncGenerator[AsyncSession, None]:
+@pytest_asyncio.fixture
+async def test_db_session(
+    test_db_session_maker: async_sessionmaker,
+) -> AsyncGenerator[AsyncSession, None]:
     """
     Фикстура для создания сессии БД для каждого теста.
     Автоматически создает и закрывает сессию для каждого теста.
