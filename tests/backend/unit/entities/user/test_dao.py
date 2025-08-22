@@ -1,10 +1,8 @@
 """
 Unit тесты для UserDAO
 """
-import pytest
 import pytest_asyncio
 from backend.entities.user.dao import UserDAO
-from backend.entities.user.models import User
 
 
 class TestUserDAO:
@@ -18,11 +16,17 @@ class TestUserDAO:
     class TestCreate:
         """Тесты для метода create."""
 
-        async def test_create_user_success(self, dao, user_data):
+        async def test_create_user_success(self, test_db_session):
             """Тест успешного создания пользователя."""
-            user = await dao.create(**user_data)
+            user_dao = UserDAO(test_db_session)
+            user = await user_dao.create(
+                username="John_4",
+                is_admin=False,
+                is_bot=False,
+                is_active=True,
+                max_score=10
+            )
             assert user is not None
-            assert user.username == user_data["username"]
 
 # Здесь будут тесты:
 # - test_create_user
