@@ -14,7 +14,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.core.database import Base
 
 if TYPE_CHECKING:
-    from backend.entities.user.models import User
+    from backend.entities.user.models import UserDB
 
 
 class RefreshToken(Base):
@@ -38,7 +38,9 @@ class RefreshToken(Base):
     )
 
     # Связи
-    user: Mapped["User"] = relationship("User", back_populates="refresh_tokens")
+    user: Mapped["UserDB"] = relationship(
+        "UserDB", back_populates="refresh_tokens"
+    )
 
     def __repr__(self) -> str:
         return (

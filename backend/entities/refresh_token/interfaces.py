@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Optional, Protocol
 
 from backend.entities.refresh_token.models import RefreshToken
-from backend.entities.user.models import User
+from backend.entities.user.models import UserDB
 
 
 class IRefreshTokenDAO(Protocol):
@@ -51,7 +51,7 @@ class IRefreshTokenService(Protocol):
     async def create_refresh_token(self, user_id: int) -> str:
         """Создать новый refresh token для пользователя."""
 
-    async def verify_refresh_token(self, token: str) -> Optional[User]:
+    async def verify_refresh_token(self, token: str) -> Optional[UserDB]:
         """Верифицировать refresh token и вернуть пользователя."""
 
     async def revoke_token(self, token: str) -> bool:

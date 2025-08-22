@@ -3,11 +3,11 @@
 from typing import List, Optional, Protocol
 
 from backend.core.base_dao import IBaseDAO
-from backend.entities.user.models import User as UserModel
+from backend.entities.user.models import UserDB
 from backend.entities.user.schemas import User as UserSchema
 
 
-class IUserDAO(IBaseDAO[UserModel]):
+class IUserDAO(IBaseDAO[UserDB]):
     """Интерфейс для DAO пользователей."""
     # Базовые методы уже определены в IBaseDAO
 

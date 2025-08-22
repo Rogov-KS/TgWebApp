@@ -5,7 +5,6 @@ import logging
 from backend.entities.assemblers.models import *
 
 
-
 # Отключаем логи Faker
 logging.getLogger('faker.factory').setLevel(logging.WARNING)
 

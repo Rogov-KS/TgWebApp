@@ -16,7 +16,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.core.database import Base
 
 if TYPE_CHECKING:
-    from backend.entities.user.models import User
+    from backend.entities.user.models import UserDB
 
 
 class OAuth2Token(Base):
@@ -45,7 +45,9 @@ class OAuth2Token(Base):
     )
 
     # Связи
-    user: Mapped["User"] = relationship("User", back_populates="oauth2_tokens")
+    user: Mapped["UserDB"] = relationship(
+        "UserDB", back_populates="oauth2_tokens"
+    )
 
     __table_args__ = (
         UniqueConstraint("user_id", "provider_name", name="uq_user_provider"),

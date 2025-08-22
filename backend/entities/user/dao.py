@@ -5,18 +5,18 @@ from fastapi import Depends
 
 from backend.core.base_dao import BaseDAO
 from backend.core.database import AsyncSessionDep
-from backend.entities.user.models import User
+from backend.entities.user.models import UserDB
 from backend.entities.user.interfaces import IUserDAO
 
 
-class UserDAO(BaseDAO[User]):
+class UserDAO(BaseDAO[UserDB]):
     """
     DAO (Data Access Object) для работы с пользователями.
 
     Implements `IUserDAO` interface.
     """
 
-    model = User
+    model = UserDB
 
 
 UserDAO: Type[IUserDAO]

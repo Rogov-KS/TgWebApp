@@ -1,18 +1,13 @@
 from sqladmin import ModelView
 
-from backend.entities.assemblers.models import (
-    GameSession,
-    OAuth2Token,
-    RefreshToken,
-    User,
-)
+from backend.entities.assemblers.models import *
 
 
-class UsersAdmin(ModelView, model=User):
+class UsersAdmin(ModelView, model=UserDB):
     column_list = [
-        c.name for c in User.__table__.columns if c.name != "hashed_password"
+        c.name for c in UserDB.__table__.columns if c.name != "hashed_password"
     ]
-    column_details_exclude_list = [User.hashed_password]
+    column_details_exclude_list = [UserDB.hashed_password]
     can_delete = False
     name = "Пользователь"
     name_plural = "Пользователи"

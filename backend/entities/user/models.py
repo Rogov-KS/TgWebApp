@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from backend.entities.refresh_token.models import RefreshToken
 
 
-class User(Base):
+class UserDB(Base):
     """Модель пользователя."""
 
     __tablename__ = "users"
@@ -53,6 +53,6 @@ class User(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<User(id={self.id}, username={self.username}, "
+            f"<UserDB(id={self.id}, username={self.username}, "
             f"email={self.email}, telegram_id={self.telegram_id})>"
         )

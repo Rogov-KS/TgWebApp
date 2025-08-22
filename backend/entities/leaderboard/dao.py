@@ -9,7 +9,7 @@ from backend.core.logger import get_logger
 from backend.entities.game_session.models import GameSession
 from backend.entities.leaderboard.interfaces import ILeaderboardDAO
 from backend.entities.leaderboard.schemas import LeaderboardPlace
-from backend.entities.user.models import User
+from backend.entities.user.models import UserDB
 
 logger = get_logger(__name__)
 
@@ -46,8 +46,8 @@ class LeaderboardDAO:
         )
 
         query = (
-            select(User, subquery.c.max_score)
-            .join(subquery, User.id == subquery.c.user_id)
+            select(UserDB, subquery.c.max_score)
+            .join(subquery, UserDB.id == subquery.c.user_id)
             .order_by(
                 subquery.c.max_score.desc()
                 if sort_order == "desc"

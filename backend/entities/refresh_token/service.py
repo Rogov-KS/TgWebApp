@@ -15,7 +15,7 @@ from backend.entities.refresh_token.interfaces import (
 from backend.entities.refresh_token.models import RefreshToken
 from backend.entities.user.dao import UserDAODep
 from backend.entities.user.interfaces import IUserDAO
-from backend.entities.user.models import User
+from backend.entities.user.models import UserDB
 
 
 logger = get_logger(__name__)
@@ -144,7 +144,7 @@ class RefreshTokenService:
 
         return token_value
 
-    async def verify_refresh_token(self, token: str) -> Optional[User]:
+    async def verify_refresh_token(self, token: str) -> Optional[UserDB]:
         """
         Верифицировать refresh token и вернуть пользователя.
 
@@ -316,7 +316,7 @@ class RefreshTokenService:
         return token, expire
 
     async def set_tokens_to_cookies(
-        self, response: Response, user: User
+        self, response: Response, user: UserDB
     ) -> tuple[str, str]:
         """
         Создать токены и установить их в cookies.

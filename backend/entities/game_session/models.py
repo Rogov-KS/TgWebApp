@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 from backend.core.database import Base
 
 if TYPE_CHECKING:
-    from backend.entities.user.models import User
+    from backend.entities.user.models import UserDB
 
 
 class GameSession(Base):
@@ -30,7 +30,7 @@ class GameSession(Base):
     )  # дополнительные данные игры
 
     # Связь с пользователем
-    user: Mapped["User"] = relationship("User", back_populates="game_sessions")
+    user: Mapped["UserDB"] = relationship("UserDB", back_populates="game_sessions")
 
     def __repr__(self) -> str:
         return (
