@@ -5,7 +5,7 @@ import pytest
 import pytest_asyncio
 from backend.entities.game_session.dao import GameSessionDAO, IGameSessionDAO
 from sqlalchemy.orm.exc import MultipleResultsFound
-from backend.entities.game_session.models import GameSession as GameSessionDB
+from backend.entities.game_session.models import GameSessionDB
 
 
 class TestGameSessionDAO:

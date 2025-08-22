@@ -5,8 +5,8 @@ from fastapi import Depends
 
 from backend.core.base_dao import BaseDAO
 from backend.core.database import AsyncSessionDep
-from backend.entities.user.models import UserDB
 from backend.entities.user.interfaces import IUserDAO
+from backend.entities.user.models import UserDB
 
 
 class UserDAO(BaseDAO[UserDB]):

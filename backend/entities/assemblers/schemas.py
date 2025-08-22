@@ -13,6 +13,7 @@ from backend.entities.user.schemas import SUser, SUserAuth, SUserLogin
 from backend.entities.leaderboard.schemas import SLeaderboardPlace
 from backend.entities.refresh_token.schemas import SRefreshToken
 
+
 __all__ = [
     "SCloudFile",
     "SGameSession",
@@ -25,4 +26,5 @@ __all__ = [
     "SUserAuth",
     "SUserLogin",
     "SLeaderboardPlace",
+    "SRefreshToken",
 ]
