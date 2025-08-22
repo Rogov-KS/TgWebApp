@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from backend.entities.user.models import UserDB
 
 
-class RefreshToken(Base):
+class RefreshTokenDB(Base):
     """Модель для хранения refresh токенов нашего приложения."""
 
     __tablename__ = "refresh_tokens"
@@ -44,6 +44,6 @@ class RefreshToken(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<RefreshToken(id={self.id}, user_id={self.user_id}, "
+            f"<RefreshTokenDB(id={self.id}, user_id={self.user_id}, "
             f"token={self.token[:8]}..., expires_at={self.expires_at})>"
         )

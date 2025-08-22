@@ -14,17 +14,17 @@ class UsersAdmin(ModelView, model=UserDB):
     icon = "fa-solid fa-user"
 
 
-class GameSessionsAdmin(ModelView, model=GameSession):
-    column_list = [c.name for c in GameSession.__table__.columns]
+class GameSessionsAdmin(ModelView, model=GameSessionDB):
+    column_list = [c.name for c in GameSessionDB.__table__.columns]
     can_delete = False
     name = "Игровая сессия"
     name_plural = "Игровые сессии"
     icon = "fa-solid fa-gamepad"
 
 
-class RefreshTokenAdmin(ModelView, model=RefreshToken):
-    column_list = [c.name for c in RefreshToken.__table__.columns if c.name != "token"]
-    column_details_exclude_list = [RefreshToken.token]
+class RefreshTokenAdmin(ModelView, model=RefreshTokenDB):
+    column_list = [c.name for c in RefreshTokenDB.__table__.columns if c.name != "token"]
+    column_details_exclude_list = [RefreshTokenDB.token]
     can_create = False
     can_edit = False
     name = "Refresh токен"
@@ -32,13 +32,13 @@ class RefreshTokenAdmin(ModelView, model=RefreshToken):
     icon = "fa-solid fa-refresh"
 
 
-class OAuth2TokenAdmin(ModelView, model=OAuth2Token):
+class OAuth2TokenAdmin(ModelView, model=OAuth2TokenDB):
     column_list = [
         c.name
-        for c in OAuth2Token.__table__.columns
+        for c in OAuth2TokenDB.__table__.columns
         if c.name not in ["access_token", "refresh_token"]
     ]
-    column_details_exclude_list = [OAuth2Token.access_token, OAuth2Token.refresh_token]
+    column_details_exclude_list = [OAuth2TokenDB.access_token, OAuth2TokenDB.refresh_token]
     can_delete = False
     can_create = False
     can_edit = False

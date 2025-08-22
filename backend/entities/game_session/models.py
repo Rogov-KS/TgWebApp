@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from backend.entities.user.models import UserDB
 
 
-class GameSession(Base):
+class GameSessionDB(Base):
     """Модель игровой сессии."""
 
     __tablename__ = "game_sessions"
@@ -34,7 +34,7 @@ class GameSession(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<GameSession(id={self.id}, user_id={self.user_id}, "
+            f"<GameSessionDB(id={self.id}, user_id={self.user_id}, "
             f"score={self.score}, duration={self.duration}, "
             f"level={self.level}, started_at={self.started_at}, "
             f"ended_at={self.ended_at}, is_completed={self.is_completed})>"

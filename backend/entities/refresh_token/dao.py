@@ -8,12 +8,12 @@ from backend.core.base_dao import BaseDAO
 from backend.core.database import async_session_maker, AsyncSessionDep
 from backend.core.logger import get_logger
 from backend.entities.refresh_token.interfaces import IRefreshTokenDAO
-from backend.entities.refresh_token.models import RefreshToken
+from backend.entities.refresh_token.models import RefreshTokenDB
 
 logger = get_logger(__name__)
 
 
-class RefreshTokenDAO(BaseDAO[RefreshToken]):
+class RefreshTokenDAO(BaseDAO[RefreshTokenDB]):
     """
     DAO (Data Access Object) для работы с refresh токенами через таблицу refresh_tokens,
     которая хранит только refresh токены нашего приложения.
@@ -21,13 +21,13 @@ class RefreshTokenDAO(BaseDAO[RefreshToken]):
     Implements `IRefreshTokenDAO` interface.
     """
 
-    model = RefreshToken
+    model = RefreshTokenDB
 
-    async def get_by_token(self, token: str) -> RefreshToken | None:
+    async def get_by_token(self, token: str) -> RefreshTokenDB | None:
         """Получить refresh token по токену."""
         return await self.get_one_or_none(token=token)
 
-    async def get_active_by_user_id(self, user_id: int) -> list[RefreshToken]:
+    async def get_active_by_user_id(self, user_id: int) -> list[RefreshTokenDB]:
         """Получить все активные refresh токены пользователя."""
         stmt = select(self.model).where(
             and_(
@@ -71,7 +71,7 @@ class RefreshTokenDAO(BaseDAO[RefreshToken]):
         user_id: int,
         token: str,
         expires_at: datetime,
-    ) -> RefreshToken | None:
+    ) -> RefreshTokenDB | None:
         """Создать новый refresh token."""
         return await self.create(
             user_id=user_id,

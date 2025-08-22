@@ -3,17 +3,17 @@
 from datetime import datetime
 from typing import List, Optional, Protocol
 
-from backend.entities.refresh_token.models import RefreshToken
+from backend.entities.refresh_token.models import RefreshTokenDB
 from backend.entities.user.models import UserDB
 
 
 class IRefreshTokenDAO(Protocol):
     """Интерфейс для DAO refresh токенов."""
 
-    async def get_by_token(self, token: str) -> RefreshToken | None:
+    async def get_by_token(self, token: str) -> RefreshTokenDB | None:
         """Получить refresh token по токену."""
 
-    async def get_active_by_user_id(self, user_id: int) -> List[RefreshToken]:
+    async def get_active_by_user_id(self, user_id: int) -> List[RefreshTokenDB]:
         """Получить все активные refresh токены пользователя."""
 
     async def revoke_by_token(self, token: str) -> None:
@@ -33,19 +33,19 @@ class IRefreshTokenDAO(Protocol):
         user_id: int,
         token: str,
         expires_at: datetime,
-    ) -> RefreshToken | None:
+    ) -> RefreshTokenDB | None:
         """Создать новый refresh token."""
 
 
 class IRefreshTokenService(Protocol):
     """Интерфейс для сервиса refresh токенов."""
 
-    async def get_token_by_value(self, token: str) -> Optional[RefreshToken]:
+    async def get_token_by_value(self, token: str) -> Optional[RefreshTokenDB]:
         """Получить refresh token по значению токена."""
 
     async def get_active_tokens_by_user_id(
         self, user_id: int
-    ) -> List[RefreshToken]:
+    ) -> List[RefreshTokenDB]:
         """Получить все активные refresh токены пользователя."""
 
     async def create_refresh_token(self, user_id: int) -> str:

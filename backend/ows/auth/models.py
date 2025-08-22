@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from backend.entities.user.models import UserDB
 
 
-class OAuth2Token(Base):
+class OAuth2TokenDB(Base):
     """Модель для хранения OAuth2 токенов от сторонних провайдеров."""
 
     __tablename__ = "oauth2_tokens"
@@ -55,6 +55,6 @@ class OAuth2Token(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<OAuth2Token(id={self.id}, user_id={self.user_id}, "
+            f"<OAuth2TokenDB(id={self.id}, user_id={self.user_id}, "
             f"provider_name={self.provider_name})>"
         )

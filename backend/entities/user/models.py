@@ -6,9 +6,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.core.database import Base
 
 if TYPE_CHECKING:
-    from backend.entities.game_session.models import GameSession
-    from backend.ows.auth.models import OAuth2Token
-    from backend.entities.refresh_token.models import RefreshToken
+    from backend.entities.game_session.models import GameSessionDB
+    from backend.ows.auth.models import OAuth2TokenDB
+    from backend.entities.refresh_token.models import RefreshTokenDB
 
 
 class UserDB(Base):
@@ -41,14 +41,14 @@ class UserDB(Base):
     )
 
     # Связи с другими таблицами
-    game_sessions: Mapped[list["GameSession"]] = relationship(
-        "GameSession", back_populates="user"
+    game_sessions: Mapped[list["GameSessionDB"]] = relationship(
+        "GameSessionDB", back_populates="user"
     )
-    oauth2_tokens: Mapped[list["OAuth2Token"]] = relationship(
-        "OAuth2Token", back_populates="user"
+    oauth2_tokens: Mapped[list["OAuth2TokenDB"]] = relationship(
+        "OAuth2TokenDB", back_populates="user"
     )
-    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
-        "RefreshToken", back_populates="user"
+    refresh_tokens: Mapped[list["RefreshTokenDB"]] = relationship(
+        "RefreshTokenDB", back_populates="user"
     )
 
     def __repr__(self) -> str:

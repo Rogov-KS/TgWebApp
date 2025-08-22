@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.database import AsyncSessionDep
 from backend.core.logger import get_logger
-from backend.entities.game_session.models import GameSession
+from backend.entities.game_session.models import GameSessionDB
 from backend.entities.leaderboard.interfaces import ILeaderboardDAO
 from backend.entities.leaderboard.schemas import LeaderboardPlace
 from backend.entities.user.models import UserDB
@@ -38,10 +38,10 @@ class LeaderboardDAO:
 
         subquery = (
             select(
-                GameSession.user_id,
-                func.max(GameSession.score).label("max_score")
+                GameSessionDB.user_id,
+                func.max(GameSessionDB.score).label("max_score")
             )
-            .group_by(GameSession.user_id)
+            .group_by(GameSessionDB.user_id)
             .subquery()
         )
 

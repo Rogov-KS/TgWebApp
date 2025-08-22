@@ -12,7 +12,7 @@ from backend.entities.refresh_token.interfaces import (
     IRefreshTokenDAO,
     IRefreshTokenService,
 )
-from backend.entities.refresh_token.models import RefreshToken
+from backend.entities.refresh_token.models import RefreshTokenDB
 from backend.entities.user.dao import UserDAODep
 from backend.entities.user.interfaces import IUserDAO
 from backend.entities.user.models import UserDB
