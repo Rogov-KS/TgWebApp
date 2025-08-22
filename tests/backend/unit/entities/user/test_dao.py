@@ -9,16 +9,16 @@ class TestUserDAO:
     """Тесты для UserDAO."""
 
     @pytest_asyncio.fixture
-    async def dao(self, test_db_session):
+    async def dao(self, get_async_test_db_session):
         """Создает экземпляр UserDAO для тестов."""
-        return UserDAO(test_db_session)
+        return UserDAO(get_async_test_db_session)
 
     class TestCreate:
         """Тесты для метода create."""
 
-        async def test_create_user_success(self, test_db_session):
+        async def test_create_user_success(self, get_async_test_db_session):
             """Тест успешного создания пользователя."""
-            user_dao = UserDAO(test_db_session)
+            user_dao = UserDAO(get_async_test_db_session)
             user = await user_dao.create(
                 username="John_4",
                 is_admin=False,

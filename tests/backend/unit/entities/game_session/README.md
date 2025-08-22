@@ -58,7 +58,7 @@ python -m pytest tests/backend/unit/entities/game_session/test_dao.py --cov=back
 ## Фикстуры
 
 Тесты используют следующие фикстуры:
-- `test_db_session` - сессия базы данных
+- `get_async_test_db_session` - сессия базы данных
 - `dao` - экземпляр GameSessionDAO
 - `test_user` - тестовый пользователь
 - `test_users` - несколько тестовых пользователей

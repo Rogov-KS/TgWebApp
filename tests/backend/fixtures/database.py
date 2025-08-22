@@ -75,7 +75,7 @@ async def tear_down_db_tables(engine: AsyncEngine):
 
 
 @pytest_asyncio.fixture
-async def test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
+async def get_async_test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
     """
     Фикстура для создания тестового движка базы данных.
     Запускается один раз в начале сессии тестов.
@@ -95,26 +95,28 @@ async def test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
 
 
 @pytest_asyncio.fixture
-async def test_db_session_maker(
-    test_db_engine: AsyncEngine,
+async def get_async_test_db_session_maker(
+    get_async_test_db_engine: AsyncEngine,
 ) -> async_sessionmaker:
     """
     Фикстура для создания тестового движка базы данных.
     Запускается один раз в начале сессии тестов.
     """
-    session_maker = async_sessionmaker(test_db_engine, expire_on_commit=False)
+    session_maker = async_sessionmaker(
+        get_async_test_db_engine, expire_on_commit=False
+    )
     return session_maker
 
 
 @pytest_asyncio.fixture
-async def test_db_session(
-    test_db_session_maker: async_sessionmaker,
+async def get_async_test_db_session(
+    get_async_test_db_session_maker: async_sessionmaker,
 ) -> AsyncGenerator[AsyncSession, None]:
     """
     Фикстура для создания сессии БД для каждого теста.
     Автоматически создает и закрывает сессию для каждого теста.
     """
-    async with test_db_session_maker() as session:
+    async with get_async_test_db_session_maker() as session:
         try:
             yield session
         except Exception:

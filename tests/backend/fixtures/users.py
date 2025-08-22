@@ -4,10 +4,12 @@
 import pytest
 import pytest_asyncio
 from backend.entities.user.dao import UserDAO
+from backend.entities.user.models import UserDB
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest.fixture
-def user_data():
+def get_user_data() -> dict:
     """Тестовые данные пользователя."""
     return {
         "id": 1,
@@ -19,7 +21,7 @@ def user_data():
 
 
 @pytest.fixture
-def multiple_users_data():
+def get_multiple_users_data() -> list[dict]:
     """Тестовые данные для нескольких пользователей."""
     return [
         {
@@ -47,21 +49,26 @@ def multiple_users_data():
 
 
 @pytest_asyncio.fixture
-async def test_user(test_db_session, user_data):
+async def insert_test_user(
+    get_async_test_db_session: AsyncSession, get_user_data: dict
+) -> UserDB:
     """Создает тестового пользователя в БД."""
 
-    dao = UserDAO(test_db_session)
-    user = await dao.create(**user_data)
+    dao = UserDAO(get_async_test_db_session)
+    user = await dao.create(**get_user_data)
     return user
 
 
 @pytest_asyncio.fixture
-async def test_users(test_db_session, multiple_users_data):
+async def insert_test_users(
+    get_async_test_db_session: AsyncSession,
+    get_multiple_users_data: list[dict],
+) -> list[UserDB]:
     """Создает несколько тестовых пользователей в БД."""
 
-    dao = UserDAO(test_db_session)
+    dao = UserDAO(get_async_test_db_session)
     users = []
-    for user_data in multiple_users_data:
+    for user_data in get_multiple_users_data:
         user = await dao.create(**user_data)
         users.append(user)
     return users

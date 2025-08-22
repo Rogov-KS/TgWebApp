@@ -6,23 +6,27 @@ import pytest_asyncio
 from backend.entities.game_session.dao import GameSessionDAO, IGameSessionDAO
 from sqlalchemy.orm.exc import MultipleResultsFound
 from backend.entities.game_session.models import GameSessionDB
+from backend.entities.user.models import UserDB
+from backend.entities.user.dao import UserDAO
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class TestGameSessionDAO:
     """Тесты для GameSessionDAO."""
 
     @pytest_asyncio.fixture
-    async def dao(self, test_db_session) -> IGameSessionDAO:
+    async def dao(self, get_async_test_db_session) -> IGameSessionDAO:
         """Создает экземпляр GameSessionDAO для тестов."""
-        return GameSessionDAO(test_db_session)
+        return GameSessionDAO(get_async_test_db_session)
 
     class TestCreate:
         """Тесты для метода create."""
 
         async def test_create_game_session_success(
-            self, dao, test_user, game_session_data
+            self, dao, insert_test_user: UserDB, get_game_session_data: dict
         ):
             """Тест успешного создания игровой сессии."""
+            game_session_data = get_game_session_data
             game_session = await dao.create(**game_session_data)
 
             assert game_session is not None
@@ -36,13 +40,15 @@ class TestGameSessionDAO:
             assert game_session.game_data == game_session_data["game_data"]
             assert game_session.id is not None
 
-        async def test_create_game_session_minimal_data(self, dao, test_user):
+        async def test_create_game_session_minimal_data(
+            self, dao, insert_test_user: UserDB
+        ):
             """Тест создания игровой сессии с минимальными данными."""
-            minimal_data = {"user_id": test_user.id}
+            minimal_data = {"user_id": insert_test_user.id}
             game_session = await dao.create(**minimal_data)
 
             assert game_session is not None
-            assert game_session.user_id == test_user.id
+            assert game_session.user_id == insert_test_user.id
             assert game_session.score == 0  # значение по умолчанию
             assert game_session.duration == 0  # значение по умолчанию
             assert game_session.level == 1  # значение по умолчанию
@@ -52,29 +58,43 @@ class TestGameSessionDAO:
         """Тесты для метода get_one_or_none."""
 
         async def test_get_game_session_by_id_success(
-            self, dao, test_game_session
+            self, dao, insert_test_game_session: GameSessionDB, get_async_test_db_session: AsyncSession
         ):
             """Тест успешного получения игровой сессии по ID."""
-            result = await dao.get_one_or_none(id=test_game_session.id)
+            print(f"AAAAAAAAAAAAAAAAAAAAAAAAA - Start test")
+            # Get users
+            user_dao = UserDAO(get_async_test_db_session)
+            user = await user_dao.get_all()
+            print(f"{user=}")
+
+            # Get game sessions
+            game_session_dao = GameSessionDAO(get_async_test_db_session)
+            game_sessions = await game_session_dao.get_all()
+            print(f"{game_sessions=}")
+
+            game_session = insert_test_game_session
+            result = await dao.get_one_or_none(id=game_session.id)
 
             assert result is not None
-            assert result.id == test_game_session.id
-            assert result.user_id == test_game_session.user_id
+            assert result.id == game_session.id
+            assert result.user_id == game_session.user_id
 
         async def test_get_game_session_by_user_id(
-            self, dao, test_game_sessions
+            self, dao, insert_test_game_sessions: list[GameSessionDB]
         ):
             """Тест получения игровой сессии по user_id."""
-            user_id = test_game_sessions[-1].user_id
+            game_sessions = insert_test_game_sessions
+            user_id = game_sessions[-1].user_id
             result = await dao.get_one_or_none(user_id=user_id)
             assert result is not None
             assert result.user_id == user_id
 
         async def test_get_game_session_by_user_id_with_exception(
-            self, dao, test_game_sessions
+            self, dao, insert_test_game_sessions: list[GameSessionDB]
         ):
             """Тест получения игровой сессии по user_id."""
-            user_id = test_game_sessions[0].user_id
+            game_sessions = insert_test_game_sessions
+            user_id = game_sessions[0].user_id
             with pytest.raises(MultipleResultsFound):
                 await dao.get_one_or_none(user_id=user_id)
 
@@ -82,15 +102,17 @@ class TestGameSessionDAO:
     class TestGetAll:
         """Тесты для метода get_all."""
 
-        async def test_get_all_game_sessions(self, dao, test_game_sessions):
+        async def test_get_all_game_sessions(
+            self, dao, insert_test_game_sessions: list[GameSessionDB]
+        ):
             """Тест получения всех игровых сессий."""
             result = await dao.get_all()
 
-            assert len(result) == len(test_game_sessions)
+            assert len(result) == len(insert_test_game_sessions)
             assert all(isinstance(session, GameSessionDB) for session in result)
 
         async def test_get_game_sessions_by_user_id(
-            self, dao, test_game_sessions
+            self, dao, insert_test_game_sessions: list[GameSessionDB]
         ):
             """Тест получения игровых сессий по user_id."""
             user_id = 1
@@ -101,7 +123,7 @@ class TestGameSessionDAO:
             assert all(session.user_id == user_id for session in result)
 
         async def test_get_completed_game_sessions(
-            self, dao, test_game_sessions
+            self, dao, insert_test_game_sessions: list[GameSessionDB]
         ):
             """Тест получения завершенных игровых сессий."""
             result = await dao.get_all(is_completed=True)

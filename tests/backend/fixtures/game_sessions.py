@@ -3,11 +3,15 @@
 """
 import pytest
 import pytest_asyncio
+from backend.entities.user.dao import UserDAO
 from backend.entities.game_session.dao import GameSessionDAO
+from backend.entities.game_session.models import GameSessionDB
+from sqlalchemy.ext.asyncio import AsyncSession
+from backend.entities.user.models import UserDB
 
 
 @pytest.fixture
-def game_session_data():
+def get_game_session_data() -> dict:
     """Тестовые данные игровой сессии."""
     return {
         "user_id": 1,
@@ -20,7 +24,7 @@ def game_session_data():
 
 
 @pytest.fixture
-def multiple_game_sessions_data():
+def get_multiple_game_sessions_data() -> list[dict]:
     """Тестовые данные для нескольких игровых сессий."""
     return [
         {
@@ -59,23 +63,35 @@ def multiple_game_sessions_data():
 
 
 @pytest_asyncio.fixture
-async def test_game_session(test_db_session, test_user, game_session_data):
+async def insert_test_game_session(
+    get_async_test_db_session: AsyncSession,
+    insert_test_user: UserDB,
+    get_game_session_data: dict,
+) -> GameSessionDB:
     """Создает тестовую игровую сессию в БД."""
+    msg = "GameSession's user-id must be equal to User's id"
+    assert insert_test_user.id == get_game_session_data["user_id"], msg
 
-    dao = GameSessionDAO(test_db_session)
-    game_session = await dao.create(**game_session_data)
+    dao = GameSessionDAO(get_async_test_db_session)
+    game_session = await dao.create(
+        **get_game_session_data
+    )
     return game_session
 
 
 @pytest_asyncio.fixture
-async def test_game_sessions(
-    test_db_session, test_users, multiple_game_sessions_data
-):
+async def insert_test_game_sessions(
+    get_async_test_db_session: AsyncSession,
+    insert_test_users: list[UserDB],
+    get_multiple_game_sessions_data: list[dict],
+) -> list[GameSessionDB]:
     """Создает несколько тестовых игровых сессий в БД."""
 
-    dao = GameSessionDAO(test_db_session)
+    dao = GameSessionDAO(get_async_test_db_session)
     game_sessions = []
-    for session_data in multiple_game_sessions_data:
-        game_session = await dao.create(**session_data)
+    for session_data in get_multiple_game_sessions_data:
+        game_session = await dao.create(
+            **session_data
+        )
         game_sessions.append(game_session)
     return game_sessions
