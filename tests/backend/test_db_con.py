@@ -3,6 +3,8 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
+from backend.entities.user.dao import UserDAO
+
 
 @pytest.mark.asyncio
 async def test_db_connection(test_db_session: AsyncSession):
@@ -36,6 +38,17 @@ async def test_db_connection(test_db_session: AsyncSession):
         result = await test_db_session.execute(text("SELECT * FROM users"))
         users = result.fetchall()
         print("users:", *users, sep="\n")
+
+        # Создаем пользователя
+        user_dao = UserDAO(test_db_session)
+        user = await user_dao.create(
+            username="John_4",
+            is_admin=False,
+            is_bot=False,
+            is_active=True,
+            max_score=10
+        )
+        print(f"Создан пользователь: {user}")
 
         print("✅ Подключение к БД успешно!")
 
