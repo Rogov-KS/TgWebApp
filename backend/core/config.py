@@ -54,9 +54,6 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASS: str
 
-    # Admin настройки
-    ADMIN_SECRET_KEY: str
-
     # Логирование настройки
     MODE: Literal["DEV", "TEST", "PROD"]
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -121,6 +118,7 @@ class Settings(BaseSettings):
 def get_env_files(env_dir: str = "./envs") -> list[str]:
     """Возвращает список .env файлов для загрузки"""
     env_mode = os.getenv("ENV_MODE", "dev").lower()
+    print(f"env_mode: {env_mode}")
     # Базовый файл
     files = [".env-base"]
 

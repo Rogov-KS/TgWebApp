@@ -6,7 +6,7 @@ services:
     image: postgres:15
     container_name: tg_web_app_db
     env_file:
-      - .env-prod
+      - ./envs/.env-prod
     ports:
       - "4321:5432"
       # - "${DB_PORT}:5432"
@@ -48,15 +48,13 @@ services:
     container_name: tg_web_app_backend
     build:
       context: .
-      dockerfile: ${DOCKER_FILE}
+      dockerfile: ${DOCKER_FILE:-Dockerfile}
     command: sh -c "alembic upgrade head && gunicorn backend.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    env_file:
-      - .env-prod
     environment:
       - ENV_MODE=prod
     ports:
@@ -78,13 +76,13 @@ services:
     container_name: tg_web_app_celery
     build:
       context: .
-      dockerfile: ${DOCKER_FILE}
+      dockerfile: ${DOCKER_FILE:-Dockerfile}
     command: sh -c "celery -A backend.celery_app.app:celery_app worker -l INFO"
     depends_on:
       redis:
         condition: service_healthy
     env_file:
-      - .env-prod
+      - ./envs/.env-prod
     networks:
       - app-network
     restart: unless-stopped
@@ -103,7 +101,7 @@ services:
   #     redis:
   #       condition: service_healthy
   #   env_file:
-  #     - .env-prod
+  #     - ./envs/.env-prod
 
 
   # Flower Layer - Flower
@@ -112,7 +110,7 @@ services:
     container_name: tg_web_app_flower
     build:
       context: .
-      dockerfile: ${DOCKER_FILE}
+      dockerfile: ${DOCKER_FILE:-Dockerfile}
     command: sh -c "celery -A backend.celery_app.app:celery_app flower --port=5555"
     # При запуске через nginx необходимо запускать команду ниже для корректной работы js и css
     # command: sh -c "celery --app=app.tasks.celery:celery flower --url_prefix=/flower"
@@ -120,7 +118,7 @@ services:
       redis:
         condition: service_healthy
     env_file:
-      - .env-prod
+      - ./envs/.env-prod
     ports:
       - "5550:5555"
       # - "${FLOWER_PORT}:5555"
@@ -168,7 +166,7 @@ services:
       prometheus:
         condition: service_healthy
     env_file:
-      - .env-prod
+      - ./envs/.env-prod
     ports:
       - "3333:3000"
       # - "${GRAFANA_PORT}:3000"

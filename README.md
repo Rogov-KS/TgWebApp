@@ -5,6 +5,8 @@
 
 Есть два способа:
 
+0. Теперь есть docker compose так что подойдёт команда `docker compose down && clear && docker compose up --build`
+
 1. Просто запустить `start_scripts/start_all_with_ngrok.sh`, находясь в корне (в папке `TgWebApp`)
 
 2. Более многоступенчатый:
