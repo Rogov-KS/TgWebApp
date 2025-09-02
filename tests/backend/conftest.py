@@ -18,6 +18,7 @@ from tests.backend.fixtures.database import (
 
 # Импортируем фикстуры для тестовых данных
 from tests.backend.fixtures.users import (
+    get_user_dao,
     get_user_data,
     get_multiple_users_data,
     insert_test_user,
@@ -25,6 +26,7 @@ from tests.backend.fixtures.users import (
 )
 
 from tests.backend.fixtures.game_sessions import (
+    get_game_session_dao,
     get_game_session_data,
     get_multiple_game_sessions_data,
     insert_test_game_session,

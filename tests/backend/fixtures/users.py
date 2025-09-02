@@ -3,9 +3,15 @@
 """
 import pytest
 import pytest_asyncio
-from backend.entities.user.dao import UserDAO
 from backend.entities.user.models import UserDB
+from backend.entities.user.dao import IUserDAO, UserDAO
 from sqlalchemy.ext.asyncio import AsyncSession
+
+
+@pytest.fixture
+def get_user_dao(get_async_test_db_session: AsyncSession) -> IUserDAO:
+    """Фикстура для получения DAO пользователя."""
+    return UserDAO(get_async_test_db_session)
 
 
 @pytest.fixture
@@ -50,23 +56,23 @@ def get_multiple_users_data() -> list[dict]:
 
 @pytest_asyncio.fixture
 async def insert_test_user(
-    get_async_test_db_session: AsyncSession, get_user_data: dict
+    get_user_dao: IUserDAO, get_user_data: dict
 ) -> UserDB:
     """Создает тестового пользователя в БД."""
 
-    dao = UserDAO(get_async_test_db_session)
+    dao = get_user_dao
     user = await dao.create(**get_user_data)
     return user
 
 
 @pytest_asyncio.fixture
 async def insert_test_users(
-    get_async_test_db_session: AsyncSession,
+    get_user_dao: IUserDAO,
     get_multiple_users_data: list[dict],
 ) -> list[UserDB]:
     """Создает несколько тестовых пользователей в БД."""
 
-    dao = UserDAO(get_async_test_db_session)
+    dao = get_user_dao
     users = []
     for user_data in get_multiple_users_data:
         user = await dao.create(**user_data)

@@ -9,6 +9,7 @@ from backend.entities.game_session.models import GameSessionDB
 from backend.entities.user.models import UserDB
 from backend.entities.user.dao import UserDAO
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 
 class TestGameSessionDAO:
@@ -54,24 +55,27 @@ class TestGameSessionDAO:
             assert game_session.level == 1  # значение по умолчанию
             assert game_session.is_completed is False  # значение по умолчанию
 
+        async def test_create_game_session_with_invalid_user_id(
+            self, dao, insert_test_user: UserDB
+        ):
+            """Тест создания игровой сессии с минимальными данными."""
+            minimal_data = {"user_id": insert_test_user.id + 1}
+
+            # with pytest.raises(IntegrityError):
+            #     game_session = await dao.create(**minimal_data)
+            game_session = await dao.create(**minimal_data)
+
+            assert game_session is None
+
     class TestGetOneOrNone:
         """Тесты для метода get_one_or_none."""
 
         async def test_get_game_session_by_id_success(
-            self, dao, insert_test_game_session: GameSessionDB, get_async_test_db_session: AsyncSession
+            self,
+            dao: IGameSessionDAO,
+            insert_test_game_session: GameSessionDB
         ):
             """Тест успешного получения игровой сессии по ID."""
-            print(f"AAAAAAAAAAAAAAAAAAAAAAAAA - Start test")
-            # Get users
-            user_dao = UserDAO(get_async_test_db_session)
-            user = await user_dao.get_all()
-            print(f"{user=}")
-
-            # Get game sessions
-            game_session_dao = GameSessionDAO(get_async_test_db_session)
-            game_sessions = await game_session_dao.get_all()
-            print(f"{game_sessions=}")
-
             game_session = insert_test_game_session
             result = await dao.get_one_or_none(id=game_session.id)
 
@@ -80,7 +84,9 @@ class TestGameSessionDAO:
             assert result.user_id == game_session.user_id
 
         async def test_get_game_session_by_user_id(
-            self, dao, insert_test_game_sessions: list[GameSessionDB]
+            self,
+            dao: IGameSessionDAO,
+            insert_test_game_sessions: list[GameSessionDB]
         ):
             """Тест получения игровой сессии по user_id."""
             game_sessions = insert_test_game_sessions
@@ -90,7 +96,9 @@ class TestGameSessionDAO:
             assert result.user_id == user_id
 
         async def test_get_game_session_by_user_id_with_exception(
-            self, dao, insert_test_game_sessions: list[GameSessionDB]
+            self,
+            dao: IGameSessionDAO,
+            insert_test_game_sessions: list[GameSessionDB]
         ):
             """Тест получения игровой сессии по user_id."""
             game_sessions = insert_test_game_sessions

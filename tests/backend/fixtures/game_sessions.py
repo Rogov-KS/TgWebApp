@@ -3,11 +3,16 @@
 """
 import pytest
 import pytest_asyncio
-from backend.entities.user.dao import UserDAO
-from backend.entities.game_session.dao import GameSessionDAO
+from backend.entities.game_session.dao import IGameSessionDAO, GameSessionDAO
 from backend.entities.game_session.models import GameSessionDB
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.entities.user.models import UserDB
+
+
+@pytest.fixture
+def get_game_session_dao(get_async_test_db_session: AsyncSession) -> IGameSessionDAO:
+    """Фикстура для получения DAO игровой сессии."""
+    return GameSessionDAO(get_async_test_db_session)
 
 
 @pytest.fixture
@@ -64,7 +69,7 @@ def get_multiple_game_sessions_data() -> list[dict]:
 
 @pytest_asyncio.fixture
 async def insert_test_game_session(
-    get_async_test_db_session: AsyncSession,
+    get_game_session_dao: IGameSessionDAO,
     insert_test_user: UserDB,
     get_game_session_data: dict,
 ) -> GameSessionDB:
@@ -72,7 +77,7 @@ async def insert_test_game_session(
     msg = "GameSession's user-id must be equal to User's id"
     assert insert_test_user.id == get_game_session_data["user_id"], msg
 
-    dao = GameSessionDAO(get_async_test_db_session)
+    dao = get_game_session_dao
     game_session = await dao.create(
         **get_game_session_data
     )
@@ -81,13 +86,13 @@ async def insert_test_game_session(
 
 @pytest_asyncio.fixture
 async def insert_test_game_sessions(
-    get_async_test_db_session: AsyncSession,
+    get_game_session_dao: IGameSessionDAO,
     insert_test_users: list[UserDB],
     get_multiple_game_sessions_data: list[dict],
 ) -> list[GameSessionDB]:
     """Создает несколько тестовых игровых сессий в БД."""
 
-    dao = GameSessionDAO(get_async_test_db_session)
+    dao = get_game_session_dao
     game_sessions = []
     for session_data in get_multiple_game_sessions_data:
         game_session = await dao.create(

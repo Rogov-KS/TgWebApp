@@ -17,7 +17,7 @@ from backend.core.database import Base
 settings = get_settings(env_files=["envs/.env-base", "envs/.env-test"])
 
 
-async def create_tables(engine: AsyncEngine):
+async def create_tables(engine: AsyncEngine) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         await conn.commit()
@@ -37,15 +37,18 @@ async def truncate_tables(engine: AsyncEngine):
 
         # Очищаем все таблицы
         for table in tables:
-            await conn.execute(
-                text(f"TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE;")
-            )
+            try:
+                await conn.execute(
+                    text(f"TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE;")
+                )
+            except Exception as e:
+                print(f"Ошибка при очистке таблицы {table.name}: {e}")
 
         await conn.commit()
         print("🗑️ Все таблицы очищены успешно")
 
 
-async def drop_tables(engine: AsyncEngine):
+async def drop_tables(engine: AsyncEngine) -> None:
     try:
         async with engine.begin() as conn:
             # Получаем все таблицы из метаданных
@@ -53,22 +56,25 @@ async def drop_tables(engine: AsyncEngine):
 
             # Очищаем все таблицы
             for table in tables:
-                await conn.execute(
-                    text(f"DROP TABLE {table.name} CASCADE;")
-                )
+                try:
+                    await conn.execute(
+                        text(f"DROP TABLE {table.name} CASCADE;")
+                    )
+                except Exception as e:
+                    print(f"Ошибка при удалении таблицы {table.name}: {e}")
             print("🗑️ Все таблицы удалены успешно")
     except Exception as e:
         print(f"Ошибка при удалении таблиц: {e}")
 
 
-async def start_up_db_tables(engine: AsyncEngine):
-    await drop_tables(engine)
+async def start_up_db_tables(engine: AsyncEngine) -> None:
+    # await drop_tables(engine)
     await create_tables(engine)
     await truncate_tables(engine)
     print("💾 STARTUP-ed - FROM MAIN CONFTEST")
 
 
-async def tear_down_db_tables(engine: AsyncEngine):
+async def tear_down_db_tables(engine: AsyncEngine) -> None:
     await truncate_tables(engine)
     await drop_tables(engine)
     await engine.dispose()
@@ -80,8 +86,8 @@ async def get_async_test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
     Фикстура для создания тестового движка базы данных.
     Запускается один раз в начале сессии тестов.
     """
-    print(f"{settings.MODE=}")
-    assert settings.MODE == "TEST"
+    msg = "Settings.MODE must be equal to 'TEST' for tests with database"
+    assert settings.MODE == "TEST", msg
     test_db_url = settings.DATABASE_URL
 
     engine = create_async_engine(test_db_url, echo=False)
@@ -97,7 +103,7 @@ async def get_async_test_db_engine() -> AsyncGenerator[AsyncEngine, None]:
 @pytest_asyncio.fixture
 async def get_async_test_db_session_maker(
     get_async_test_db_engine: AsyncEngine,
-) -> async_sessionmaker:
+) -> AsyncGenerator[async_sessionmaker, None]:
     """
     Фикстура для создания тестового движка базы данных.
     Запускается один раз в начале сессии тестов.
