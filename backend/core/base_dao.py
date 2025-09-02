@@ -129,10 +129,10 @@ class BaseDAO(Generic[ModelType]):
             await self.session.commit()
             return updated_record  # noqa
 
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             await self.session.rollback()
             msg = "Error updating record"
             logger.exception(
                 msg, extra={"table": self.model.__tablename__}, exc_info=True
             )
-            raise ValueError(msg) from e
+            raise

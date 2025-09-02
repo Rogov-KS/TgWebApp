@@ -103,7 +103,6 @@ class TestGameSessionDAO:
             with pytest.raises(MultipleResultsFound):
                 await dao.get_one_or_none(user_id=user_id)
 
-
     class TestGetAll:
         """Тесты для метода get_all."""
 
@@ -137,122 +136,122 @@ class TestGameSessionDAO:
             assert len(result) == 3
             assert all(session.is_completed is True for session in result)
 
-    # class TestUpdate:
-    #     """Тесты для метода update."""
+    class TestUpdate:
+        """Тесты для метода update."""
 
-    #     async def test_update_game_session_success(
-    #         self, dao, test_game_session
-    #     ):
-    #         """Тест успешного обновления игровой сессии."""
-    #         update_data = {
-    #             "score": 500,
-    #             "duration": 1200,
-    #             "level": 5,
-    #             "is_completed": True,
-    #         }
+        async def test_update_game_session_success(
+            self, dao, insert_test_game_session: GameSessionDB
+        ):
+            """Тест успешного обновления игровой сессии."""
+            update_data = {
+                "score": 500,
+                "duration": 1200,
+                "level": 5,
+                "is_completed": True,
+            }
 
-    #         result = await dao.update(
-    #             filters={"id": test_game_session.id},
-    #             update_data=update_data
-    #         )
+            result = await dao.update(
+                filters={"id": insert_test_game_session.id},
+                update_data=update_data
+            )
 
-    #         assert result is not None
-    #         assert result.score == update_data["score"]
-    #         assert result.duration == update_data["duration"]
-    #         assert result.level == update_data["level"]
-    #         assert result.is_completed == update_data["is_completed"]
+            assert result is not None
+            assert result.score == update_data["score"]
+            assert result.duration == update_data["duration"]
+            assert result.level == update_data["level"]
+            assert result.is_completed == update_data["is_completed"]
 
-    #     async def test_update_game_session_not_found(self, dao):
-    #         """Тест обновления несуществующей игровой сессии."""
-    #         update_data = {"score": 500}
+        async def test_update_game_session_not_found(self, dao, insert_test_game_session: GameSessionDB):
+            """Тест обновления несуществующей игровой сессии."""
+            update_data = {"score": 500}
 
-    #         result = await dao.update(
-    #             filters={"id": 99999},
-    #             update_data=update_data
-    #         )
+            result = await dao.update(
+                filters={"id": insert_test_game_session.id + 1},
+                update_data=update_data
+            )
 
-    #         assert result is None
+            assert result is None
 
-    #     async def test_update_game_session_empty_filters(self, dao):
-    #         """Тест обновления с пустыми фильтрами."""
-    #         update_data = {"score": 500}
+        async def test_update_game_session_empty_filters(self, dao, insert_test_game_session: GameSessionDB):
+            """Тест обновления с пустыми фильтрами."""
+            update_data = {"score": 500}
 
-    #         with pytest.raises(
-    #             ValueError, match="Filters and update data cannot be empty"
-    #         ):
-    #             await dao.update(filters={}, update_data=update_data)
+            with pytest.raises(
+                ValueError, match="Filters and update data cannot be empty"
+            ):
+                await dao.update(filters={}, update_data=update_data)
 
-    #     async def test_update_game_session_empty_data(self, dao, test_game_session):
-    #         """Тест обновления с пустыми данными."""
-    #         with pytest.raises(ValueError, match="Filters and update data cannot be empty"):
-    #             await dao.update(
-    #                 filters={"id": test_game_session.id},
-    #                 update_data={}
-    #             )
+        async def test_update_game_session_empty_data(self, dao, insert_test_game_session: GameSessionDB):
+            """Тест обновления с пустыми данными."""
+            with pytest.raises(ValueError, match="Filters and update data cannot be empty"):
+                await dao.update(
+                    filters={"id": insert_test_game_session.id},
+                    update_data={}
+                )
 
-    # class TestDelete:
-    #     """Тесты для метода delete."""
+    class TestDelete:
+        """Тесты для метода delete."""
 
-    #     async def test_delete_game_session_success(
-    #         self, dao, test_game_session
-    #     ):
-    #         """Тест успешного удаления игровой сессии."""
-    #         result = await dao.delete(id=test_game_session.id)
+        async def test_delete_game_session_success(
+            self, dao, insert_test_game_session: GameSessionDB
+        ):
+            """Тест успешного удаления игровой сессии."""
+            result = await dao.delete(id=insert_test_game_session.id)
 
-    #         assert result is True
+            assert result is True
 
-    #         # Проверяем, что сессия действительно удалена
-    #         deleted_session = await dao.get_one_or_none(id=test_game_session.id)
-    #         assert deleted_session is None
+            # Проверяем, что сессия действительно удалена
+            deleted_session = await dao.get_one_or_none(id=insert_test_game_session.id)
+            assert deleted_session is None
 
-    #     async def test_delete_game_session_not_found(self, dao):
-    #         """Тест удаления несуществующей игровой сессии."""
-    #         result = await dao.delete(id=99999)
+        async def test_delete_game_session_not_found(self, dao, insert_test_game_session: GameSessionDB):
+            """Тест удаления несуществующей игровой сессии."""
+            result = await dao.delete(id=insert_test_game_session.id + 1)
 
-    #         assert result is False
+            assert result is False
 
-    # class TestGetMaxScore:
-    #     """Тесты для специфичного метода get_max_score."""
+    class TestGetMaxScore:
+        """Тесты для специфичного метода get_max_score."""
 
-    #     async def test_get_max_score_success(self, dao, test_game_sessions):
-    #         """Тест успешного получения максимального счета."""
-    #         user_id = 1
-    #         result = await dao.get_max_score(user_id)
+        async def test_get_max_score_success(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+            """Тест успешного получения максимального счета."""
+            user_id = 1
+            result = await dao.get_max_score(user_id)
 
-    #         # В тестовых данных у пользователя с id=1 максимальный счет 250
-    #         assert result == 250
+            # В тестовых данных у пользователя с id=1 максимальный счет 250
+            assert result == 250
 
-    #     async def test_get_max_score_user_with_no_sessions(self, dao):
-    #         """Тест получения максимального счета для пользователя без сессий."""
-    #         user_id = 999
-    #         result = await dao.get_max_score(user_id)
+        async def test_get_max_score_user_with_no_sessions(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+            """Тест получения максимального счета для пользователя без сессий."""
+            user_id = 999
+            result = await dao.get_max_score(user_id)
 
-    #         assert result is None
+            assert result is None
 
-    #     async def test_get_max_score_invalid_user_id_zero(self, dao):
-    #         """Тест получения максимального счета с user_id = 0."""
-    #         with pytest.raises(
-    #             ValueError,
-    #             match="user_id должен быть положительным целым числом"
-    #         ):
-    #             await dao.get_max_score(0)
+        async def test_get_max_score_invalid_user_id_zero(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+            """Тест получения максимального счета с user_id = 0."""
+            with pytest.raises(
+                ValueError,
+                match="user_id должен быть положительным целым числом"
+            ):
+                await dao.get_max_score(0)
 
-    #     async def test_get_max_score_invalid_user_id_negative(self, dao):
-    #         """Тест получения максимального счета с отрицательным user_id."""
-    #         with pytest.raises(ValueError, match="user_id должен быть положительным целым числом"):
-    #             await dao.get_max_score(-1)
+        async def test_get_max_score_invalid_user_id_negative(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+            """Тест получения максимального счета с отрицательным user_id."""
+            with pytest.raises(ValueError, match="user_id должен быть положительным целым числом"):
+                await dao.get_max_score(-1)
 
-    #     async def test_get_max_score_invalid_user_id_type(self, dao):
-    #         """Тест получения максимального счета с неправильным типом user_id."""
-    #         with pytest.raises(ValueError, match="user_id должен быть положительным целым числом"):
-    #             await dao.get_max_score("invalid")
+        async def test_get_max_score_invalid_user_id_type(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+            """Тест получения максимального счета с неправильным типом user_id."""
+            with pytest.raises(ValueError, match="user_id должен быть положительным целым числом"):
+                await dao.get_max_score("invalid")
 
-    #     async def test_get_max_score_multiple_users(self, dao, test_game_sessions):
-    #         """Тест получения максимального счета для разных пользователей."""
-    #         # У пользователя с id=1 максимальный счет 250
-    #         max_score_user1 = await dao.get_max_score(1)
-    #         assert max_score_user1 == 250
+        async def test_get_max_score_multiple_users(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+            """Тест получения максимального счета для разных пользователей."""
+            # У пользователя с id=1 максимальный счет 250
+            max_score_user1 = await dao.get_max_score(1)
+            assert max_score_user1 == 250
 
-    #         # У пользователя с id=2 максимальный счет 300
-    #         max_score_user2 = await dao.get_max_score(2)
-    #         assert max_score_user2 == 300
+            # У пользователя с id=2 максимальный счет 300
+            max_score_user2 = await dao.get_max_score(2)
+            assert max_score_user2 == 300
