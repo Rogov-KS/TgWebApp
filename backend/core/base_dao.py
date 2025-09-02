@@ -73,7 +73,7 @@ class BaseDAO(Generic[ModelType]):
             logger.exception(
                 msg, extra={"table": self.model.__tablename__}, exc_info=True
             )
-            return None
+            raise
 
     async def delete(self, **filter_by) -> bool:
         """Удалить запись."""

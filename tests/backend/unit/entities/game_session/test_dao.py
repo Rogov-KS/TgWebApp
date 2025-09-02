@@ -61,11 +61,8 @@ class TestGameSessionDAO:
             """Тест создания игровой сессии с минимальными данными."""
             minimal_data = {"user_id": insert_test_user.id + 1}
 
-            # with pytest.raises(IntegrityError):
-            #     game_session = await dao.create(**minimal_data)
-            game_session = await dao.create(**minimal_data)
-
-            assert game_session is None
+            with pytest.raises(IntegrityError):
+                await dao.create(**minimal_data)
 
     class TestGetOneOrNone:
         """Тесты для метода get_one_or_none."""
