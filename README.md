@@ -14,3 +14,9 @@
     - Сначала запустить `ngrok start --all`
     - Потом обновить переменные `VITE_NGROK_FRONTEND_URL` и `VITE_NGROK_BACKEND_URL` в соотвествии с выходом ngrok (порт 8000 для бекенда, а порт 5173 для фронтенда)
     - А затем уже запустить `start_scripts/start_app.sh`, находясь в корне (в папке `TgWebApp`)
+
+
+
+P.S.:
+
+1). А ещё вот команда для нагрузки - `ab -k -c 5 -n 200 'http://localhost:9000/api/v1/prometheus/time_consumer'`

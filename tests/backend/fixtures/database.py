@@ -14,7 +14,7 @@ from backend.core.config import get_settings
 from backend.core.database import Base
 
 
-settings = get_settings(env_files=["envs/.env-base", "envs/.env-test"])
+settings = get_settings(env_files=["configs/envs/.env-base", "configs/envs/.env-test"])
 
 
 async def create_tables(engine: AsyncEngine) -> None:
