@@ -15,20 +15,20 @@ export function Footer() {
           </div>
 
           {/* Footer Links */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center gap-10">
             <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
               Политика конфиденциальности
             </a>
             <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
               Условия использования
             </a>
-            <a href="#" className="text-white/70 hover:text-white text-sm transition-colors mr-16">
+            <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
               Поддержка
             </a>
           </div>
 
           {/* Footer Social Icons */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-1">
             <a
               href="https://twitter.com"
               target="_blank"

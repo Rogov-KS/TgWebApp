@@ -19,24 +19,34 @@ export function Header() {
             <p className="text-gray-300 text-xs">Telegram Web App</p>
           </div>
 
-          {/* Navigation */}
-          <div className="hidden lg:flex items-center gap-10">
-            <a href="#" className="text-gray-200 hover:text-white transition-colors text-sm">
-              Играть
-            </a>
-            <button
-              onClick={handleLeaderboardClick}
-              className="text-gray-200 hover:text-white transition-colors text-sm"
-            >
-              Рейтинг
-            </button>
-            <a href="#" className="text-gray-200 hover:text-white transition-colors text-sm">
-              О нас
-            </a>
+          {/* Заголовок с иконкой профиля и кнопкой лидерборда */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '20px'
+          }}>
+            <h2 style={{ color: '#FFFFFF', margin: 0 }}>
+              Snake Game
+            </h2>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              {/* Кнопка лидерборда */}
+              <button
+                onClick={handleLeaderboardClick}
+                className="text-white border-white/20 hover:bg-white/10"
+              >
+                🏆 Лидеры
+              </button>
+            </div>
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             {/* Profile Icon - всегда в самой правой части */}
             <ProfileIcon onGuestPlay={() => {}} />
           </div>

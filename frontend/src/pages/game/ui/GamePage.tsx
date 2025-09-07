@@ -146,36 +146,6 @@ export const GamePage: React.FC = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      {/* Заголовок с иконкой профиля и кнопкой лидерборда */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px'
-      }}>
-        <h2 style={{ color: '#FFFFFF', margin: 0 }}>
-          Snake Game
-        </h2>
-
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          {/* Кнопка лидерборда */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLeaderboardOpen}
-            className="text-white border-white/20 hover:bg-white/10"
-          >
-            🏆 Лидеры
-          </Button>
-
-          {/* Иконка профиля */}
-          <ProfileIcon onGuestPlay={handleGuestPlay} />
-        </div>
-      </div>
 
       {/* Индикатор режима игры */}
       {isGuestMode && (
