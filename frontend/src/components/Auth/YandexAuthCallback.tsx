@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { yandexOAuthAPI } from '../../api/client';
+import { yandexOAuthAPI } from '../../shared/api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import './YandexAuthCallback.css';
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { googleOAuthAPI } from '../../api/client';
+import { googleOAuthAPI } from '../../shared/api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import './GoogleAuthCallback.css';
 

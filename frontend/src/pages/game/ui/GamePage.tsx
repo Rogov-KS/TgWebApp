@@ -4,17 +4,14 @@ import { GAME_CONFIG } from '../../../constants/game';
 import { LEVELS, getLevelById, getNextLevel, unlockLevel } from '../../../constants/levels';
 import { createSnake, createFood } from '../../../utils/gameEngine';
 import { GameBoard } from '../../../widgets/game-board';
-import { useHelloWorld } from '../../../api/hooks';
+import { useHelloWorld } from '../../../shared/api/hooks';
 import { useAuth } from '../../../features/auth';
-import { ProfileIcon } from '../../../features/auth';
-import { LeaderboardModal } from '../../../features/leaderboard';
 import { gameAPI } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui';
 
 export const GamePage: React.FC = () => {
   const [currentLevelId, setCurrentLevelId] = useState<string>('level-1');
-  const [isGuestMode, setIsGuestMode] = useState(false);
-  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [isGuestMode] = useState(false);
   const [guestBestScore, setGuestBestScore] = useState(() => {
     return parseInt(localStorage.getItem('guestBestScore') || '0');
   });
@@ -132,17 +129,6 @@ export const GamePage: React.FC = () => {
     });
   }, [currentLevelId, refetch, helloWorldData]);
 
-  const handleGuestPlay = useCallback(() => {
-    setIsGuestMode(true);
-  }, []);
-
-  const handleLeaderboardOpen = useCallback(() => {
-    setIsLeaderboardOpen(true);
-  }, []);
-
-  const handleLeaderboardClose = useCallback(() => {
-    setIsLeaderboardOpen(false);
-  }, []);
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
@@ -217,7 +203,7 @@ export const GamePage: React.FC = () => {
             fontSize: '12px'
           }}>
             API Status: {error ? 'Error' : isLoading ? 'Loading...' : 'Connected'}
-            {helloWorldData && <div style={{ fontSize: '10px', opacity: 0.8 }}>Response: {helloWorldData}</div>}
+            {helloWorldData && <div style={{ fontSize: '10px', opacity: 0.8 }}>Response: {helloWorldData.data}</div>}
           </div>
         </div>
       </div>
@@ -282,11 +268,6 @@ export const GamePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Модальное окно таблицы лидеров */}
-      <LeaderboardModal
-        isOpen={isLeaderboardOpen}
-        onClose={handleLeaderboardClose}
-      />
     </div>
   );
 };

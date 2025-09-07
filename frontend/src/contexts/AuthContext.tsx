@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useRef, useCallback } from 'react';
-import { authAPI, leaderboardAPI } from '../api/client';
-import type { User, UserAuth, UserLogin, AuthState } from '../types/auth';
+import { authAPI, leaderboardAPI } from '../shared/api/client';
+import type { User, UserAuth, UserLogin, AuthState } from '../shared/types/auth';
 
 // Типы действий
 type AuthAction =
