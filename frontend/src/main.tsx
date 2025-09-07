@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { HeaderFooter } from './components/Layout/HeaderFooter'
 import './index.css'
 
 const rootElement = document.getElementById('root')
@@ -7,15 +8,8 @@ if (!rootElement) throw new Error('Failed to find the root element')
 
 createRoot(rootElement).render(
   <StrictMode>
-    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-red-600 to-yellow-600 flex items-center justify-center p-4">
-      {/* Простые декоративные элементы */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-orange-300 to-red-400 rounded-full opacity-20 animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-24 h-24 bg-gradient-to-r from-red-400 to-yellow-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
-      <div className="absolute top-1/2 left-5 w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full opacity-15 animate-bounce"></div>
-      <div className="absolute top-1/3 right-5 w-20 h-20 bg-gradient-to-r from-orange-400 to-red-400 rounded-full opacity-15 animate-bounce delay-500"></div>
-
-      {/* Центральный блок */}
-      <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center relative z-10 border border-white/20">
+    <HeaderFooter>
+      <div tag="body" className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center relative z-10 border border-white/20">
         <div className="mb-6">
           <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-full mx-auto mb-4 flex items-center justify-center">
             <span className="text-white text-2xl font-bold">T</span>
@@ -50,6 +44,6 @@ createRoot(rootElement).render(
           Готово к разработке! 🚀
         </div>
       </div>
-    </div>
+    </HeaderFooter>
   </StrictMode>
 )
