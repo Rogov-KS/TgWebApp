@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from './AuthProvider';
-import { useModal, ModalType } from '../../../contexts/ModalContext';
+import { useModal, ModalType } from '../../../shared/lib/contexts/ModalContext';
 import { AuthModal } from './AuthModal';
 import './ProfileIcon.css';
 

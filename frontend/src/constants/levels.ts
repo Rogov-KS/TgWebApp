@@ -1,4 +1,4 @@
-import { Level, Obstacle } from '../shared/types/game';
+import { Level } from '../shared/types/game';
 
 export const LEVELS: Level[] = [
   {

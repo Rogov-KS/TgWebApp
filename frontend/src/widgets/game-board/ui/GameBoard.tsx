@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { GameState, Direction } from '../../../shared/types';
 import { GAME_CONFIG, COLORS, FOOD_TYPES, OBSTACLE_TYPES } from '../../../constants/game';
-import { useGameLoop } from '../../../hooks/useGameLoop';
-import { useInput } from '../../../hooks/useInput';
+import { useGameLoop } from '../../../shared/lib/hooks/useGameLoop';
+import { useInput } from '../../../shared/lib/hooks/useInput';
 import {
   moveSnake,
   growSnake,
@@ -12,7 +12,7 @@ import {
   isValidDirection,
   updateGameSpeed,
   calculateScore,
-} from '../../../utils/gameEngine';
+} from '../../../shared/lib/utils/gameEngine';
 
 interface GameBoardProps {
   gameState: GameState;

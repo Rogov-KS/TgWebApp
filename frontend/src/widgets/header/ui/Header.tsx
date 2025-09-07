@@ -1,5 +1,4 @@
-import { useModal } from '../../../contexts/ModalContext';
-import { ModalType } from '../../../contexts/ModalContext';
+import { useModal, ModalType } from '../../../shared/lib/contexts/ModalContext';
 import { ProfileIcon } from '../../../features/auth/ui/ProfileIcon';
 
 export function Header() {

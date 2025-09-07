@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { yandexOAuthAPI } from '../../shared/api/client';
-import { useAuth } from '../../contexts/AuthContext';
+import { yandexOAuthAPI } from '../../../../shared/api/client';
+import { useAuth } from '../../../../shared/lib/contexts/AuthContext';
 import './YandexAuthCallback.css';
 
 export function YandexAuthCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const hasProcessedRef = useRef(false);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { leaderboardAPI } from '../../../shared/api/client';
-import { useModal, ModalType } from '../../../contexts/ModalContext';
+import { useModal, ModalType } from '../../../shared/lib/contexts/ModalContext';
 import { Modal, Button } from '../../../shared/ui';
 import type { LeaderboardEntry } from '../../../shared/types';
 import './LeaderboardModal.css';

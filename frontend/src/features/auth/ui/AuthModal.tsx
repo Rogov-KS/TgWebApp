@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthProvider';
-import { useModal, ModalType } from '../../../contexts/ModalContext';
+import { useModal, ModalType } from '../../../shared/lib/contexts/ModalContext';
 import { GoogleAuthButton } from './GoogleAuthButton';
 import { YandexAuthButton } from './YandexAuthButton';
 import { Modal, Input, Button } from '../../../shared/ui';

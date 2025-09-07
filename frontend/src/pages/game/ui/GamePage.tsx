@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { GameState } from '../../../shared/types';
 import { GAME_CONFIG } from '../../../constants/game';
 import { LEVELS, getLevelById, getNextLevel, unlockLevel } from '../../../constants/levels';
-import { createSnake, createFood } from '../../../utils/gameEngine';
+import { createSnake, createFood } from '../../../shared/lib/utils/gameEngine';
 import { GameBoard } from '../../../widgets/game-board';
 import { useHelloWorld } from '../../../shared/api/hooks';
 import { useAuth } from '../../../features/auth';
