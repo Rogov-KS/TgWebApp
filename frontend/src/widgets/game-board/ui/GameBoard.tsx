@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { GameState, Direction } from '../../../shared/types';
 import { GAME_CONFIG, COLORS, FOOD_TYPES, OBSTACLE_TYPES } from '../../../constants/game';
-import { useGameLoop } from '../../../shared/lib/hooks/useGameLoop';
-import { useInput } from '../../../shared/lib/hooks/useInput';
+import { useGameLoop, useInput } from '../../../shared/api/hooks';
 import {
   moveSnake,
   growSnake,

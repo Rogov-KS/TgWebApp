@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { googleOAuthAPI } from '../../../../shared/api/client';
-import { useAuth } from '../../../../shared/lib/contexts/AuthContext';
+import { useAuth } from '../../../../shared/api/hooks';
 import './GoogleAuthCallback.css';
 
 export function GoogleAuthCallback() {

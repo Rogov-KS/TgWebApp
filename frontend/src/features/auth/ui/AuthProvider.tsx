@@ -1,2 +1,3 @@
-// Re-export AuthProvider and useAuth from shared/lib
-export { AuthProvider, useAuth } from '../../../shared/lib/contexts/AuthContext';
+// Re-export AuthProvider from shared/lib and useAuth from shared/api
+export { AuthProvider } from '../../../shared/lib/contexts/AuthContext';
+export { useAuth } from '../../../shared/api/hooks';
