@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { authAPI } from './client';
+import { authAPI } from '../shared/api/client';
 
 // Ключи для кэширования
 export const queryKeys = {

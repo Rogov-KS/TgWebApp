@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { GameState } from '../types/game';
+import { GameState } from '../shared/types';
 
 interface UseGameLoopProps {
   gameState: GameState;

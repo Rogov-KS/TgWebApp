@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 export enum ModalType {
   NONE = 'NONE',
@@ -10,6 +10,8 @@ interface ModalContextType {
   currentModal: ModalType;
   setCurrentModal: (modal: ModalType) => void;
   isAnyModalOpen: boolean;
+  openModal: (modal: ModalType) => void;
+  closeModal: () => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -23,11 +25,21 @@ export function ModalProvider({ children }: ModalProviderProps) {
 
   const isAnyModalOpen = currentModal !== ModalType.NONE;
 
+  const openModal = (modal: ModalType) => {
+    setCurrentModal(modal);
+  };
+
+  const closeModal = () => {
+    setCurrentModal(ModalType.NONE);
+  };
+
   return (
     <ModalContext.Provider value={{
       currentModal,
       setCurrentModal,
-      isAnyModalOpen
+      isAnyModalOpen,
+      openModal,
+      closeModal
     }}>
       {children}
     </ModalContext.Provider>

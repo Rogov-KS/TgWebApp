@@ -1,4 +1,4 @@
-import { GameConfig, FoodType, ObstacleType } from '../types/game';
+import { GameConfig, FoodType, ObstacleType } from '../shared/types';
 
 export const GAME_CONFIG: GameConfig = {
   gridSize: 20,

@@ -6,14 +6,14 @@ interface LayoutProps {
 
 export const HeaderFooter: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-500 via-red-600 to-yellow-600">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700">
       {/* Header */}
       <header className="bg-black/20 backdrop-blur-sm border-b border-white/10 relative z-20">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-xl font-bold">S</span>
               </div>
               <div>

@@ -1,0 +1,16 @@
+.google-auth-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.google-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.google-btn-text {
+  font-weight: 500;
+}

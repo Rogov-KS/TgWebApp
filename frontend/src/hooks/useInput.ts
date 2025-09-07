@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { Direction } from '../types/game';
+import { Direction } from '../shared/types';
 import { KEYS } from '../constants/game';
 import { useModal } from '../contexts/ModalContext';
 

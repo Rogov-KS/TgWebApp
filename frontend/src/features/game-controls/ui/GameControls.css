@@ -1,0 +1,40 @@
+.game-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.game-controls-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.game-controls-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.game-controls-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .game-controls {
+    padding: 0.5rem;
+  }
+
+  .game-controls-row {
+    gap: 0.25rem;
+  }
+
+  .game-controls-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+}

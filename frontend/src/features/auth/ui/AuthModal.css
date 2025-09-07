@@ -1,0 +1,92 @@
+.auth-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.auth-mode-toggle {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  align-self: flex-start;
+  padding: 0;
+}
+
+.auth-mode-toggle:hover {
+  color: #2563eb;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.auth-divider {
+  position: relative;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.auth-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.auth-divider span {
+  background-color: white;
+  padding: 0 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.auth-actions {
+  margin-top: 0.5rem;
+}
+
+.auth-submit-btn {
+  width: 100%;
+}
+
+.auth-error {
+  color: #ef4444;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+}
+
+.auth-guest-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.auth-guest-btn {
+  width: 100%;
+}
+
+.auth-guest-note {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+}

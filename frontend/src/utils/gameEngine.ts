@@ -1,4 +1,4 @@
-import { Position, Direction, Snake, Food, Obstacle, GameState } from '../types/game';
+import { Position, Direction, Snake, Food, Obstacle, GameState } from '../shared/types';
 import { GAME_CONFIG, FOOD_TYPES, INITIAL_SNAKE_POSITION, INITIAL_DIRECTION } from '../constants/game';
 
 export const createSnake = (): Snake => ({
