@@ -19,21 +19,12 @@ export function Header() {
           </div>
 
           {/* Заголовок с иконкой профиля и кнопкой лидерборда */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '20px'
-          }}>
-            <h2 style={{ color: '#FFFFFF', margin: 0 }}>
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="text-white m-0">
               Snake Game
             </h2>
 
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
+            <div className="flex items-center gap-3">
               {/* Кнопка лидерборда */}
               <button
                 onClick={handleLeaderboardClick}

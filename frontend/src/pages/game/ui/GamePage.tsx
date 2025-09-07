@@ -131,34 +131,20 @@ export const GamePage: React.FC = () => {
 
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="p-5 max-w-4xl mx-auto">
 
       {/* Индикатор режима игры */}
       {isGuestMode && (
-        <div style={{
-          backgroundColor: '#ff9800',
-          color: 'white',
-          padding: '8px 16px',
-          borderRadius: '8px',
-          marginBottom: '16px',
-          textAlign: 'center',
-          fontSize: '14px'
-        }}>
+        <div className="bg-orange-500 text-white px-4 py-2 rounded-lg mb-4 text-center text-sm">
           🎮 Гостевой режим - результаты не сохраняются в БД
           <br />
           Лучший результат: {guestBestScore} очков
         </div>
       )}
 
-      <div style={{ marginBottom: '20px' }}>
+      <div className="mb-5">
         {/* Выбор уровня */}
-        <div style={{
-          display: 'flex',
-          gap: '10px',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          marginBottom: '20px'
-        }}>
+        <div className="flex gap-2.5 flex-wrap justify-center mb-5">
           {LEVELS.map(level => (
             <Button
               key={level.id}
@@ -175,35 +161,24 @@ export const GamePage: React.FC = () => {
         </div>
 
         {/* Информация о текущем уровне */}
-        <div style={{
-          textAlign: 'center',
-          color: '#FFFFFF',
-          marginBottom: '20px',
-          padding: '10px',
-          backgroundColor: '#2a2a2a',
-          borderRadius: '8px'
-        }}>
+        <div className="text-center text-white mb-5 p-2.5 bg-gray-800 rounded-lg">
           <div>Уровень: {gameState.level.name}</div>
           <div>Цель: {gameState.level.maxScore} очков</div>
           <div>Скорость: {Math.round(1000 / gameState.gameSpeed)} FPS</div>
 
           {/* Информация о рекордах */}
           {isAuthenticated && user && (
-            <div style={{ marginTop: '8px', color: '#4caf50' }}>
+            <div className="mt-2 text-green-500">
               Ваш рекорд: {user.max_score} очков
             </div>
           )}
 
           {/* Индикатор состояния API */}
-          <div style={{
-            marginTop: '10px',
-            padding: '5px',
-            borderRadius: '4px',
-            backgroundColor: error ? '#f44336' : isLoading ? '#ff9800' : '#4caf50',
-            fontSize: '12px'
-          }}>
+          <div className={`mt-2.5 p-1.5 rounded text-xs ${
+            error ? 'bg-red-500' : isLoading ? 'bg-orange-500' : 'bg-green-500'
+          }`}>
             API Status: {error ? 'Error' : isLoading ? 'Loading...' : 'Connected'}
-            {helloWorldData && <div style={{ fontSize: '10px', opacity: 0.8 }}>Response: {helloWorldData.data}</div>}
+            {helloWorldData && <div className="text-xs opacity-80">Response: {helloWorldData.data}</div>}
           </div>
         </div>
       </div>
@@ -216,13 +191,7 @@ export const GamePage: React.FC = () => {
       />
 
       {/* Кнопки управления */}
-      <div style={{
-        textAlign: 'center',
-        marginTop: '20px',
-        display: 'flex',
-        gap: '10px',
-        justifyContent: 'center'
-      }}>
+      <div className="text-center mt-5 flex gap-2.5 justify-center">
         <Button
           variant="danger"
           size="md"
@@ -241,18 +210,12 @@ export const GamePage: React.FC = () => {
       </div>
 
       {/* Инструкции */}
-      <div style={{
-        marginTop: '30px',
-        padding: '15px',
-        backgroundColor: '#2a2a2a',
-        borderRadius: '8px',
-        color: '#CCCCCC'
-      }}>
-        <h3 style={{ color: '#FFFFFF', marginBottom: '10px' }}>Управление:</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div className="mt-8 p-4 bg-gray-800 rounded-lg text-gray-300">
+        <h3 className="text-white mb-2.5">Управление:</h3>
+        <div className="grid grid-cols-2 gap-2.5">
           <div>
             <strong>Клавиатура:</strong>
-            <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+            <ul className="my-1 pl-5">
               <li>Стрелки или WASD - движение</li>
               <li>Пробел или P - пауза</li>
               <li>R - рестарт</li>
@@ -260,7 +223,7 @@ export const GamePage: React.FC = () => {
           </div>
           <div>
             <strong>Мобильные:</strong>
-            <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+            <ul className="my-1 pl-5">
               <li>Свайпы - движение</li>
               <li>Кнопки на экране</li>
             </ul>

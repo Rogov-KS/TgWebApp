@@ -218,17 +218,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   }, [render]);
 
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div className="text-center">
       <canvas
         ref={canvasRef}
-        style={{
-          border: `2px solid ${COLORS.border}`,
-          borderRadius: '8px',
-          maxWidth: '100%',
-          height: 'auto',
-        }}
+        className="border-2 border-gray-700 rounded-lg max-w-full h-auto"
       />
-      <div style={{ marginTop: '10px', color: COLORS.text }}>
+      <div className="mt-2.5 text-white">
         <div>Счет: {gameState.score}</div>
         <div>Скорость: {Math.round(1000 / gameState.gameSpeed)} FPS</div>
         {gameState.isPaused && <div>ПАУЗА</div>}
