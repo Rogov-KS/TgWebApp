@@ -7,10 +7,17 @@ if (!rootElement) throw new Error('Failed to find the root element')
 
 createRoot(rootElement).render(
   <StrictMode>
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-red-600 to-yellow-600 flex items-center justify-center p-4">
+      {/* Простые декоративные элементы */}
+      <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-orange-300 to-red-400 rounded-full opacity-20 animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-24 h-24 bg-gradient-to-r from-red-400 to-yellow-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
+      <div className="absolute top-1/2 left-5 w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full opacity-15 animate-bounce"></div>
+      <div className="absolute top-1/3 right-5 w-20 h-20 bg-gradient-to-r from-orange-400 to-red-400 rounded-full opacity-15 animate-bounce delay-500"></div>
+
+      {/* Центральный блок */}
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center relative z-10 border border-white/20">
         <div className="mb-6">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-full mx-auto mb-4 flex items-center justify-center">
             <span className="text-white text-2xl font-bold">T</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -22,18 +29,18 @@ createRoot(rootElement).render(
         </div>
 
         <div className="space-y-4">
-          <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+          <button className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
             Начать работу
           </button>
 
-          <div className="flex space-x-2">
-            <div className="flex-1 bg-green-100 text-green-800 py-2 px-4 rounded-lg text-sm font-medium">
+          <div className="flex flex-wrap gap-2 justify-center">
+            <div className="bg-green-100 text-green-800 py-2 px-4 rounded-lg text-sm font-medium">
               ✅ Vite
             </div>
-            <div className="flex-1 bg-blue-100 text-blue-800 py-2 px-4 rounded-lg text-sm font-medium">
+            <div className="bg-blue-100 text-blue-800 py-2 px-4 rounded-lg text-sm font-medium">
               ✅ React
             </div>
-            <div className="flex-1 bg-purple-100 text-purple-800 py-2 px-4 rounded-lg text-sm font-medium">
+            <div className="bg-purple-100 text-purple-800 py-2 px-4 rounded-lg text-sm font-medium">
               ✅ Tailwind
             </div>
           </div>
@@ -44,5 +51,5 @@ createRoot(rootElement).render(
         </div>
       </div>
     </div>
-  </StrictMode>,
+  </StrictMode>
 )
