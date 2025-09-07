@@ -22,7 +22,7 @@ export function Footer() {
             <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
               Условия использования
             </a>
-            <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
+            <a href="#" className="text-white/70 hover:text-white text-sm transition-colors mr-16">
               Поддержка
             </a>
           </div>
