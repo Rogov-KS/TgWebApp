@@ -9,12 +9,7 @@ export function Header() {
   };
 
   return (
-    <header className="bg-black/20 backdrop-blur-sm border-b border-white/10 relative z-20">
-      <meta charset="UTF-8" />
-      <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Telegram Web App</title>
-
+    <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 border-b border-white/10 relative z-20">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -47,6 +42,6 @@ export function Header() {
           </div>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

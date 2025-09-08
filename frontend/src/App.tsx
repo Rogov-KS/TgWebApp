@@ -9,23 +9,25 @@ import { Footer } from './widgets/footer';
 function App() {
   return (
     <AppProviders>
-      <header>
-        <Header />
-      </header>
-
       <Router>
-        <main className="App">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/auth/google" element={<GoogleAuthCallback />} />
-            <Route path="/auth/yandex" element={<YandexAuthCallback />} />
-          </Routes>
-        </main>
-      </Router>
+        <div className="min-h-screen flex flex-col">
+          <header>
+            <Header />
+          </header>
 
-      <footer>
-        <Footer />
-      </footer>
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/auth/google" element={<GoogleAuthCallback />} />
+              <Route path="/auth/yandex" element={<YandexAuthCallback />} />
+            </Routes>
+          </main>
+
+          <footer>
+            <Footer />
+          </footer>
+        </div>
+      </Router>
     </AppProviders>
   );
 }
