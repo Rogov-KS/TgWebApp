@@ -1,0 +1,45 @@
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: var(--shadow-primary);
+  border: 1px solid var(--border-primary);
+}
+
+.theme-toggle:hover {
+  background: var(--bg-tertiary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-secondary);
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
+}
+
+.theme-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.theme-toggle:hover .theme-toggle-icon {
+  transform: scale(1.1);
+}
+
+/* Анимация для переключения иконок */
+.theme-toggle-icon svg {
+  transition: all 0.3s ease-in-out;
+}
+
+.theme-toggle:hover .theme-toggle-icon svg {
+  filter: drop-shadow(0 0 4px currentColor);
+}

@@ -220,7 +220,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     <div className="text-center">
       <canvas
         ref={canvasRef}
-        className="border-2 border-gray-700 rounded-lg max-w-full h-auto"
+        className="border-2 border-gray-700 dark:border-gray-600 rounded-lg max-w-full h-auto"
       />
       <div className="mt-2.5 text-white">
         <div>Счет: {gameState.score}</div>

@@ -1,7 +1,7 @@
 
 export function Footer() {
   return (
-    <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 border-t border-white/10 relative z-20">
+    <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 dark:from-blue-600 dark:via-blue-700 dark:to-blue-800 border-t border-white/10 dark:border-white/20 relative z-20">
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
           {/* Copyright */}

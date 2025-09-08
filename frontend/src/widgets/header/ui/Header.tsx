@@ -1,5 +1,6 @@
 import { useModal, ModalType } from '../../../shared/lib/contexts/ModalContext';
 import { ProfileIcon } from '../../../features/auth/ui/ProfileIcon';
+import { ThemeToggle } from '../../../shared/ui';
 
 export function Header() {
   const { openModal } = useModal();
@@ -9,7 +10,7 @@ export function Header() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 border-b border-white/10 relative z-20">
+    <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 dark:from-blue-600 dark:via-blue-700 dark:to-blue-800 border-b border-white/10 dark:border-white/20 relative z-20">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -36,7 +37,10 @@ export function Header() {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Profile Icon - всегда в самой правой части */}
             <ProfileIcon onGuestPlay={() => {}} />
           </div>

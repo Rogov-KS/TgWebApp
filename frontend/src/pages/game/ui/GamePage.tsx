@@ -161,7 +161,7 @@ export const GamePage: React.FC = () => {
         </div>
 
         {/* Информация о текущем уровне */}
-        <div className="text-center text-white mb-5 p-2.5 bg-gray-800 rounded-lg">
+        <div className="text-center text-white mb-5 p-2.5 bg-gray-800 dark:bg-gray-900 rounded-lg border border-gray-700 dark:border-gray-600">
           <div>Уровень: {gameState.level.name}</div>
           <div>Цель: {gameState.level.maxScore} очков</div>
           <div>Скорость: {Math.round(1000 / gameState.gameSpeed)} FPS</div>
@@ -210,7 +210,7 @@ export const GamePage: React.FC = () => {
       </div>
 
       {/* Инструкции */}
-      <div className="mt-8 p-4 bg-gray-800 rounded-lg text-gray-300">
+      <div className="mt-8 p-4 bg-gray-800 dark:bg-gray-900 rounded-lg text-gray-300 dark:text-gray-400 border border-gray-700 dark:border-gray-600">
         <h3 className="text-white mb-2.5">Управление:</h3>
         <div className="grid grid-cols-2 gap-2.5">
           <div>
