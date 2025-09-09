@@ -9,3 +9,4 @@ export { Modal } from './modal';
 export type { ModalProps } from './modal';
 
 export { ThemeToggle } from './theme-toggle';
+export { ThemeDropdown } from './theme-dropdown';

@@ -1,6 +1,6 @@
 import { useModal, ModalType } from '../../../shared/lib/contexts/ModalContext';
 import { ProfileIcon } from '../../../features/auth/ui/ProfileIcon';
-import { ThemeToggle } from '../../../shared/ui';
+import { ThemeDropdown } from '../../../shared/ui';
 
 export function Header() {
   const { openModal } = useModal();
@@ -38,8 +38,8 @@ export function Header() {
 
           {/* Right Section */}
           <div className="flex items-center gap-3">
-            {/* Theme Toggle */}
-            <ThemeToggle />
+            {/* Theme Dropdown */}
+            <ThemeDropdown />
 
             {/* Profile Icon - всегда в самой правой части */}
             <ProfileIcon onGuestPlay={() => {}} />

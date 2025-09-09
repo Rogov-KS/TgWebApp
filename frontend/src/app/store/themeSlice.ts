@@ -15,6 +15,7 @@ const getSystemTheme = (): boolean => {
   return false;
 };
 
+
 // Функция для получения сохраненной темы из localStorage
 const getStoredTheme = (): Theme => {
   if (typeof window !== 'undefined') {
@@ -86,9 +87,39 @@ const themeSlice = createSlice({
       } else {
         root.classList.remove('dark');
       }
+
+      // Логируем инициализацию темы
+      console.log('🚀 Тема инициализирована:', {
+        selectedTheme: state.currentTheme,
+        appliedTheme: state.isDark ? 'Темная' : 'Светлая',
+        systemTheme: state.currentTheme === 'system' ? (getSystemTheme() ? 'dark' : 'light') : 'N/A',
+        timestamp: new Date().toLocaleTimeString()
+      });
+    },
+    updateSystemTheme: (state) => {
+      // Обновление темы при изменении системных настроек
+      if (state.currentTheme === 'system') {
+        const newSystemTheme = getSystemTheme();
+        state.isDark = newSystemTheme;
+
+        const root = document.documentElement;
+        if (state.isDark) {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+
+        // Логируем изменение системной темы
+        console.log('🔄 Системная тема изменилась:', {
+          previousTheme: !newSystemTheme ? 'light' : 'dark',
+          newTheme: newSystemTheme ? 'dark' : 'light',
+          appliedTheme: newSystemTheme ? 'Темная' : 'Светлая',
+          timestamp: new Date().toLocaleTimeString()
+        });
+      }
     },
   },
 });
 
-export const { setTheme, toggleTheme, initializeTheme } = themeSlice.actions;
+export const { setTheme, toggleTheme, initializeTheme, updateSystemTheme } = themeSlice.actions;
 export default themeSlice.reducer;
