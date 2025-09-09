@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthProvider';
 import { useModal, ModalType } from '../../../shared/lib/contexts/ModalContext';
+import { useTelegramAuth } from '../../../shared/lib/hooks/useTelegramAuth';
 import { GoogleAuthButton } from './GoogleAuthButton';
 import { YandexAuthButton } from './YandexAuthButton';
+import { TelegramAuthButton } from './TelegramAuthButton';
 import { Modal, Input, Button } from '../../../shared/ui';
 import type { UserAuth, UserLogin } from '../../../shared/types';
 import './AuthModal.css';
@@ -16,6 +18,7 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
   const { login, register, isLoading, error, clearError } = useAuth();
   const { setCurrentModal } = useModal();
+  const { isTelegramEnvironment } = useTelegramAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState<UserAuth>({
     username: '',
@@ -46,7 +49,7 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -56,10 +59,20 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
     setIsLogin(!isLogin);
     clearError();
     // При переключении режима очищаем только пароль, остальные поля оставляем
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       password: '',
     }));
+  };
+
+  const handleTelegramAuthSuccess = () => {
+    console.log('✅ Telegram authentication successful in AuthModal');
+    onClose();
+  };
+
+  const handleTelegramAuthError = (error: string) => {
+    console.error('❌ Telegram authentication error in AuthModal:', error);
+    // Можно добавить уведомление пользователю или показать ошибку в UI
   };
 
   // Уведомляем контекст о состоянии модального окна
@@ -77,16 +90,24 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
       size="md"
     >
       <div className="auth-modal-content">
-        <button
-          className="auth-mode-toggle"
-          onClick={handleModeToggle}
-        >
+        <button className="auth-mode-toggle" onClick={handleModeToggle}>
           {isLogin ? 'Создать аккаунт' : 'Уже есть аккаунт?'}
         </button>
 
         <form onSubmit={handleSubmit} className="auth-form">
           {/* OAuth кнопки */}
           <div className="oauth-buttons">
+            {/* Кнопка Telegram авторизации (показываем только если в Telegram среде) */}
+            {isTelegramEnvironment() && (
+              <TelegramAuthButton
+                variant="primary"
+                size="md"
+                onSuccess={handleTelegramAuthSuccess}
+                onError={handleTelegramAuthError}
+                className="auth-modal-telegram-btn"
+              />
+            )}
+
             <GoogleAuthButton
               onError={(error) => {
                 console.error('Google OAuth error:', error);
@@ -115,9 +136,17 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
                 const value = e.target.value;
                 // Определяем, что ввел пользователь - email или username
                 if (value.includes('@')) {
-                  setFormData(prev => ({ ...prev, email: value, username: '' }));
+                  setFormData((prev) => ({
+                    ...prev,
+                    email: value,
+                    username: '',
+                  }));
                 } else {
-                  setFormData(prev => ({ ...prev, username: value, email: '' }));
+                  setFormData((prev) => ({
+                    ...prev,
+                    username: value,
+                    email: '',
+                  }));
                 }
               }}
               required
@@ -158,11 +187,7 @@ export function AuthModal({ isOpen, onClose, onGuestPlay }: AuthModalProps) {
             placeholder="Введите пароль"
           />
 
-          {error && (
-            <div className="auth-error">
-              {error}
-            </div>
-          )}
+          {error && <div className="auth-error">{error}</div>}
 
           <div className="auth-actions">
             <Button

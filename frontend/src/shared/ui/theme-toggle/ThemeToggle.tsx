@@ -14,8 +14,12 @@ export function ThemeToggle() {
     <button
       onClick={handleToggle}
       className="theme-toggle"
-      aria-label={isDark ? 'Переключить на светлую тему' : 'Переключить на темную тему'}
-      title={isDark ? 'Переключить на светлую тему' : 'Переключить на темную тему'}
+      aria-label={
+        isDark ? 'Переключить на светлую тему' : 'Переключить на темную тему'
+      }
+      title={
+        isDark ? 'Переключить на светлую тему' : 'Переключить на темную тему'
+      }
     >
       <div className="theme-toggle-icon">
         {isDark ? (

@@ -31,6 +31,17 @@
   gap: 0.75rem;
 }
 
+/* Telegram кнопка в модальном окне */
+.auth-modal-telegram-btn {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.auth-modal-telegram-btn .telegram-auth-button-content {
+  justify-content: center;
+  font-weight: 500;
+}
+
 .auth-divider {
   position: relative;
   text-align: center;

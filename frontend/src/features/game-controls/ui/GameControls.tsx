@@ -14,7 +14,7 @@ export function GameControls({
   onPause,
   onRestart,
   isPaused,
-  isGameOver
+  isGameOver,
 }: GameControlsProps) {
   const handleKeyPress = (direction: Direction) => {
     onDirectionChange(direction);
@@ -70,11 +70,7 @@ export function GameControls({
           {isPaused ? 'Продолжить' : 'Пауза'}
         </Button>
 
-        <Button
-          variant="danger"
-          size="md"
-          onClick={onRestart}
-        >
+        <Button variant="danger" size="md" onClick={onRestart}>
           Перезапуск
         </Button>
       </div>

@@ -9,7 +9,10 @@ export const GAME_CONFIG: GameConfig = {
   canvasHeight: 400,
 };
 
-export const FOOD_TYPES: Record<FoodType, { value: number; color: string; probability: number }> = {
+export const FOOD_TYPES: Record<
+  FoodType,
+  { value: number; color: string; probability: number }
+> = {
   normal: { value: 10, color: '#4CAF50', probability: 0.7 },
   golden: { value: 50, color: '#FFD700', probability: 0.15 },
   speed: { value: 20, color: '#FF5722', probability: 0.1 },
@@ -17,7 +20,10 @@ export const FOOD_TYPES: Record<FoodType, { value: number; color: string; probab
   bonus: { value: 100, color: '#E91E63', probability: 0.02 },
 };
 
-export const OBSTACLE_TYPES: Record<ObstacleType, { color: string; isSolid: boolean }> = {
+export const OBSTACLE_TYPES: Record<
+  ObstacleType,
+  { color: string; isSolid: boolean }
+> = {
   wall: { color: '#795548', isSolid: true },
   maze: { color: '#607D8B', isSolid: true },
   moving: { color: '#FF9800', isSolid: true },

@@ -52,9 +52,7 @@ export function AppProviders({ children }: AppProvidersProps) {
       <QueryClientProvider client={queryClient}>
         <ThemeInitializer>
           <AuthProvider>
-            <ModalProvider>
-              {children}
-            </ModalProvider>
+            <ModalProvider>{children}</ModalProvider>
           </AuthProvider>
         </ThemeInitializer>
         <ReactQueryDevtools initialIsOpen={false} />

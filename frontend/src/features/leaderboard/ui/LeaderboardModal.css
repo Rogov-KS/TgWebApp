@@ -77,17 +77,17 @@
 }
 
 /* Стили для топ-3 позиций */
-.leaderboard-row .leaderboard-rank[data-place="1"] {
+.leaderboard-row .leaderboard-rank[data-place='1'] {
   color: #fbbf24;
   font-size: 1.125rem;
 }
 
-.leaderboard-row .leaderboard-rank[data-place="2"] {
+.leaderboard-row .leaderboard-rank[data-place='2'] {
   color: #9ca3af;
   font-size: 1rem;
 }
 
-.leaderboard-row .leaderboard-rank[data-place="3"] {
+.leaderboard-row .leaderboard-rank[data-place='3'] {
   color: #d97706;
   font-size: 0.875rem;
 }

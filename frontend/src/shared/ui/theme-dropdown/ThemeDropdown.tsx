@@ -18,7 +18,10 @@ export function ThemeDropdown() {
   // Закрытие dropdown при клике вне его
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -35,23 +38,27 @@ export function ThemeDropdown() {
 
     // Логируем информацию о выбранной теме
     if (theme === 'system') {
-      const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const systemIsDark = window.matchMedia(
+        '(prefers-color-scheme: dark)'
+      ).matches;
       console.log('🎨 Выбрана системная тема:', {
         theme: theme,
         systemTheme: systemIsDark ? 'dark' : 'light',
         appliedTheme: systemIsDark ? 'Темная' : 'Светлая',
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString(),
       });
     } else {
       console.log('🎨 Выбрана тема:', {
         theme,
         appliedTheme: theme === 'dark' ? 'Темная' : 'Светлая',
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString(),
       });
     }
   };
 
-  const currentOption = themeOptions.find(option => option.value === currentTheme);
+  const currentOption = themeOptions.find(
+    (option) => option.value === currentTheme
+  );
 
   return (
     <div className="theme-dropdown" ref={dropdownRef}>
@@ -62,9 +69,7 @@ export function ThemeDropdown() {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <div className="theme-dropdown-icon">
-          {currentOption?.icon}
-        </div>
+        <div className="theme-dropdown-icon">{currentOption?.icon}</div>
         <div className="theme-dropdown-arrow">
           <svg
             width="12"
@@ -89,7 +94,9 @@ export function ThemeDropdown() {
               key={option.value}
               onClick={() => handleThemeSelect(option.value)}
               className={`theme-dropdown-item ${
-                currentTheme === option.value ? 'theme-dropdown-item-active' : ''
+                currentTheme === option.value
+                  ? 'theme-dropdown-item-active'
+                  : ''
               }`}
             >
               <span className="theme-dropdown-item-icon">{option.icon}</span>

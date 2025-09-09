@@ -51,17 +51,9 @@ export function LeaderboardModal({ isOpen, onClose }: LeaderboardModalProps) {
       size="md"
     >
       <div className="leaderboard-content">
-        {isLoading && (
-          <div className="leaderboard-loading">
-            Загрузка...
-          </div>
-        )}
+        {isLoading && <div className="leaderboard-loading">Загрузка...</div>}
 
-        {error && (
-          <div className="leaderboard-error">
-            {error}
-          </div>
-        )}
+        {error && <div className="leaderboard-error">{error}</div>}
 
         {!isLoading && !error && (
           <>
@@ -85,9 +77,7 @@ export function LeaderboardModal({ isOpen, onClose }: LeaderboardModalProps) {
                     <div className="leaderboard-username">
                       Игрок #{entry.user_id}
                     </div>
-                    <div className="leaderboard-score">
-                      {entry.max_score}
-                    </div>
+                    <div className="leaderboard-score">{entry.max_score}</div>
                   </div>
                 ))}
               </div>

@@ -1,6 +1,11 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { GameState, Direction } from '../../../shared/types';
-import { GAME_CONFIG, COLORS, FOOD_TYPES, OBSTACLE_TYPES } from '../../../constants/game';
+import {
+  GAME_CONFIG,
+  COLORS,
+  FOOD_TYPES,
+  OBSTACLE_TYPES,
+} from '../../../constants/game';
 import { useGameLoop, useInput } from '../../../shared/api/hooks';
 import {
   moveSnake,
@@ -73,7 +78,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     }
 
     // Отрисовка препятствий
-    gameState.obstacles.forEach(obstacle => {
+    gameState.obstacles.forEach((obstacle) => {
       if (obstacle.isActive) {
         const config = OBSTACLE_TYPES[obstacle.type];
         context.fillStyle = config.color;
@@ -126,7 +131,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     if (checkFoodCollision(newSnake, gameState.food)) {
       newSnake = growSnake(newSnake);
       const newFood = createFood(newSnake, gameState.obstacles);
-      const foodScore = calculateScore(gameState.food.value, 1, gameState.gameSpeed)
+      const foodScore = calculateScore(
+        gameState.food.value,
+        1,
+        gameState.gameSpeed
+      );
       const newScore = gameState.score + foodScore;
       const newSpeed = updateGameSpeed(gameState.gameSpeed, newScore);
 
@@ -151,17 +160,20 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   }, [gameState, onGameStateChange, onGameOver]);
 
   // Обработка ввода
-  const handleDirectionChange = useCallback((direction: Direction) => {
-    if (isValidDirection(gameState.snake.direction, direction)) {
-      onGameStateChange({
-        ...gameState,
-        snake: {
-          ...gameState.snake,
-          nextDirection: direction,
-        },
-      });
-    }
-  }, [gameState, onGameStateChange]);
+  const handleDirectionChange = useCallback(
+    (direction: Direction) => {
+      if (isValidDirection(gameState.snake.direction, direction)) {
+        onGameStateChange({
+          ...gameState,
+          snake: {
+            ...gameState.snake,
+            nextDirection: direction,
+          },
+        });
+      }
+    },
+    [gameState, onGameStateChange]
+  );
 
   const handlePause = useCallback(() => {
     onGameStateChange({

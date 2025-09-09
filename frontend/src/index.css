@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -27,13 +27,30 @@
   --text-tertiary: #94a3b8;
   --border-primary: #e2e8f0;
   --border-secondary: #cbd5e1;
-  --shadow-primary: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-secondary: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-primary:
+    0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-secondary:
+    0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 
   /* Градиенты для светлой темы */
-  --gradient-primary: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
-  --gradient-secondary: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
-  --gradient-accent: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+  --gradient-primary: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #e2e8f0 50%,
+    #cbd5e1 100%
+  );
+  --gradient-secondary: linear-gradient(
+    135deg,
+    #e2e8f0 0%,
+    #cbd5e1 50%,
+    #94a3b8 100%
+  );
+  --gradient-accent: linear-gradient(
+    135deg,
+    #3b82f6 0%,
+    #1d4ed8 50%,
+    #1e40af 100%
+  );
 }
 
 /* CSS переменные для темной темы */
@@ -46,13 +63,30 @@
   --text-tertiary: #94a3b8;
   --border-primary: #334155;
   --border-secondary: #475569;
-  --shadow-primary: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
-  --shadow-secondary: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-primary:
+    0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-secondary:
+    0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
 
   /* Градиенты для темной темы */
-  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #172554 100%);
-  --gradient-secondary: linear-gradient(135deg, #4338ca 0%, #3730a3 50%, #312e81 100%);
-  --gradient-accent: linear-gradient(135deg, #0e7490 0%, #155e75 50%, #164e63 100%);
+  --gradient-primary: linear-gradient(
+    135deg,
+    #1e40af 0%,
+    #1e3a8a 50%,
+    #172554 100%
+  );
+  --gradient-secondary: linear-gradient(
+    135deg,
+    #4338ca 0%,
+    #3730a3 50%,
+    #312e81 100%
+  );
+  --gradient-accent: linear-gradient(
+    135deg,
+    #0e7490 0%,
+    #155e75 50%,
+    #164e63 100%
+  );
 }
 
 /* CSS классы для градиентов */

@@ -66,13 +66,11 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
         title={isAuthenticated ? 'Профиль' : 'Войти / Зарегистрироваться'}
       >
         {isAuthenticated && user ? (
-          <div className="profile-avatar">
-            {displayInitial}
-          </div>
+          <div className="profile-avatar">{displayInitial}</div>
         ) : (
           <div className="profile-icon">
             <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
             </svg>
           </div>
         )}
@@ -86,9 +84,7 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
               {user?.first_name || ''} {user?.last_name || ''}
             </div>
             {displayUsername && (
-              <div className="profile-username">
-                {displayUsername}
-              </div>
+              <div className="profile-username">{displayUsername}</div>
             )}
             <div className="profile-score">
               Рекорд: {user?.max_score || 0} очков
@@ -110,9 +106,7 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
         <div className="profile-dropdown">
           <div className="guest-info">
             <div className="guest-title">Гостевой режим</div>
-            <div className="guest-note">
-              Результаты не сохраняются в БД
-            </div>
+            <div className="guest-note">Результаты не сохраняются в БД</div>
           </div>
           <div className="profile-actions">
             {/* Кнопка Telegram авторизации (показываем только если в Telegram среде) */}

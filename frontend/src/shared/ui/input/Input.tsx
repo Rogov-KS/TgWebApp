@@ -1,7 +1,8 @@
 import React from 'react';
 import './Input.css';
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -23,12 +24,9 @@ export function Input({
   const variantClasses = `input--${variant}`;
   const errorClasses = error ? 'input--error' : '';
 
-  const classes = [
-    baseClasses,
-    variantClasses,
-    errorClasses,
-    className
-  ].filter(Boolean).join(' ');
+  const classes = [baseClasses, variantClasses, errorClasses, className]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className="input-wrapper">
@@ -37,20 +35,10 @@ export function Input({
           {label}
         </label>
       )}
-      <input
-        id={inputId}
-        className={classes}
-        {...props}
-      />
-      {error && (
-        <span className="input-error">
-          {error}
-        </span>
-      )}
+      <input id={inputId} className={classes} {...props} />
+      {error && <span className="input-error">{error}</span>}
       {helperText && !error && (
-        <span className="input-helper">
-          {helperText}
-        </span>
+        <span className="input-helper">{helperText}</span>
       )}
     </div>
   );

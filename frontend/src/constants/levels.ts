@@ -196,11 +196,11 @@ export const LEVELS: Level[] = [
 ];
 
 export const getLevelById = (id: string): Level | undefined => {
-  return LEVELS.find(level => level.id === id);
+  return LEVELS.find((level) => level.id === id);
 };
 
 export const getNextLevel = (currentLevelId: string): Level | undefined => {
-  const currentIndex = LEVELS.findIndex(level => level.id === currentLevelId);
+  const currentIndex = LEVELS.findIndex((level) => level.id === currentLevelId);
   if (currentIndex === -1 || currentIndex === LEVELS.length - 1) {
     return undefined;
   }
@@ -208,7 +208,7 @@ export const getNextLevel = (currentLevelId: string): Level | undefined => {
 };
 
 export const unlockLevel = (levelId: string): void => {
-  const level = LEVELS.find(l => l.id === levelId);
+  const level = LEVELS.find((l) => l.id === levelId);
   if (level) {
     level.isUnlocked = true;
   }

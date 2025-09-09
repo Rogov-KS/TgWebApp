@@ -7,8 +7,10 @@ import './GoogleAuthCallback.css';
 export function GoogleAuthCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { } = useAuth();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const {} = useAuth();
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
+    'loading'
+  );
   const [errorMessage, setErrorMessage] = useState<string>('');
   const hasProcessedRef = useRef(false);
 
@@ -49,7 +51,6 @@ export function GoogleAuthCallback() {
         setTimeout(() => {
           navigate('/', { replace: true });
         }, 2000);
-
       } catch (error) {
         console.error('Ошибка при обработке Google OAuth callback:', error);
         setStatus('error');

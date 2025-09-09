@@ -1,4 +1,9 @@
-import type { User, UserAuth, UserLogin, AuthState } from '../../../shared/types';
+import type {
+  User,
+  UserAuth,
+  UserLogin,
+  AuthState,
+} from '../../../shared/types';
 
 export interface AuthContextType extends AuthState {
   login: (data: UserLogin) => Promise<void>;

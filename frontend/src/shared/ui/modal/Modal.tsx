@@ -68,9 +68,7 @@ export function Modal({
             ×
           </button>
         </div>
-        <div className="modal-content">
-          {children}
-        </div>
+        <div className="modal-content">{children}</div>
       </div>
     </div>
   );

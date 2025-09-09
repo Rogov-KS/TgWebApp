@@ -1,5 +1,14 @@
 import axios from 'axios';
-import type { User, UserAuth, UserLogin, LoginResponse, LogoutResponse, LeaderboardEntry, RefreshResponse, TelegramAuthResponse } from '../types';
+import type {
+  User,
+  UserAuth,
+  UserLogin,
+  LoginResponse,
+  LogoutResponse,
+  LeaderboardEntry,
+  RefreshResponse,
+  TelegramAuthResponse,
+} from '../types';
 
 // Динамический baseURL в зависимости от окружения
 const getBaseURL = () => {
@@ -50,16 +59,28 @@ const processQueue = (error: any, token: string | null = null) => {
 
 // Функция для добавления запроса в очередь ожидания
 const addToFailedQueue = (originalRequest: any) => {
-  console.log('⏳ Token refresh already in progress, adding request to queue:', originalRequest.url);
+  console.log(
+    '⏳ Token refresh already in progress, adding request to queue:',
+    originalRequest.url
+  );
   return new Promise((resolve, reject) => {
     failedQueue.push({ resolve, reject });
-  }).then(() => {
-    console.log('✅ Request from queue executed after token refresh:', originalRequest.url);
-    return apiClient(originalRequest);
-  }).catch((err) => {
-    console.error('❌ Request from queue failed after token refresh:', originalRequest.url, err);
-    return Promise.reject(err);
-  });
+  })
+    .then(() => {
+      console.log(
+        '✅ Request from queue executed after token refresh:',
+        originalRequest.url
+      );
+      return apiClient(originalRequest);
+    })
+    .catch((err) => {
+      console.error(
+        '❌ Request from queue failed after token refresh:',
+        originalRequest.url,
+        err
+      );
+      return Promise.reject(err);
+    });
 };
 
 // Функция для выполнения обновления токена
@@ -78,7 +99,10 @@ const performTokenRefresh = async (originalRequest: any) => {
     processQueue(null, refreshResponse.data.access_token);
 
     // Повторяем оригинальный запрос
-    console.log('🔄 Retrying original request after token refresh:', originalRequest.url);
+    console.log(
+      '🔄 Retrying original request after token refresh:',
+      originalRequest.url
+    );
     return apiClient(originalRequest);
   } catch (refreshError) {
     console.error('❌ Token refresh failed:', refreshError);
@@ -124,17 +148,31 @@ apiClient.interceptors.request.use(
 // Интерцептор для логирования ответов и обработки ошибок авторизации
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response:', response.status, response.config.url, "response.data: ", response.data);
+    console.log(
+      '✅ API Response:',
+      response.status,
+      response.config.url,
+      'response.data: ',
+      response.data
+    );
     return response;
   },
   async (error) => {
-    console.error('❌ API Response Error:', error.response?.status, error.config?.url);
+    console.error(
+      '❌ API Response Error:',
+      error.response?.status,
+      error.config?.url
+    );
 
     const originalRequest = error.config;
 
     // Обработка 401 ошибки для автоматического обновления токенов
     // Исключаем запросы на обновление токена, чтобы избежать бесконечного цикла
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/refresh')
+    ) {
       console.log('🔐 401 error detected, attempting token refresh...');
       return handleTokenRefresh(originalRequest);
     }
@@ -146,19 +184,21 @@ apiClient.interceptors.response.use(
 // API функции
 export const authAPI = {
   helloWorld: () => apiClient.get<string>('/auth/hello_world'),
-  login: (data: UserLogin) => apiClient.post<LoginResponse>('/auth/login', data),
+  login: (data: UserLogin) =>
+    apiClient.post<LoginResponse>('/auth/login', data),
   register: (data: UserAuth) => apiClient.post<User>('/auth/register', data),
   logout: () => apiClient.post<LogoutResponse>('/auth/logout'),
   me: () => apiClient.get<User>('/auth/me'),
   refresh: () => apiClient.post<RefreshResponse>('/auth/refresh'),
   telegramAuth: (initData: string) => {
     console.log('🚀 Telegram Auth Request: Sending init data to backend');
-    return apiClient.post<TelegramAuthResponse>('/auth/telegram',
+    return apiClient.post<TelegramAuthResponse>(
+      '/auth/telegram',
       { init_data: initData },
       {
         headers: {
-          'Authorization': `tma ${initData}`
-        }
+          Authorization: `tma ${initData}`,
+        },
       }
     );
   },
@@ -181,7 +221,10 @@ export const googleOAuthAPI = {
   google_url_path: '/oauth2/google',
   getAuthUrl: () => `${getBaseURL()}${googleOAuthAPI.google_url_path}/url`,
   handleCallback: (code: string, state: string) =>
-    apiClient.post(`${googleOAuthAPI.google_url_path}/callback`, { code, state }),
+    apiClient.post(`${googleOAuthAPI.google_url_path}/callback`, {
+      code,
+      state,
+    }),
 };
 
 // API для Яндекс OAuth
@@ -189,5 +232,8 @@ export const yandexOAuthAPI = {
   yandex_url_path: '/oauth2/yandex',
   getAuthUrl: () => `${getBaseURL()}${yandexOAuthAPI.yandex_url_path}/url`,
   handleCallback: (code: string, state: string) =>
-    apiClient.post(`${yandexOAuthAPI.yandex_url_path}/callback`, { code, state }),
+    apiClient.post(`${yandexOAuthAPI.yandex_url_path}/callback`, {
+      code,
+      state,
+    }),
 };

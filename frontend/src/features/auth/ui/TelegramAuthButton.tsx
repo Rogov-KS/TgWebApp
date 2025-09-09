@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTelegramAuth } from '../../../shared/lib/hooks/useTelegramAuth';
 import { useAuth } from './AuthProvider';
 import { Button } from '../../../shared/ui';
