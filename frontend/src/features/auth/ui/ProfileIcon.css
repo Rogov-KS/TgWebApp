@@ -153,6 +153,75 @@
   }
 }
 
+/* Telegram Auth Section */
+.telegram-auth-section {
+  margin-bottom: 8px;
+}
+
+.profile-telegram-btn {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+}
+
+.auth-divider span {
+  padding: 0 12px;
+  background: white;
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .profile-dropdown {
+    background: #1a1a1a;
+    border: 1px solid #333;
+  }
+
+  .profile-name {
+    color: #fff;
+  }
+
+  .profile-username {
+    color: #ccc;
+  }
+
+  .guest-title {
+    color: #fff;
+  }
+
+  .guest-note {
+    color: #ccc;
+  }
+
+  .auth-divider {
+    color: #ccc;
+  }
+
+  .auth-divider::before,
+  .auth-divider::after {
+    background: #333;
+  }
+
+  .auth-divider span {
+    background: #1a1a1a;
+  }
+}
+
 /* Адаптивность */
 @media (max-width: 480px) {
   .profile-dropdown {

@@ -17,6 +17,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-query-devtools": "^5.81.5",
+    "@telegram-apps/sdk": "^3.11.5",
     "axios": "^1.10.0",
     "classnames": "^2.5.1",
     "dotenv": "^17.2.1",

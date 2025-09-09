@@ -53,3 +53,24 @@ export interface LeaderboardEntry {
   max_score: number;
   place: number;
 }
+
+// Telegram Mini Apps типы
+export interface TelegramUserData {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  language_code?: string;
+  is_premium?: boolean;
+  photo_url?: string;
+}
+
+export interface TelegramInitData {
+  init_data: string;
+}
+
+export interface TelegramAuthResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+}

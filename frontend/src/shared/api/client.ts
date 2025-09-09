@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { User, UserAuth, UserLogin, LoginResponse, LogoutResponse, LeaderboardEntry, RefreshResponse } from '../types';
+import type { User, UserAuth, UserLogin, LoginResponse, LogoutResponse, LeaderboardEntry, RefreshResponse, TelegramAuthResponse } from '../types';
 
 // Динамический baseURL в зависимости от окружения
 const getBaseURL = () => {
@@ -151,6 +151,17 @@ export const authAPI = {
   logout: () => apiClient.post<LogoutResponse>('/auth/logout'),
   me: () => apiClient.get<User>('/auth/me'),
   refresh: () => apiClient.post<RefreshResponse>('/auth/refresh'),
+  telegramAuth: (initData: string) => {
+    console.log('🚀 Telegram Auth Request: Sending init data to backend');
+    return apiClient.post<TelegramAuthResponse>('/auth/telegram',
+      { init_data: initData },
+      {
+        headers: {
+          'Authorization': `tma ${initData}`
+        }
+      }
+    );
+  },
 };
 
 // API для игровых сессий

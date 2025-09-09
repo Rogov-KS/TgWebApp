@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useModal, ModalType } from '../../../shared/lib/contexts/ModalContext';
+import { useTelegramAuth } from '../../../shared/lib/hooks/useTelegramAuth';
 import { AuthModal } from './AuthModal';
+import { TelegramAuthButton } from './TelegramAuthButton';
 import './ProfileIcon.css';
 
 interface ProfileIconProps {
@@ -11,6 +13,7 @@ interface ProfileIconProps {
 export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
   const { user, isAuthenticated, logout } = useAuth();
   const { currentModal, setCurrentModal } = useModal();
+  const { isTelegramEnvironment } = useTelegramAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleProfileClick = () => {
@@ -39,6 +42,15 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
   const handleGuestPlay = () => {
     onGuestPlay();
     setIsDropdownOpen(false);
+  };
+
+  const handleTelegramAuthSuccess = () => {
+    setIsDropdownOpen(false);
+  };
+
+  const handleTelegramAuthError = (error: string) => {
+    console.error('Telegram auth error in ProfileIcon:', error);
+    // Можно добавить уведомление пользователю
   };
 
   // Получаем отображаемое имя пользователя
@@ -103,6 +115,22 @@ export function ProfileIcon({ onGuestPlay }: ProfileIconProps) {
             </div>
           </div>
           <div className="profile-actions">
+            {/* Кнопка Telegram авторизации (показываем только если в Telegram среде) */}
+            {isTelegramEnvironment() && (
+              <div className="telegram-auth-section">
+                <TelegramAuthButton
+                  variant="primary"
+                  size="sm"
+                  onSuccess={handleTelegramAuthSuccess}
+                  onError={handleTelegramAuthError}
+                  className="profile-telegram-btn"
+                />
+                <div className="auth-divider">
+                  <span>или</span>
+                </div>
+              </div>
+            )}
+
             <button
               className="profile-action-btn login-btn"
               onClick={() => setCurrentModal(ModalType.AUTH)}

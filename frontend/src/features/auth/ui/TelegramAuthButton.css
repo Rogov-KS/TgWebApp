@@ -1,0 +1,106 @@
+.telegram-auth-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.telegram-auth-button-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.telegram-icon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease-in-out;
+}
+
+.telegram-auth-button:hover .telegram-icon {
+  transform: scale(1.1);
+}
+
+.telegram-auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.telegram-auth-button:disabled .telegram-icon {
+  transform: none;
+}
+
+/* Анимация загрузки */
+.telegram-auth-button.loading {
+  position: relative;
+}
+
+.telegram-auth-button.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Стили для разных вариантов */
+.telegram-auth-button.primary {
+  background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+  color: white;
+  border: none;
+}
+
+.telegram-auth-button.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #006699 0%, #004466 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+}
+
+.telegram-auth-button.secondary {
+  background: transparent;
+  color: #0088cc;
+  border: 2px solid #0088cc;
+}
+
+.telegram-auth-button.secondary:hover:not(:disabled) {
+  background: #0088cc;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 136, 204, 0.2);
+}
+
+.telegram-auth-button.ghost {
+  background: transparent;
+  color: #0088cc;
+  border: none;
+}
+
+.telegram-auth-button.ghost:hover:not(:disabled) {
+  background: rgba(0, 136, 204, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .telegram-auth-button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .telegram-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
