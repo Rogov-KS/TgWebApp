@@ -35,6 +35,32 @@ get_tunnel_url() {
     echo "$url"
 }
 
+# Функция для обновления vite.config.ts
+update_vite_config() {
+    local frontend_url=$1
+    local vite_config_path="./frontend/vite.config.ts"
+
+    echo "📝 Обновление vite.config.ts..."
+
+    if [ -f "$vite_config_path" ]; then
+        # Извлекаем домен из URL (убираем https://)
+        local domain=$(echo "$frontend_url" | sed 's|https://||')
+
+        # Обновляем allowedHosts в vite.config.ts
+        if grep -q "allowedHosts:" "$vite_config_path"; then
+            # Если allowedHosts уже существует, заменяем его
+            sed -i "s|allowedHosts: \[.*\]|allowedHosts: [\"$domain\"]|" "$vite_config_path"
+        else
+            # Если allowedHosts нет, добавляем его в server секцию
+            sed -i "/server: {/a\\    allowedHosts: [\"$domain\"]," "$vite_config_path"
+        fi
+
+        echo "✅ vite.config.ts обновлен с доменом: $domain"
+    else
+        echo "⚠️  Файл vite.config.ts не найден: $vite_config_path"
+    fi
+}
+
 # Функция для обновления .env файла
 update_env_file() {
     local backend_url=$1
@@ -79,6 +105,9 @@ update_env_file() {
     done
 
     echo "✅ env файлы обновлены"
+
+    # Обновляем vite.config.ts с новым allowedHosts
+    update_vite_config "$frontend_url"
 
     sleep 3
 }
