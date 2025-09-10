@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Response
 from fastapi_versioning import version
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.dependecies import get_db
 from backend.core.logger import get_logger
 from backend.entities.auth.telegram.schemas import (
     TelegramAuthRequest,
@@ -35,8 +34,7 @@ async def telegram_auth(
     response: Response,
     telegram_service: TelegramAuthService = Depends(
         get_telegram_auth_service
-    ),
-    db: AsyncSession = Depends(get_db),
+    )
 ) -> TelegramAuthResponse:
     """
     Авторизация через Telegram Mini App.
