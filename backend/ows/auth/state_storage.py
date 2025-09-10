@@ -25,12 +25,12 @@ class StateStorage:
             "created_at": datetime.now(UTC),
             "used": False,
         }
-        logger.info("Generated state", extra={"provider": provider, "state": state})
+        # logger.info("Generated state", extra={"provider": provider, "state": state})
         return state
 
     def validate_state(self, state: str, provider: str) -> bool:
         """Проверяет валидность state"""
-        logger.info("validate_state", extra={"state": state, "provider": provider})
+        # logger.info("validate_state", extra={"state": state, "provider": provider})
 
         # Проверяем, что state не обрабатывается в данный момент
         if state in self._processing_states:
@@ -68,7 +68,7 @@ class StateStorage:
         self._processing_states.add(state)
 
         # Помечаем как использованный
-        logger.info("mark as used", extra={"state_data": state_data})
+        # logger.info("mark as used", extra={"state_data": state_data})
         state_data["used"] = True
 
         # Удаляем из множества обрабатываемых
@@ -96,10 +96,10 @@ class StateStorage:
             del self._states[state]
             # Также очищаем из множества обрабатываемых
             self._processing_states.discard(state)
-        if expired_states:
-            logger.info(
-                "Cleaned up expired states", extra={"count": len(expired_states)}
-            )
+        # if expired_states:
+            # logger.info(
+            #     "Cleaned up expired states", extra={"count": len(expired_states)}
+            # )
 
 
 async def cleanup_oauth_data() -> None:
@@ -108,7 +108,7 @@ async def cleanup_oauth_data() -> None:
         try:
             # Очищаем истекшие state
             state_storage.cleanup_expired_states()
-            logger.debug("OAuth data cleanup completed")
+            # logger.debug("OAuth data cleanup completed")
 
         except Exception:
             logger.exception("Error during OAuth cleanup", exc_info=True)

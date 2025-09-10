@@ -46,7 +46,7 @@ async def telegram_auth(
         auth_request: Запрос с initData от Telegram
         response: HTTP ответ для установки cookies
         telegram_service: Сервис Telegram авторизации
-        db: Сессия базы данных
+        user_service: Сервис пользователей
 
     Returns:
         TelegramAuthResponse: Ответ с токенами и данными пользователя
@@ -62,7 +62,7 @@ async def telegram_auth(
 
     try:
         result = await telegram_service.authenticate_telegram_user(
-            auth_request, response, db
+            auth_request, response, user_service
         )
 
         logger.info(

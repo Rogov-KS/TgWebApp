@@ -35,6 +35,7 @@ async def get_current_user(
     token: AccessTokenDep,
     user_dao: UserDAODep,
 ) -> SUser:
+    logger.debug("Getting current user", extra={"token": token})
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -45,11 +46,13 @@ async def get_current_user(
         raise IncorrectTokenFormatException from err
 
     expire = payload.get("exp")
-    logger.info("Token expire check", extra={"expire": expire})
-    if not expire or (int(expire) < int(datetime.now(UTC).timestamp())):
+    is_expired = not expire or (int(expire) < int(datetime.now(UTC).timestamp()))
+    logger.debug("Token expire check", extra={"expire": expire, "is_expired": is_expired})
+    if is_expired:
         raise TokenExpiredException
 
-    user_id = payload.get("sub")
+    user_id = payload.get("user_id")
+    logger.debug("User ID", extra={"user_id": user_id})
     if not user_id:
         raise UserNotFoundException
 

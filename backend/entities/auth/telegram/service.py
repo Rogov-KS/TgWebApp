@@ -13,7 +13,7 @@ from backend.entities.auth.telegram.utils import (
     validate_telegram_init_data,
 )
 from backend.entities.assemblers.schemas import SUser
-from backend.entities.user.service import UserService, UserServiceDep
+from backend.entities.user.service import UserService
 
 
 class TelegramAuthService:

@@ -32,7 +32,7 @@ def is_valid_email(email: str) -> bool:
     """Проверить валидность email."""
     try:
         # Используем валидацию Pydantic для проверки email
-        EmailStr.validate(email)
+        EmailStr._validate(email)
         return True
     except Exception:
         return False
