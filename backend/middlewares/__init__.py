@@ -1,8 +1,13 @@
+import json
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.core.config import settings
+from backend.core.logger import get_logger
 from backend.middlewares.process_time import ProcessTimeMiddleware
+
+
+logger = get_logger(__name__)
 
 
 def add_middlewares(app: FastAPI) -> None:
@@ -11,6 +16,7 @@ def add_middlewares(app: FastAPI) -> None:
     app.add_middleware(ProcessTimeMiddleware)
 
     # Настраиваем CORS
+    logger.debug("settings config[CORS]:\n%s", json.dumps(settings.get_cors_attrs(), indent=4))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,

@@ -23,8 +23,9 @@ const getBaseURL = () => {
   }
 
   // По умолчанию localhost
-  console.log('🚀 default baseURL: http://localhost:8000');
-  return 'http://localhost:8000';
+  const baseUrl = 'http://localhost:8000/api/v1';
+  console.log('🚀 default baseURL:', baseUrl);
+  return baseUrl;
 };
 
 // Создаем экземпляр axios с базовой конфигурацией

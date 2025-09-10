@@ -62,4 +62,5 @@ async def hello_version_v2(name: str) -> dict[str, str]:
 @version(1)
 async def ping() -> str:
     """Тестовый эндпоинт."""
+    logger.debug("Called Ping")
     return "pong"

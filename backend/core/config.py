@@ -101,7 +101,7 @@ class Settings(BaseSettings):
         extra="ignore",  # Игнорирует неизвестные переменные
     )
 
-    def get_cors_attrs(self) -> dict:
+    def get_cors_attrs(self) -> dict[str, str | list[str]]:
         return {
             "allow_origins": self.CORS_ORIGINS,
             "allow_credentials": self.CORS_ALLOW_CREDENTIALS,
