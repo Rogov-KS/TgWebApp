@@ -7,10 +7,10 @@ import { useModal } from '../lib/contexts/ModalContext';
 import { AuthContext } from '../lib/contexts/AuthContext';
 
 // API хуки
-export const useHelloWorld = () => {
+export const useTestPing = () => {
   return useQuery({
-    queryKey: ['helloWorld'],
-    queryFn: () => authAPI.helloWorld(),
+    queryKey: ['testPing'],
+    queryFn: () => authAPI.testPing(),
     staleTime: 5 * 60 * 1000, // 5 минут
     retry: 1,
   });

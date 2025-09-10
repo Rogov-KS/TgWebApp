@@ -183,7 +183,7 @@ apiClient.interceptors.response.use(
 
 // API функции
 export const authAPI = {
-  helloWorld: () => apiClient.get<string>('/auth/hello_world'),
+  testPing: () => apiClient.get<string>('/test/ping'),
   login: (data: UserLogin) =>
     apiClient.post<LoginResponse>('/auth/login', data),
   register: (data: UserAuth) => apiClient.post<User>('/auth/register', data),

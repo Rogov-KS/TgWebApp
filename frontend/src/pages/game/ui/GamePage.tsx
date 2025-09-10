@@ -9,7 +9,7 @@ import {
 } from '../../../constants/levels';
 import { createSnake, createFood } from '../../../shared/lib/utils/gameEngine';
 import { GameBoard } from '../../../widgets/game-board';
-import { useHelloWorld } from '../../../shared/api/hooks';
+import { useTestPing } from '../../../shared/api/hooks';
 import { useAuth } from '../../../features/auth';
 import { gameAPI } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui';
@@ -22,7 +22,7 @@ export const GamePage: React.FC = () => {
   });
 
   // React Query хук для тестового запроса
-  const { data: helloWorldData, isLoading, error, refetch } = useHelloWorld();
+  const { data: testPingData, isLoading, error, refetch } = useTestPing();
 
   // Auth context
   const { user, isAuthenticated, updateUserMaxScore } = useAuth();
@@ -117,7 +117,7 @@ export const GamePage: React.FC = () => {
     console.log('🔄 Restarting game...');
     refetch()
       .then(() => {
-        console.log('✅ API test completed:', helloWorldData);
+        console.log('✅ API test completed:', testPingData);
       })
       .catch((error) => {
         console.error('❌ API test failed:', error);
@@ -137,7 +137,7 @@ export const GamePage: React.FC = () => {
       isPaused: false,
       gameSpeed: level.speed,
     });
-  }, [currentLevelId, refetch, helloWorldData]);
+  }, [currentLevelId, refetch, testPingData]);
 
   return (
     <div className="p-5 max-w-4xl mx-auto">
@@ -193,9 +193,9 @@ export const GamePage: React.FC = () => {
           >
             API Status:{' '}
             {error ? 'Error' : isLoading ? 'Loading...' : 'Connected'}
-            {helloWorldData && (
+            {testPingData && (
               <div className="text-xs opacity-80">
-                Response: {helloWorldData.data}
+                Response: {testPingData.data}
               </div>
             )}
           </div>

@@ -83,10 +83,3 @@ async def get_current_user_info(
 ) -> SUser:
     """Получить информацию о текущем пользователе."""
     return user
-
-
-@router.get("/hello_world")
-@version(1)
-async def hello_world() -> dict[str, str]:
-    """Тестовый эндпоинт."""
-    return {"message": "Hello World from Auth!"}

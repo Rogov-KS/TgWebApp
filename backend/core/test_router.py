@@ -57,3 +57,9 @@ async def hello_version(name: str) -> dict[str, str]:
 async def hello_version_v2(name: str) -> dict[str, str]:
     """Тест Versioning"""
     return {"message": f"Hello {name * 2}"}
+
+@router.get("/ping")
+@version(1)
+async def ping() -> str:
+    """Тестовый эндпоинт."""
+    return "pong"
