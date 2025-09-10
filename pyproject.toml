@@ -32,6 +32,7 @@ dependencies = [
     "fastapi-versioning>=0.10.0",
     "prometheus-fastapi-instrumentator>=7.1.0",
     "gunicorn>=23.0.0",
+    "aiogram>=3.22.0",
 ]
 
 [project.optional-dependencies]

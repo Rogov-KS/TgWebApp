@@ -11,8 +11,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  envDir: '../',
+  envDir: '../config/envs',
   server: {
-    allowedHosts: ["784190263e74.ngrok-free.app"],
+    allowedHosts: ["6e79aa60feb5.ngrok-free.app"],
   },
 })

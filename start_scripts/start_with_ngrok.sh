@@ -40,32 +40,47 @@ update_env_file() {
     local backend_url=$1
     local frontend_url=$2
 
-    echo "📝 Обновление .env файла..."
+    clear
+    echo "📝 Обновление env файлов..."
 
     # Создаем .env файл, если его нет
     if [ ! -f .env ]; then
         touch .env
     fi
 
-    # Обновляем или добавляем VITE_NGROK_BACKEND_URL
-    if grep -q "^VITE_NGROK_BACKEND_URL=" .env 2>/dev/null; then
-        # Если переменная существует, заменяем её значение
-        sed -i "s|^VITE_NGROK_BACKEND_URL=.*|VITE_NGROK_BACKEND_URL=$backend_url|" .env
-    else
-        # Если переменной нет, добавляем её
-        echo "VITE_NGROK_BACKEND_URL=$backend_url" >> .env
-    fi
 
-    # Обновляем или добавляем VITE_NGROK_FRONTEND_URL
-    if grep -q "^VITE_NGROK_FRONTEND_URL=" .env 2>/dev/null; then
-        # Если переменная существует, заменяем её значение
-        sed -i "s|^VITE_NGROK_FRONTEND_URL=.*|VITE_NGROK_FRONTEND_URL=$frontend_url|" .env
-    else
-        # Если переменной нет, добавляем её
-        echo "VITE_NGROK_FRONTEND_URL=$frontend_url" >> .env
-    fi
+    # Обработка .env файлов
+    echo "📁 Поиск и обработка env файлов..."
+    for env_file in ./configs/envs/.env-base; do
+        echo "  Обрабатываем файл: $env_file"
+        if [ -f "$env_file" ]; then
+            echo "  Найден файл: $env_file"
+            # Здесь можно добавить дополнительную логику обработки
 
-    echo "✅ .env файл обновлен"
+            # Обновляем или добавляем VITE_NGROK_BACKEND_URL
+            if grep -q "^VITE_NGROK_BACKEND_URL=" $env_file 2>/dev/null; then
+                # Если переменная существует, заменяем её значение
+                sed -i "s|^VITE_NGROK_BACKEND_URL=.*|VITE_NGROK_BACKEND_URL=$backend_url|" $env_file
+            else
+                # Если переменной нет, добавляем её
+                echo "VITE_NGROK_BACKEND_URL=$backend_url" >> $env_file
+            fi
+
+            # Обновляем или добавляем VITE_NGROK_FRONTEND_URL
+            if grep -q "^VITE_NGROK_FRONTEND_URL=" $env_file 2>/dev/null; then
+                # Если переменная существует, заменяем её значение
+                sed -i "s|^VITE_NGROK_FRONTEND_URL=.*|VITE_NGROK_FRONTEND_URL=$frontend_url|" $env_file
+            else
+                # Если переменной нет, добавляем её
+                echo "VITE_NGROK_FRONTEND_URL=$frontend_url" >> $env_file
+            fi
+
+        fi
+    done
+
+    echo "✅ env файлы обновлены"
+
+    sleep 3
 }
 
 # Функция для запуска сервисов в фоне
