@@ -101,3 +101,40 @@
   color: #6b7280;
   margin: 0;
 }
+
+/* Темная тема для модального окна авторизации */
+.dark .auth-modal-content {
+  background-color: var(--bg-secondary, #1e293b);
+  color: var(--text-primary, #f8fafc);
+}
+
+.dark .auth-mode-toggle {
+  color: #60a5fa;
+}
+
+.dark .auth-mode-toggle:hover {
+  color: #93c5fd;
+}
+
+.dark .auth-divider::before {
+  background-color: var(--border-primary, #334155);
+}
+
+.dark .auth-divider span {
+  background-color: var(--bg-secondary, #1e293b);
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.dark .auth-error {
+  color: #fca5a5;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dark .auth-guest-section {
+  border-top-color: var(--border-primary, #334155);
+}
+
+.dark .auth-guest-note {
+  color: var(--text-tertiary, #94a3b8);
+}

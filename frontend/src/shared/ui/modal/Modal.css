@@ -77,3 +77,31 @@
   overflow-y: auto;
   flex: 1;
 }
+
+/* Темная тема для модального окна */
+.dark .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.dark .modal {
+  background: var(--bg-secondary, #1e293b);
+  color: var(--text-primary, #f8fafc);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.dark .modal-header {
+  border-bottom-color: var(--border-primary, #334155);
+}
+
+.dark .modal-title {
+  color: var(--text-primary, #f8fafc);
+}
+
+.dark .modal-close {
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.dark .modal-close:hover {
+  color: var(--text-primary, #f8fafc);
+  background-color: var(--bg-tertiary, #334155);
+}

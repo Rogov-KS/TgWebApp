@@ -17,6 +17,7 @@
   font-size: 1rem;
   transition: all 0.2s ease-in-out;
   background-color: white;
+  color: var(--text-primary, #1f2937);
 }
 
 .input:focus {
@@ -66,4 +67,55 @@
 .input-helper {
   font-size: 0.75rem;
   color: #6b7280;
+}
+
+/* Темная тема */
+.dark .input {
+  background-color: var(--bg-secondary, #1e293b);
+  border-color: var(--border-primary, #334155);
+  color: var(--text-primary, #f8fafc);
+}
+
+.dark .input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dark .input::placeholder {
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.dark .input-label {
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.dark .input--filled {
+  background-color: var(--bg-tertiary, #334155);
+  border-color: var(--border-primary, #334155);
+}
+
+.dark .input--filled:focus {
+  background-color: var(--bg-secondary, #1e293b);
+}
+
+.dark .input--outlined {
+  background-color: transparent;
+  border-color: var(--border-primary, #334155);
+}
+
+.dark .input--error {
+  border-color: #ef4444;
+}
+
+.dark .input--error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.dark .input-error {
+  color: #fca5a5;
+}
+
+.dark .input-helper {
+  color: var(--text-tertiary, #94a3b8);
 }
