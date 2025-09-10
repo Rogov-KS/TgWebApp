@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASS: str
 
+    # Telegram настройки
+    TG_BOT_TOKEN: str
+
     # Логирование настройки
     MODE: Literal["DEV", "TEST", "PROD"]
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -112,6 +115,11 @@ class Settings(BaseSettings):
             "port": self.SMTP_PORT,
             "user": self.SMTP_USER,
             "pass": self.SMTP_PASS,
+        }
+
+    def get_telegram_attrs(self) -> dict:
+        return {
+            "bot_token": self.TG_BOT_TOKEN,
         }
 
 
