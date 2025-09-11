@@ -118,7 +118,7 @@ start_services() {
 
     # Запуск frontend
     echo "🎨 Запуск frontend..."
-    ./start_scripts/start_frontend.sh &
+    ./start_scripts/start_frontend.sh > /dev/null 2>&1 &
     local frontend_pid=$!
     echo "Frontend запущен с PID: $frontend_pid"
 
@@ -127,7 +127,7 @@ start_services() {
 
     # Запуск telegram bot
     echo "🤖 Запуск telegram bot..."
-    ./start_scripts/start_tg_bot.sh &
+    ./start_scripts/start_tg_bot.sh > /dev/null 2>&1 &
     local bot_pid=$!
     echo "Telegram bot запущен с PID: $bot_pid"
 
@@ -181,7 +181,7 @@ main() {
 
     # Запускаем ngrok
     echo "🌐 Запуск ngrok..."
-    ngrok start --all &
+    ngrok start --all > /dev/null 2>&1 &
     local ngrok_pid=$!
     echo "Ngrok запущен с PID: $ngrok_pid"
 

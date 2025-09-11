@@ -185,8 +185,7 @@ apiClient.interceptors.response.use(
 // API функции
 export const authAPI = {
   testPing: () => apiClient.get<string>('/test/ping'),
-  login: (data: UserLogin) =>
-    apiClient.post<LoginResponse>('/auth/login', data),
+  login: (data: UserLogin) => apiClient.post<LoginResponse>('/auth/login', data),
   register: (data: UserAuth) => apiClient.post<User>('/auth/register', data),
   logout: () => apiClient.post<LogoutResponse>('/auth/logout'),
   me: () => apiClient.get<User>('/auth/me'),
@@ -194,7 +193,7 @@ export const authAPI = {
   telegramAuth: (initData: string) => {
     console.log('🚀 Telegram Auth Request: Sending init data to backend');
     return apiClient.post<TelegramAuthResponse>(
-      '/auth/telegram',
+      '/auth/telegram/',
       { init_data: initData },
       {
         headers: {

@@ -57,7 +57,8 @@ async def telegram_auth(
     """
     logger.info(
         "Telegram auth request received",
-        extra={"init_data_length": len(auth_request.init_data)}
+        extra={"init_data_length": len(auth_request.init_data),
+               "init_data": auth_request.init_data}
     )
 
     try:
