@@ -12,6 +12,15 @@ import { GameBoard } from '../../../widgets/game-board';
 import { useTestPing } from '../../../shared/api/hooks';
 import { useAuth } from '../../../features/auth';
 import { gameAPI } from '../../../shared/api/client';
+
+// Импортируем функцию для получения baseURL
+const getBaseURL = () => {
+  const backendUrl = import.meta.env.VITE_NGROK_BACKEND_URL;
+  if (backendUrl && backendUrl !== '') {
+    return backendUrl;
+  }
+  return 'http://localhost:8000/api/v1';
+};
 import { Button } from '../../../shared/ui';
 
 export const GamePage: React.FC = () => {
@@ -193,6 +202,11 @@ export const GamePage: React.FC = () => {
           >
             API Status:{' '}
             {error ? 'Error' : isLoading ? 'Loading...' : 'Connected'}
+            {error && (
+              <div className="text-xs opacity-80">
+                baseUrl: {getBaseURL()}
+              </div>
+            )}
             {testPingData && (
               <div className="text-xs opacity-80">
                 Response: {testPingData.data}
