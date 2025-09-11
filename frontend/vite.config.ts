@@ -9,10 +9,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '~': path.resolve(__dirname, '.'),
     },
   },
   envDir: '../config/envs',
   server: {
-    allowedHosts: ["104125191e77.ngrok-free.app"],
+    allowedHosts: ["7ba3a0ea0fc8.ngrok-free.app"],
   },
 })

@@ -106,6 +106,30 @@ update_env_file() {
 
     echo "✅ env файлы обновлены"
 
+    # Обновляем manual.config.ts
+    echo "📝 Обновление manual.config.ts..."
+    local manual_config_path="./frontend/manual.config.ts"
+
+    if [ -f "$manual_config_path" ]; then
+        echo "  Найден файл: $manual_config_path"
+        # Обновляем только значение backendUrl в manual.config.ts
+        if grep -q "backendUrl =" "$manual_config_path"; then
+            # Если backendUrl уже существует, заменяем его значение
+            sed -i "s|backendUrl = '[^']*'|backendUrl = '$backend_url/api/v1'|" "$manual_config_path"
+        else
+            echo "⚠️  Поле backendUrl не найдено в manual.config.ts"
+        fi
+
+        # Обновляем isNgrokMode на true
+        if grep -q "isNgrokMode:" "$manual_config_path"; then
+            sed -i "s|isNgrokMode: [^,]*|isNgrokMode: true|" "$manual_config_path"
+        fi
+
+        echo "✅ manual.config.ts обновлен с ngrok URL: $backend_url/api/v1"
+    else
+        echo "⚠️  Файл manual.config.ts не найден: $manual_config_path"
+    fi
+
     # Обновляем vite.config.ts с новым allowedHosts
     update_vite_config "$frontend_url"
 
