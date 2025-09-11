@@ -7,7 +7,7 @@ import urllib.parse
 from typing import Dict, Optional
 
 from backend.core.config import settings
-from backend.entities.auth.telegram.schemas import TelegramInitData
+from backend.entities.telegram.schemas import TelegramInitData
 
 
 def parse_telegram_init_data(init_data: str) -> TelegramInitData:

@@ -3,11 +3,11 @@
 from fastapi import HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.entities.auth.telegram.schemas import (
+from backend.entities.telegram.schemas import (
     TelegramAuthRequest,
     TelegramAuthResponse,
 )
-from backend.entities.auth.telegram.utils import (
+from backend.entities.telegram.utils import (
     is_telegram_data_fresh,
     parse_telegram_init_data,
     validate_telegram_init_data,

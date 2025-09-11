@@ -5,11 +5,11 @@ from fastapi_versioning import version
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.logger import get_logger
-from backend.entities.auth.telegram.schemas import (
+from backend.entities.telegram.schemas import (
     TelegramAuthRequest,
     TelegramAuthResponse,
 )
-from backend.entities.auth.telegram.service import TelegramAuthService
+from backend.entities.telegram.service import TelegramAuthService
 from backend.entities.user.service import UserServiceDep
 
 logger = get_logger(__name__)
