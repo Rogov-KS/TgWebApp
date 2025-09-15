@@ -29,7 +29,7 @@ export function TelegramAuthButton({
     try {
       setIsLoading(true);
       console.log('🚀 Manual Telegram auth button clicked');
-
+      console.log('🚀 isTelegramEnvironment:', isTelegramEnvironment());
       if (!isTelegramEnvironment()) {
         const errorMsg = 'Приложение не запущено в Telegram. Откройте приложение через Telegram бота.';
         console.warn('⚠️', errorMsg);
