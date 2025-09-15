@@ -13,6 +13,7 @@ import { Footer } from './widgets/footer';
 function App() {
   // Инициализируем Telegram mock окружение если есть параметр ?telegram=true
   setupTelegramMock();
+
   return (
     <AppProviders>
       <Router>
