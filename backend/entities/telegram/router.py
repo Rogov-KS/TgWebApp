@@ -1,16 +1,11 @@
 """Роутер для Telegram авторизации."""
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Response
 from fastapi_versioning import version
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.logger import get_logger
-from backend.entities.telegram.schemas import (
-    TelegramAuthRequest,
-    TelegramAuthResponse,
-)
-from backend.entities.telegram.service import TelegramAuthService
-from backend.entities.user.service import UserServiceDep
+from backend.entities.telegram.schemas import TelegramAuthRequest
+from backend.entities.telegram.service import TelegramAuthServiceDep
 
 logger = get_logger(__name__)
 
@@ -20,22 +15,15 @@ router = APIRouter(
 )
 
 
-def get_telegram_auth_service(
-    user_service: UserServiceDep
-) -> TelegramAuthService:
-    """Получить сервис Telegram авторизации."""
-    return TelegramAuthService(user_service)
 
 
-@router.post("/", response_model=TelegramAuthResponse)
+@router.post("/")
 @version(1)
 async def telegram_auth(
-    auth_request: TelegramAuthRequest,
+    request: TelegramAuthRequest,
     response: Response,
-    telegram_service: TelegramAuthService = Depends(
-        get_telegram_auth_service
-    )
-) -> TelegramAuthResponse:
+    telegram_service: TelegramAuthServiceDep,
+) -> dict[str, str]:
     """
     Авторизация через Telegram Mini App.
 
@@ -43,10 +31,9 @@ async def telegram_auth(
     пользователя. Если пользователь не существует, создает нового.
 
     Args:
-        auth_request: Запрос с initData от Telegram
+        init_data: Запрос с initData от Telegram
         response: HTTP ответ для установки cookies
-        telegram_service: Сервис Telegram авторизации
-        user_service: Сервис пользователей
+        telegram_service: Сервис Telegram авторизации (dependency)
 
     Returns:
         TelegramAuthResponse: Ответ с токенами и данными пользователя
@@ -57,18 +44,21 @@ async def telegram_auth(
     """
     logger.info(
         "Telegram auth request received",
-        extra={"init_data_length": len(auth_request.init_data),
-               "init_data": auth_request.init_data}
+        extra={"init_data_length": len(request.init_data),
+               "init_data": request.init_data}
     )
-
     try:
         result = await telegram_service.authenticate_telegram_user(
-            auth_request, response, user_service
+            request.init_data, response
+        )
+        logger.info(
+            "Telegram auth result",
+            extra={"result": result}
         )
 
         logger.info(
             "Telegram auth successful",
-            extra={"user_id": result.user.get("id")}
+            extra={"user_id": result.get("user_id")}
         )
 
         return result

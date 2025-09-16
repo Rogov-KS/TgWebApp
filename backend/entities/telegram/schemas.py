@@ -44,17 +44,9 @@ class TelegramInitData(BaseModel):
 
 
 class TelegramAuthRequest(BaseModel):
-    """Запрос на авторизацию через Telegram."""
+    """Запрос авторизации через Telegram."""
 
     init_data: str = Field(
-        ..., description="Строка initData от Telegram Mini App"
+        ...,
+        description="Строка initData от Telegram Mini App"
     )
-
-
-class TelegramAuthResponse(BaseModel):
-    """Ответ на авторизацию через Telegram."""
-
-    access_token: str = Field(..., description="JWT токен доступа")
-    refresh_token: str = Field(..., description="JWT токен обновления")
-    token_type: str = Field(default="bearer", description="Тип токена")
-    user: dict = Field(..., description="Данные пользователя")

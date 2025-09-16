@@ -1,14 +1,12 @@
 """Модуль для авторизации через Telegram."""
 
-from .router import router as telegram_router
-from .schemas import (
-    TelegramAuthRequest,
-    TelegramAuthResponse,
+from backend.entities.telegram.router import router as telegram_router
+from backend.entities.telegram.schemas import (
     TelegramInitData,
     TelegramUserData,
 )
-from .service import TelegramAuthService
-from .utils import (
+from backend.entities.telegram.service import TelegramAuthService
+from backend.entities.telegram.utils import (
     extract_user_data_from_init_data,
     is_telegram_data_fresh,
     parse_telegram_init_data,
@@ -18,8 +16,6 @@ from .utils import (
 __all__ = [
     "telegram_router",
     "TelegramAuthService",
-    "TelegramAuthRequest",
-    "TelegramAuthResponse",
     "TelegramInitData",
     "TelegramUserData",
     "parse_telegram_init_data",

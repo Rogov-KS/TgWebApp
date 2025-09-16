@@ -20,3 +20,6 @@ class IUserService(Protocol):
 
     async def get_user_by_id(self, user_id: int) -> Optional[SUser]:
         """Получить пользователя по ID."""
+
+    async def get_user_by(self, **filter_by) -> Optional[SUser]:
+        """Получить пользователя по фильтру."""

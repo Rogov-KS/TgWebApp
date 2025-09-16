@@ -24,6 +24,10 @@ class SUserAuth(BaseModel):
     email: EmailStr
     password: str
 
+class SUserAuthViaTelegram(BaseModel):
+    username: str
+    telegram_id: int
+
 
 class SUserLogin(BaseModel):
     username_or_email: str

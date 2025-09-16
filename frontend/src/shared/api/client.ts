@@ -212,11 +212,6 @@ export const authAPI = {
     return apiClient.post<TelegramAuthResponse>(
       '/auth/telegram/',
       { init_data: initData },
-      {
-        headers: {
-          Authorization: `tma ${initData}`,
-        },
-      }
     );
   },
 };

@@ -14,6 +14,6 @@ export default defineConfig({
   },
   envDir: '../config/envs',
   server: {
-    allowedHosts: ["c04d7f4844d0.ngrok-free.app"],
+    allowedHosts: ["233425f51971.ngrok-free.app"],
   },
 })
