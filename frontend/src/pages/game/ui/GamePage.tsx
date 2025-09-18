@@ -16,6 +16,8 @@ import { gameAPI } from '../../../shared/api/client';
 // Импортируем функцию для получения baseURL
 import { getBaseURL } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui';
+// Импортируем функции для работы с Telegram
+import { IsInTMA, GetTgInitData } from '../../../shared/lib/telegramMock';
 
 export const GamePage: React.FC = () => {
   const [currentLevelId, setCurrentLevelId] = useState<string>('level-1');
@@ -206,6 +208,16 @@ export const GamePage: React.FC = () => {
                 Response: {testPingData.data}
               </div>
             )}
+          </div>
+
+          {/* Telegram Mini App данные */}
+          <div className="mt-2.5 p-1.5 rounded text-xs bg-blue-500">
+            <div className="text-xs opacity-80">
+              IsInTMA: {IsInTMA().toString()}
+            </div>
+            <div className="text-xs opacity-80">
+              GetTgInitData: {GetTgInitData() || 'null'}
+            </div>
           </div>
         </div>
       </div>
