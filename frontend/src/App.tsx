@@ -5,14 +5,14 @@ import {
   YandexAuthCallback,
 } from './features/auth/ui/callbacks';
 import { AppProviders } from './app/providers';
-import { setupTelegramMock } from './shared/lib/telegramMock';
+import { initApp } from './app/initApp';
 import './App.css';
 import { Header } from './widgets/header';
 import { Footer } from './widgets/footer';
 
 function App() {
-  // Инициализируем Telegram mock окружение если есть параметр ?telegram=true
-  setupTelegramMock();
+  // Инициализируем приложение
+  initApp();
 
   return (
     <AppProviders>

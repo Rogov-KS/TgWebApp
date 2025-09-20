@@ -17,7 +17,7 @@ import { gameAPI } from '../../../shared/api/client';
 import { getBaseURL } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui';
 // Импортируем функции для работы с Telegram
-import { IsInTMA, GetTgInitData } from '../../../shared/lib/telegramMock';
+import { IsInTMA, GetTgInitData } from '../../../shared/lib/utils/tg_helper/telegram_wrapper';
 
 export const GamePage: React.FC = () => {
   const [currentLevelId, setCurrentLevelId] = useState<string>('level-1');
