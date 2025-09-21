@@ -1,17 +1,28 @@
 import { setupTelegramMock } from '../shared/lib/utils/tg_helper/telegram_mock';
 import { IsInTMA } from '../shared/lib/utils/tg_helper/telegram_wrapper';
 import {
+    themeParams,
+    miniApp,
+    initData,
     init as initSDK
-} from '@telegram-apps/sdk';
+} from '@telegram-apps/sdk'
 
 export const initApp = (): void => {
     const urlParams = new URLSearchParams(window.location.search);
+
     if (urlParams.get('telegram') === 'true') {
         setupTelegramMock();
+    } else if (IsInTMA()) {
+        try {
+            initSDK();
+
+            miniApp.mount();
+            themeParams.mount();
+            initData.restore();
+        } catch (error) {
+            console.error('Error initializing SDK', error);
+        }
     }
 
-    if (IsInTMA()) {
-        initSDK();
-    }
 
 };
