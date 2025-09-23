@@ -46,7 +46,7 @@ export const getBaseURL = () => {
 };
 
 // Создаем экземпляр axios с базовой конфигурацией
-export const apiClient = axios.create({
+const apiClient = axios.create({
   baseURL: getBaseURL(),
   timeout: 10000,
   withCredentials: true, // Для работы с куками

@@ -11,10 +11,10 @@ import { createSnake, createFood } from '../../../shared/lib/utils/gameEngine';
 import { GameBoard } from '../../../widgets/game-board';
 import { useTestPing } from '../../../shared/api/hooks';
 import { useAuth } from '../../../features/auth';
-import { gameAPI } from '../../../shared/api/client';
+import { gameAPI } from '../../../shared/api/export_client';
 
 // Импортируем функцию для получения baseURL
-import { getBaseURL } from '../../../shared/api/client';
+import { getBaseURL } from '../../../shared/api/export_client';
 import { Button } from '../../../shared/ui';
 // Импортируем функции для работы с Telegram
 import { IsInTMA, GetTgInitData } from '../../../shared/lib/utils/tg_helper/telegram_wrapper';

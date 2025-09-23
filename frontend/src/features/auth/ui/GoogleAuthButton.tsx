@@ -1,5 +1,5 @@
 import React from 'react';
-import { googleOAuthAPI } from '../../../shared/api/client';
+import { googleOAuthAPI } from '../../../shared/api/export_client';
 import { Button } from '../../../shared/ui';
 import './GoogleAuthButton.css';
 

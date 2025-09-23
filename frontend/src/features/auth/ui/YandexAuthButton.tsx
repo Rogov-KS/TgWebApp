@@ -1,5 +1,5 @@
 import React from 'react';
-import { yandexOAuthAPI } from '../../../shared/api/client';
+import { yandexOAuthAPI } from '../../../shared/api/export_client';
 import { Button } from '../../../shared/ui';
 import './YandexAuthButton.css';
 
