@@ -1,5 +1,5 @@
 import { setupTelegramMock } from '../shared/lib/utils/tg_helper/telegram_mock';
-import { IsInTMA } from '../shared/lib/utils/tg_helper/telegram_wrapper';
+import { IsInTMA, clearTelegramMock } from '../shared/lib/utils/tg_helper/telegram_wrapper';
 import {
     themeParams,
     miniApp,
@@ -9,8 +9,12 @@ import {
 
 export const initApp = (): void => {
     const urlParams = new URLSearchParams(window.location.search);
+    const isTelegramParamTrue = (urlParams.get('telegram') === 'true');
 
-    if (urlParams.get('telegram') === 'true') {
+    // пытаемся удалить окружение Telegram если оно вдруг осталось
+    clearTelegramMock();
+
+    if (isTelegramParamTrue) {
         setupTelegramMock();
     } else if (IsInTMA()) {
         try {
@@ -23,6 +27,4 @@ export const initApp = (): void => {
             console.error('Error initializing SDK', error);
         }
     }
-
-
 };
