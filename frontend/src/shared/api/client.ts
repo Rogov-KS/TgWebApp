@@ -52,6 +52,7 @@ const apiClient = axios.create({
   withCredentials: true, // Для работы с куками
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': '1', // ⬅️ добавьте эту строку, чтобы избежать необходимость подтверждения в браузере
   },
 });
 
