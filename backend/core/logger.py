@@ -27,6 +27,10 @@ class CustomJsonFormatter(JsonFormatter):
         else:
             log_record["level"] = record.levelname
 
+        # Переименовываем ключ "message" в "MESSAGE"
+        if "message" in log_record:
+            log_record["MESSAGE"] = log_record.pop("message")
+
 
 class PrettyJsonFormatter(CustomJsonFormatter):
     """Форматтер для красивого вывода JSON в консоль с отступами"""
