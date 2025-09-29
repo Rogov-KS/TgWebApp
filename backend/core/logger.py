@@ -1,6 +1,8 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+import json
 import logging
 from pathlib import Path
+from typing import Any, Dict
 
 from pythonjsonlogger.json import JsonFormatter
 
@@ -12,18 +14,38 @@ class CustomJsonFormatter(JsonFormatter):
 
     def add_fields(
         self,
-        log_record: dict,
+        log_record: Dict[str, Any],
         record: logging.LogRecord,
-        message_dict: dict,
+        message_dict: Dict[str, Any],
     ) -> None:
         super().add_fields(log_record, record, message_dict)
         if not log_record.get("timestamp"):
-            now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             log_record["timestamp"] = now
         if log_record.get("level"):
             log_record["level"] = log_record["level"].upper()
         else:
             log_record["level"] = record.levelname
+
+
+class PrettyJsonFormatter(CustomJsonFormatter):
+    """Форматтер для красивого вывода JSON в консоль с отступами"""
+
+    def format(self, record: logging.LogRecord) -> str:
+        """Форматирует лог-запись в красивый JSON с отступами"""
+        # Получаем JSON строку от родительского класса
+        json_str = super().format(record)
+
+        try:
+            # Парсим JSON и форматируем с отступами
+            json_obj = json.loads(json_str)
+            return json.dumps(
+                json_obj, indent=2, ensure_ascii=False
+            )
+        except (json.JSONDecodeError, TypeError):
+            # Если не удалось распарсить как JSON,
+            # возвращаем оригинальную строку
+            return json_str
 
 
 formatter = CustomJsonFormatter(
@@ -64,9 +86,13 @@ def setup_logging() -> None:
     file_handler.setFormatter(json_formatter)
     file_handler.setLevel(getattr(logging, settings.LOG_LEVEL))
 
-    # Создаем обработчик для консоли
+    # Создаем обработчик для консоли с красивым форматированием
     console_handler = logging.StreamHandler()
-    console_handler.setFormatter(json_formatter)
+    pretty_formatter = PrettyJsonFormatter(
+        "%(timestamp)s %(message)s %(level)s %(name)s "
+        "%(module)s %(funcName)s %(lineno)d"
+    )
+    console_handler.setFormatter(pretty_formatter)
     console_handler.setLevel(getattr(logging, settings.LOG_LEVEL))
 
     # Добавляем обработчики к корневому логгеру
