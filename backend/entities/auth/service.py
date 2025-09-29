@@ -25,9 +25,8 @@ from backend.entities.assemblers.schemas import (
 from backend.entities.refresh_token.service import (
     RefreshTokenServiceDep,
 )
-from backend.entities.refresh_token.interfaces import IRefreshTokenService
-from backend.entities.user.interfaces import IUserDAO
-from backend.entities.auth.interfaces import IAuthService
+from backend.entities.refresh_token.service import RefreshTokenService
+from backend.entities.user.dao import UserDAO
 from backend.core.config import settings
 
 
@@ -39,8 +38,8 @@ class AuthService:
 
     def __init__(
         self,
-        user_dao: IUserDAO,
-        refresh_service: IRefreshTokenService,
+        user_dao: UserDAO,
+        refresh_service: RefreshTokenService,
     ):
         self.user_dao = user_dao
         self.refresh_service = refresh_service
@@ -314,10 +313,10 @@ class AuthService:
 def get_auth_service(
     user_dao: UserDAODep,
     refresh_service: RefreshTokenServiceDep
-) -> IAuthService:
+) -> AuthService:
     """Dependency для получения AuthService."""
     return AuthService(user_dao, refresh_service)
 
 
 # Тип для использования в роутерах
-AuthServiceDep = Annotated[IAuthService, Depends(get_auth_service)]
+AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]

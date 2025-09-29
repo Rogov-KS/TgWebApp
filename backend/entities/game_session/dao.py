@@ -1,4 +1,4 @@
-from typing import Annotated, Type
+from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import func, select
@@ -7,7 +7,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from backend.core.base_dao import BaseDAO
 from backend.core.database import AsyncSessionDep
 from backend.core.logger import get_logger
-from backend.entities.game_session.interfaces import IGameSessionDAO
 from backend.entities.game_session.models import GameSessionDB
 
 logger = get_logger(__name__)
@@ -16,8 +15,6 @@ logger = get_logger(__name__)
 class GameSessionDAO(BaseDAO[GameSessionDB]):
     """
     DAO (Data Access Object) для работы с игровыми сессиями.
-
-    Implements `IGameSessionDAO` interface.
     """
 
     model = GameSessionDB
@@ -57,13 +54,10 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
             raise ValueError(msg) from e
 
 
-GameSessionDAO: Type[IGameSessionDAO]
-
-
-def get_game_session_dao(session: AsyncSessionDep) -> IGameSessionDAO:
+def get_game_session_dao(session: AsyncSessionDep) -> GameSessionDAO:
     """Dependency для получения GameSessionDAO."""
     return GameSessionDAO(session)
 
 
 # Тип для использования в других модулях
-GameSessionDAODep = Annotated[IGameSessionDAO, Depends(get_game_session_dao)]
+GameSessionDAODep = Annotated[GameSessionDAO, Depends(get_game_session_dao)]

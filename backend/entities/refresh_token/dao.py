@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Annotated, Type
+from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import and_, select
@@ -7,7 +7,6 @@ from sqlalchemy import and_, select
 from backend.core.base_dao import BaseDAO
 from backend.core.database import async_session_maker, AsyncSessionDep
 from backend.core.logger import get_logger
-from backend.entities.refresh_token.interfaces import IRefreshTokenDAO
 from backend.entities.refresh_token.models import RefreshTokenDB
 
 logger = get_logger(__name__)
@@ -17,8 +16,6 @@ class RefreshTokenDAO(BaseDAO[RefreshTokenDB]):
     """
     DAO (Data Access Object) для работы с refresh токенами через таблицу refresh_tokens,
     которая хранит только refresh токены нашего приложения.
-
-    Implements `IRefreshTokenDAO` interface.
     """
 
     model = RefreshTokenDB
@@ -81,13 +78,10 @@ class RefreshTokenDAO(BaseDAO[RefreshTokenDB]):
         )
 
 
-RefreshTokenDAO: Type[IRefreshTokenDAO]
-
-
-def get_refresh_token_dao(session: AsyncSessionDep) -> IRefreshTokenDAO:
+def get_refresh_token_dao(session: AsyncSessionDep) -> RefreshTokenDAO:
     """Dependency для получения RefreshTokenDAO."""
     return RefreshTokenDAO(session)
 
 
 # Тип для использования в других модулях
-RefreshTokenDAODep = Annotated[IRefreshTokenDAO, Depends(get_refresh_token_dao)]
+RefreshTokenDAODep = Annotated[RefreshTokenDAO, Depends(get_refresh_token_dao)]

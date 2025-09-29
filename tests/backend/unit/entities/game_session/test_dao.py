@@ -3,7 +3,7 @@ Unit тесты для GameSessionDAO
 """
 import pytest
 import pytest_asyncio
-from backend.entities.game_session.dao import GameSessionDAO, IGameSessionDAO
+from backend.entities.game_session.dao import GameSessionDAO
 from sqlalchemy.orm.exc import MultipleResultsFound
 from backend.entities.game_session.models import GameSessionDB
 from backend.entities.user.models import UserDB
@@ -16,7 +16,7 @@ class TestGameSessionDAO:
     """Тесты для GameSessionDAO."""
 
     @pytest_asyncio.fixture
-    async def dao(self, get_async_test_db_session) -> IGameSessionDAO:
+    async def dao(self, get_async_test_db_session) -> GameSessionDAO:
         """Создает экземпляр GameSessionDAO для тестов."""
         return GameSessionDAO(get_async_test_db_session)
 
@@ -69,7 +69,7 @@ class TestGameSessionDAO:
 
         async def test_get_game_session_by_id_success(
             self,
-            dao: IGameSessionDAO,
+            dao: GameSessionDAO,
             insert_test_game_session: GameSessionDB
         ):
             """Тест успешного получения игровой сессии по ID."""
@@ -82,7 +82,7 @@ class TestGameSessionDAO:
 
         async def test_get_game_session_by_user_id(
             self,
-            dao: IGameSessionDAO,
+            dao: GameSessionDAO,
             insert_test_game_sessions: list[GameSessionDB]
         ):
             """Тест получения игровой сессии по user_id."""
@@ -94,7 +94,7 @@ class TestGameSessionDAO:
 
         async def test_get_game_session_by_user_id_with_exception(
             self,
-            dao: IGameSessionDAO,
+            dao: GameSessionDAO,
             insert_test_game_sessions: list[GameSessionDB]
         ):
             """Тест получения игровой сессии по user_id."""

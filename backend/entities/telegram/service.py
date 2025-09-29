@@ -14,7 +14,6 @@ from backend.entities.telegram.utils import (
 from backend.entities.assemblers.schemas import SUser, SUserAuthViaTelegram
 from backend.entities.user.service import UserService, UserServiceDep
 from backend.entities.refresh_token.service import RefreshTokenService, RefreshTokenServiceDep
-from backend.entities.refresh_token.interfaces import IRefreshTokenService
 
 from backend.entities.auth.utils import (
     create_access_token,
@@ -27,7 +26,7 @@ logger = get_logger(__name__)
 class TelegramAuthService:
     """Сервис для авторизации через Telegram."""
 
-    def __init__(self, user_service: UserService, refresh_service: IRefreshTokenService):
+    def __init__(self, user_service: UserService, refresh_service: RefreshTokenService):
         self.user_service = user_service
         self.refresh_service = refresh_service
 

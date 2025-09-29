@@ -1,31 +1,24 @@
-# mypy: ignore-errors
-from typing import Annotated, Type
+from typing import Annotated
 
 from fastapi import Depends
 
 from backend.core.base_dao import BaseDAO
 from backend.core.database import AsyncSessionDep
-from backend.entities.user.interfaces import IUserDAO
 from backend.entities.user.models import UserDB
 
 
 class UserDAO(BaseDAO[UserDB]):
     """
     DAO (Data Access Object) для работы с пользователями.
-
-    Implements `IUserDAO` interface.
     """
 
     model = UserDB
 
 
-UserDAO: Type[IUserDAO]
-
-
-def get_user_dao(session: AsyncSessionDep) -> IUserDAO:
+def get_user_dao(session: AsyncSessionDep) -> UserDAO:
     """Dependency для получения UserDAO."""
     return UserDAO(session)
 
 
 # Тип для использования в других модулях
-UserDAODep = Annotated[IUserDAO, Depends(get_user_dao)]
+UserDAODep = Annotated[UserDAO, Depends(get_user_dao)]

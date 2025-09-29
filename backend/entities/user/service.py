@@ -1,10 +1,9 @@
-from typing import Annotated, List, Optional, Type
+from typing import Annotated, List, Optional
 
 from fastapi import Depends
 
 from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAODep
-from backend.entities.user.interfaces import IUserDAO, IUserService
+from backend.entities.user.dao import UserDAODep, UserDAO
 from backend.entities.assemblers.schemas import SUser, SUserAuth
 
 logger = get_logger(__name__)
@@ -13,11 +12,9 @@ logger = get_logger(__name__)
 class UserService:
     """
     Сервисный слой для работы с пользователями.
-
-    Implements `IUserService` interface.
     """
 
-    def __init__(self, user_dao: IUserDAO):
+    def __init__(self, user_dao: UserDAO):
         self.user_dao = user_dao
 
     async def get_all_users(self) -> List[SUser]:
@@ -76,13 +73,10 @@ class UserService:
         )
         return SUser.model_validate(user)
 
-UserService: Type[IUserService]
-
-
-def get_user_service(user_dao: UserDAODep) -> IUserService:
+def get_user_service(user_dao: UserDAODep) -> UserService:
     """Dependency для получения UserService."""
     return UserService(user_dao)
 
 
 # Тип для использования в роутерах
-UserServiceDep = Annotated[IUserService, Depends(get_user_service)]
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]

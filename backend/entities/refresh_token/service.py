@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 import secrets
-from typing import Annotated, List, Optional, Type
+from typing import Annotated, List, Optional
 
 from fastapi import Depends, HTTPException, Response, status
 from pydantic import ValidationError
@@ -8,13 +8,8 @@ from pydantic import ValidationError
 from backend.core.config import settings
 from backend.core.logger import get_logger
 from backend.entities.auth import utils as auth_utils
-from backend.entities.refresh_token.dao import RefreshTokenDAODep
-from backend.entities.refresh_token.interfaces import (
-    IRefreshTokenDAO,
-    IRefreshTokenService,
-)
-from backend.entities.user.dao import UserDAODep
-from backend.entities.user.interfaces import IUserDAO
+from backend.entities.refresh_token.dao import RefreshTokenDAODep, RefreshTokenDAO
+from backend.entities.user.dao import UserDAODep, UserDAO
 from backend.entities.assemblers.schemas import SRefreshToken, SUser
 
 
@@ -24,17 +19,15 @@ logger = get_logger(__name__)
 class RefreshTokenService:
     """
     Сервисный слой для работы с refresh токенами.
-
-    Implements `IRefreshTokenService` interface.
     """
 
     def __init__(
         self,
-        refresh_token_dao: IRefreshTokenDAO,
-        user_dao: IUserDAO
+        refresh_token_dao: RefreshTokenDAO,
+        user_dao: UserDAO
     ):
-        self.refresh_token_dao: IRefreshTokenDAO = refresh_token_dao
-        self.user_dao: IUserDAO = user_dao
+        self.refresh_token_dao: RefreshTokenDAO = refresh_token_dao
+        self.user_dao: UserDAO = user_dao
 
     async def get_token_by_value(self, token: str) -> Optional[SRefreshToken]:
         """
@@ -364,18 +357,13 @@ class RefreshTokenService:
         return access_token, refresh_token
 
 
-RefreshTokenService: Type[IRefreshTokenService]
-
-
 def get_refresh_token_service(
     refresh_token_dao: RefreshTokenDAODep,
     user_dao: UserDAODep
-) -> IRefreshTokenService:
+) -> RefreshTokenService:
     """Dependency для получения RefreshTokenService."""
     return RefreshTokenService(refresh_token_dao, user_dao)
 
 
 # Тип для использования в роутерах
-RefreshTokenServiceDep = Annotated[
-    IRefreshTokenService, Depends(get_refresh_token_service)
-]
+RefreshTokenServiceDep = Annotated[RefreshTokenService, Depends(get_refresh_token_service)]

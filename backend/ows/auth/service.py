@@ -9,7 +9,7 @@ from fastapi import HTTPException, Response
 from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.core.logger import get_logger
 
-from backend.entities.refresh_token.interfaces import IRefreshTokenDAO
+from backend.entities.refresh_token.dao import RefreshTokenDAO
 from backend.entities.refresh_token.service import RefreshTokenService
 from backend.ows.auth.interfaces import IOAuth2TokenDAO
 from backend.entities.assemblers.schemas import (
@@ -17,7 +17,7 @@ from backend.entities.assemblers.schemas import (
     SOAuth2TokenData,
     SOAuth2UserData,
 )
-from backend.entities.user.interfaces import IUserDAO
+from backend.entities.user.dao import UserDAO
 
 logger = get_logger(__name__)
 
@@ -31,8 +31,8 @@ class OAuth2Service(ABC):
         self,
         provider_name: str,
         oauth2_token_dao: IOAuth2TokenDAO,
-        user_dao: IUserDAO,
-        refresh_token_dao: IRefreshTokenDAO
+        user_dao: UserDAO,
+        refresh_token_dao: RefreshTokenDAO
     ):
         self.provider_name = provider_name
         self._processing_requests: dict[str, bool] = {}

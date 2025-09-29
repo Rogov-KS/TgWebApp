@@ -3,14 +3,14 @@
 """
 import pytest
 import pytest_asyncio
-from backend.entities.game_session.dao import IGameSessionDAO, GameSessionDAO
+from backend.entities.game_session.dao import GameSessionDAO
 from backend.entities.game_session.models import GameSessionDB
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.entities.user.models import UserDB
 
 
 @pytest.fixture
-def get_game_session_dao(get_async_test_db_session: AsyncSession) -> IGameSessionDAO:
+def get_game_session_dao(get_async_test_db_session: AsyncSession) -> GameSessionDAO:
     """Фикстура для получения DAO игровой сессии."""
     return GameSessionDAO(get_async_test_db_session)
 
@@ -69,7 +69,7 @@ def get_multiple_game_sessions_data() -> list[dict]:
 
 @pytest_asyncio.fixture
 async def insert_test_game_session(
-    get_game_session_dao: IGameSessionDAO,
+    get_game_session_dao: GameSessionDAO,
     insert_test_user: UserDB,
     get_game_session_data: dict,
 ) -> GameSessionDB:
@@ -86,7 +86,7 @@ async def insert_test_game_session(
 
 @pytest_asyncio.fixture
 async def insert_test_game_sessions(
-    get_game_session_dao: IGameSessionDAO,
+    get_game_session_dao: GameSessionDAO,
     insert_test_users: list[UserDB],
     get_multiple_game_sessions_data: list[dict],
 ) -> list[GameSessionDB]:
