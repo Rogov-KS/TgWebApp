@@ -91,6 +91,20 @@ class UserService:
         )
         return SUser.model_validate(user)
 
+    async def update_user(self, filter_by: dict[str, Any], update_data: dict[str, Any]) -> SUser:
+        """
+        Обновить пользователя.
+        """
+        user = await self.user_dao.update(
+            filters=filter_by,
+            update_data=update_data
+        )
+        logger.info(
+            "User updated",
+            extra={"user": user}
+        )
+        return SUser.model_validate(user)
+
 
 def get_user_service(user_dao: UserDAODep) -> UserService:
     """Dependency для получения UserService."""

@@ -67,7 +67,9 @@ async def complete_game_session(
 ) -> SGameSession:
     """Завершить игровую сессию."""
     return await game_session_service.update_game_session(
-        game_session_id, game_session_update, user
+        filter_by={"id": game_session_id},
+        update_data=game_session_update.model_dump(),
+        user=user
     )
 
 

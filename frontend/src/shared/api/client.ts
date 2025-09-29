@@ -52,7 +52,7 @@ const apiClient = axios.create({
   withCredentials: true, // Для работы с куками
   headers: {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': '1', // ⬅️ добавьте эту строку, чтобы избежать необходимость подтверждения в браузере
+    'ngrok-skip-browser-warning': '1', // добавьте эту строку, чтобы избежать необходимость подтверждения в браузере
   },
 });
 
@@ -156,6 +156,7 @@ const handleTokenRefresh = async (originalRequest: any) => {
 apiClient.interceptors.request.use(
   (config) => {
     console.log('🚀 API Request:', config.method?.toUpperCase(), config.url);
+    console.log('Headers:', config.headers);
     return config;
   },
   (error) => {

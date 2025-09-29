@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Annotated, List
+from typing import Annotated, List, Any
 
 from fastapi import Depends, HTTPException, status
 
@@ -10,9 +10,10 @@ from backend.entities.assemblers.schemas import (
     SGameSessionCreate,
     SGameSessionUpdate,
 )
-from backend.entities.user.dao import UserDAODep, UserDAO
 from backend.entities.assemblers.schemas import SUser
-
+from backend.entities.user.service import (
+    UserService, UserServiceDep
+)
 logger = get_logger(__name__)
 
 
@@ -22,10 +23,10 @@ class GameSessionService:
     """
 
     def __init__(
-        self, game_session_dao: GameSessionDAO, user_dao: UserDAO
+        self, game_session_dao: GameSessionDAO, user_service: UserService
     ):
         self.game_session_dao = game_session_dao
-        self.user_dao = user_dao
+        self.user_service = user_service
 
     async def get_all_game_sessions(self) -> List[SGameSession]:
         """
@@ -62,9 +63,78 @@ class GameSessionService:
             SGameSession.model_validate(session) for session in game_sessions
         ]
 
+    async def get_all_game_sessions_by(
+        self, user: SUser, **filter_by: Any
+    ) -> List[SGameSession]:
+        """
+        Получить игровую сессию по фильтру.
+
+        Args:
+            **filter_by: Фильтр
+            user (User): Текущий пользователь для проверки доступа
+
+        Returns:
+            List[SGameSession]: Список игровых сессий
+        """
+        logger.info(
+            "Retrieving game sessions",
+            extra={
+                "filter_by": filter_by,
+                "user_id": user.id
+            },
+        )
+        game_session = await self.game_session_dao.get_all_sorted(**filter_by)
+        return [SGameSession.model_validate(session) for session in game_session if session.user_id == user.id]
+
+    async def get_all_game_sessions_sorted(
+        self, limit: int = 10, offset: int = 0, sort_order: str = "desc", **filter_by: Any
+    ) -> List[SGameSession]:
+        """
+        Получить все игровые сессии пользователя с сортировкой.
+        """
+        logger.info(
+            "Retrieving game sessions With Pagination and Sorting",
+            extra={
+                "filter_by": filter_by,
+                "user_id": user.id,
+                "limit": limit,
+                "offset": offset,
+                "sort_order": sort_order
+            },
+        )
+        game_session = await self.game_session_dao.get_all_sorted(limit=limit, offset=offset, sort_order=sort_order, **filter_by)
+        return [SGameSession.model_validate(session) for session in game_session]
+
+    async def get_game_session_by(
+        self, user: SUser, **filter_by: Any
+    ) -> SGameSession | None:
+        """
+        Получить игровую сессию по фильтру.
+        """
+        logger.info(
+            "Retrieving game session",
+            extra={
+                "filter_by": filter_by,
+                "user_id": user.id
+            },
+        )
+        game_session = await self.game_session_dao.get_one_or_none(**filter_by)
+        if not game_session:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Game session not found",
+            )
+        if game_session.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not allowed to access this game session",
+            )
+
+        return SGameSession.model_validate(game_session)
+
     async def get_game_session_by_id(
         self, game_session_id: int, user: SUser
-    ) -> SGameSession:
+    ) -> SGameSession | None:
         """
         Получить игровую сессию по ID с проверкой доступа.
 
@@ -78,25 +148,7 @@ class GameSessionService:
         Raises:
             HTTPException: Если сессия не найдена или нет доступа
         """
-        logger.info(
-            "Retrieving game session",
-            extra={
-                "game_session_id": game_session_id,
-                "user_id": user.id
-            },
-        )
-        game_session = await self.game_session_dao.get_one_or_none(id=game_session_id)
-        if not game_session:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Game session not found",
-            )
-        if game_session.user_id != user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not allowed to access this game session",
-            )
-        return SGameSession.model_validate(game_session)
+        return await self.get_game_session_by(id=game_session_id, user=user)
 
     async def create_game_session(
         self, game_session_data: SGameSessionCreate, user: SUser
@@ -144,39 +196,15 @@ class GameSessionService:
 
         logger.info(
             "Created game session",
-            extra={
-                "game_session": {
-                    "id": game_session.id,
-                    "user_id": game_session.user_id,
-                    "score": game_session.score,
-                    "level": game_session.level,
-                    "started_at": (
-                        game_session.started_at.isoformat()
-                        if game_session.started_at
-                        else None
-                    ),
-                    "ended_at": (
-                        game_session.ended_at.isoformat()
-                        if game_session.ended_at
-                        else None
-                    ),
-                }
-            },
+            extra={"game_session": game_session},
         )
-
-        # Обновить максимальный счет пользователя
-        if game_session.score > user.max_score:
-            await self.user_dao.update(
-                filters={"id": user.id},
-                update_data={"max_score": game_session.score},
-            )
 
         return SGameSession.model_validate(game_session)
 
     async def update_game_session(
         self,
-        game_session_id: int,
-        game_session_update: SGameSessionUpdate,
+        filter_by: dict[str, Any],
+        update_data: dict[str, Any],
         user: SUser,
     ) -> SGameSession:
         """
@@ -193,30 +221,21 @@ class GameSessionService:
         Raises:
             HTTPException: Если сессия не найдена, нет доступа или ошибка обновления
         """
-        game_session = await self.game_session_dao.get_one_or_none(id=game_session_id)
-        if not game_session:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Game session not found",
-            )
-        if game_session.user_id != user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not allowed to update this game session",
-            )
+        # Проверяем доступ к сессии
+        _ = await self.get_game_session_by(**filter_by, user=user)
 
         logger.info(
             "Updating game session",
-            extra={"game_session_update": game_session_update.model_dump()},
+            extra={"game_session_update": update_data},
         )
 
         ended_at = datetime.now(UTC)
         try:
             updated_game_session = await self.game_session_dao.update(
-                filters={"id": game_session_id},
+                filters=filter_by,
                 update_data={
                     "ended_at": ended_at,
-                    **game_session_update.model_dump()
+                    **update_data
                 },
             )
         except Exception as e:
@@ -234,28 +253,11 @@ class GameSessionService:
 
         logger.info(
             "Completed game session",
-            extra={
-                "game_session": {
-                    "id": updated_game_session.id,
-                    "user_id": updated_game_session.user_id,
-                    "score": updated_game_session.score,
-                    "level": updated_game_session.level,
-                    "started_at": (
-                        updated_game_session.started_at.isoformat()
-                        if updated_game_session.started_at
-                        else None
-                    ),
-                    "ended_at": (
-                        updated_game_session.ended_at.isoformat()
-                        if updated_game_session.ended_at
-                        else None
-                    ),
-                }
-            },
+            extra={"updated_game_session": updated_game_session},
         )
         return SGameSession.model_validate(updated_game_session)
 
-    async def delete_game_session(self, game_session_id: int, user: SUser) -> bool:
+    async def delete_game_session(self, filter_by: dict[str, Any], user: SUser) -> bool:
         """
         Удалить игровую сессию.
 
@@ -270,7 +272,7 @@ class GameSessionService:
             HTTPException: Если сессия не найдена
         """
         deleted = await self.game_session_dao.delete(
-            id=game_session_id, user_id=user.id
+            **filter_by
         )
         if not deleted:
             raise HTTPException(
@@ -279,16 +281,22 @@ class GameSessionService:
             )
         logger.info(
             "Deleted game session",
-            extra={"game_session_id": game_session_id}
+            extra={"filter_by": filter_by}
         )
         return deleted
 
+    async def get_user_max_score(self, user: SUser) -> int | None:
+        """
+        Получить максимальный счет пользователя.
+        """
+        return await self.game_session_dao.get_max_score(user.id)
+
 
 def get_game_session_service(
-    game_session_dao: GameSessionDAODep, user_dao: UserDAODep
+    game_session_dao: GameSessionDAODep, user_service: UserServiceDep
 ) -> GameSessionService:
     """Dependency для получения GameSessionService."""
-    return GameSessionService(game_session_dao, user_dao)
+    return GameSessionService(game_session_dao, user_service)
 
 
 # Тип для использования в роутерах

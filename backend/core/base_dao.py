@@ -1,5 +1,5 @@
 # mypy: ignore-errors
-from typing import Any, Generic, List, Protocol, TypeVar
+from typing import Any, Generic, List, Protocol, Sequence, TypeVar
 
 from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -13,29 +13,6 @@ ModelType = TypeVar("ModelType", bound=Base)
 logger = get_logger(__name__)
 
 
-class IBaseDAO(Protocol[ModelType]):
-    """Базовый интерфейс для DAO."""
-
-    async def get_all(self, **filter_by: Any) -> List[ModelType]:
-        """Получить все записи."""
-
-    async def get_one_or_none(self, **filter_by: Any) -> ModelType | None:
-        """Получить запись по фильтру или None."""
-
-    async def create(self, **data: Any) -> ModelType | None:
-        """Создать новую запись."""
-
-    async def delete(self, **filter_by: Any) -> bool:
-        """Удалить запись."""
-
-    async def update(
-        self,
-        filters: dict[str, Any],
-        update_data: dict[str, Any],
-    ) -> ModelType | None:
-        """Обновить запись."""
-
-
 class BaseDAO(Generic[ModelType]):
     """Базовый класс для работы с базой данных."""
 
@@ -44,9 +21,17 @@ class BaseDAO(Generic[ModelType]):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_all(self, **filter_by: Any) -> list[ModelType]:
+    async def get_all(self, **filter_by: Any) -> Sequence[ModelType]:
         """Получить все записи."""
         query = select(self.model).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
+    async def get_all_sorted(self, limit: int = 10, offset: int = 0, sort_order: str = "desc", **filter_by: Any) -> list[ModelType]:
+        """Получить все записи с сортировкой."""
+        query = select(self.model).filter_by(**filter_by)
+        query = query.order_by(self.model.id.desc() if sort_order == "desc" else self.model.id.asc())
+        query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
         return result.scalars().all()
 

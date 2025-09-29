@@ -9,9 +9,9 @@ from fastapi import HTTPException, Response
 from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.core.logger import get_logger
 
+from backend.ows.auth.dao import OAuth2TokenDAO
 from backend.entities.refresh_token.dao import RefreshTokenDAO
 from backend.entities.refresh_token.service import RefreshTokenService
-from backend.ows.auth.interfaces import IOAuth2TokenDAO
 from backend.entities.assemblers.schemas import (
     SCloudFile,
     SOAuth2TokenData,
@@ -30,7 +30,7 @@ class OAuth2Service(ABC):
     def __init__(
         self,
         provider_name: str,
-        oauth2_token_dao: IOAuth2TokenDAO,
+        oauth2_token_dao: OAuth2TokenDAO,
         user_dao: UserDAO,
         refresh_token_dao: RefreshTokenDAO
     ):

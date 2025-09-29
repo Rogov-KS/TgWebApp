@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, Request, Response
+from fastapi import Depends, Request, Response, HTTPException, status
 from pydantic import ValidationError
 
 from backend.core.exception import (
@@ -313,6 +313,25 @@ class AuthService:
 
         logger.info("User logged out successfully", extra={"user_id": user.id})
         return {"message": "Successfully logged out"}
+
+    async def set_tokens_to_cookies(self, response: Response, user: SUser) -> tuple[str, str]:
+        """
+        Установка токенов доступа и refresh токенов в cookies.
+        """
+        refresh_token = await self.refresh_service.create_refresh_token(user.id)
+        if not refresh_token:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create refresh token"
+            )
+
+        access_token = create_access_token(user.id)
+        set_auth_cookies(response=response, access_token=access_token, refresh_token=refresh_token)
+
+        logger.info("Access token created", extra={"access_token": access_token})
+        logger.info("Refresh token created for user", extra={"user_id": user.id})
+
+        return access_token, refresh_token
 
 
 def get_auth_service(

@@ -3,8 +3,7 @@ from typing import Annotated, List
 from fastapi import Depends
 
 from backend.core.logger import get_logger
-from backend.entities.game_session.dao import GameSessionDAODep, GameSessionDAO
-from backend.entities.leaderboard.dao import LeaderboardDAODep, LeaderboardDAO
+from backend.entities.game_session.service import GameSessionService, GameSessionServiceDep
 from backend.entities.assemblers.schemas import SLeaderboardPlace
 from backend.entities.assemblers.schemas import SUser
 
@@ -18,11 +17,10 @@ class LeaderboardService:
 
     def __init__(
         self,
-        leaderboard_dao: LeaderboardDAO,
-        game_session_dao: GameSessionDAO
+        game_session_service: GameSessionService
     ):
-        self.leaderboard_dao = leaderboard_dao
-        self.game_session_dao = game_session_dao
+        # self.leaderboard_dao = leaderboard_dao
+        self.game_session_service = game_session_service
 
     async def get_leaderboard(
         self,
@@ -60,11 +58,20 @@ class LeaderboardService:
         if sort_order not in ["desc", "asc"]:
             sort_order = "desc"
 
-        leaderboard = await self.leaderboard_dao.get_leaderboard(
+        game_sessions = await self.game_session_service.get_all_game_sessions_sorted(
             limit=limit,
             offset=offset,
-            sort_order=sort_order
+            sort_order=sort_order,
         )
+        leaderboard = [
+            SLeaderboardPlace(
+                user_id=game_session.user_id,
+                max_score=game_session.score,
+                place=index + offset + 1
+            )
+            for index, game_session in enumerate(game_sessions)
+        ]
+        leaderboard = sorted(leaderboard, key=lambda x: x.max_score, reverse=(sort_order == "desc"))
 
         logger.info(
             "Retrieved leaderboard",
@@ -73,7 +80,7 @@ class LeaderboardService:
 
         return leaderboard
 
-    async def get_user_max_score(self, user: SUser) -> int | None:
+    async def get_user_max_score(self, user: SUser) -> int:
         """
         Получить максимальный счет пользователя.
 
@@ -88,12 +95,15 @@ class LeaderboardService:
             extra={"user_id": user.id}
         )
 
-        max_score = await self.game_session_dao.get_max_score(user.id)
+        max_score = await self.game_session_service.get_user_max_score(user)
 
         logger.info(
             "Retrieved user max score",
             extra={"user_id": user.id, "max_score": max_score}
         )
+
+        if max_score is None:
+            max_score = 0
 
         return max_score
 
@@ -159,11 +169,10 @@ class LeaderboardService:
 
 
 def get_leaderboard_service(
-    leaderboard_dao: LeaderboardDAODep,
-    game_session_dao: GameSessionDAODep
+    game_session_service: GameSessionServiceDep
 ) -> LeaderboardService:
     """Dependency для получения LeaderboardService."""
-    return LeaderboardService(leaderboard_dao, game_session_dao)
+    return LeaderboardService(game_session_service)
 
 
 # Тип для использования в роутерах

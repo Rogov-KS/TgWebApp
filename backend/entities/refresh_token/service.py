@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 import secrets
-from typing import Annotated, List, Optional
+from typing import Annotated, List
 
 from fastapi import Depends, HTTPException, Response, status
 from pydantic import ValidationError
@@ -9,7 +9,7 @@ from backend.core.config import settings
 from backend.core.logger import get_logger
 from backend.entities.auth import utils as auth_utils
 from backend.entities.refresh_token.dao import RefreshTokenDAODep, RefreshTokenDAO
-from backend.entities.user.dao import UserDAODep, UserDAO
+from backend.entities.user.service import UserService, UserServiceDep
 from backend.entities.assemblers.schemas import SRefreshToken, SUser
 
 
@@ -24,10 +24,10 @@ class RefreshTokenService:
     def __init__(
         self,
         refresh_token_dao: RefreshTokenDAO,
-        user_dao: UserDAO
+        user_service: UserService
     ):
         self.refresh_token_dao: RefreshTokenDAO = refresh_token_dao
-        self.user_dao: UserDAO = user_dao
+        self.user_service: UserService = user_service
 
     async def get_token_by_value(self, token: str) -> SRefreshToken | None:
         """
@@ -194,7 +194,7 @@ class RefreshTokenService:
             return None
 
         # Получаем пользователя
-        user = await self.user_dao.get_one_or_none(id=refresh_token.user_id)
+        user = await self.user_service.get_user_by(id=refresh_token.user_id)
 
         if not user:
             logger.warning(
@@ -359,10 +359,10 @@ class RefreshTokenService:
 
 def get_refresh_token_service(
     refresh_token_dao: RefreshTokenDAODep,
-    user_dao: UserDAODep
+    user_service: UserServiceDep
 ) -> RefreshTokenService:
     """Dependency для получения RefreshTokenService."""
-    return RefreshTokenService(refresh_token_dao, user_dao)
+    return RefreshTokenService(refresh_token_dao, user_service)
 
 
 # Тип для использования в роутерах
