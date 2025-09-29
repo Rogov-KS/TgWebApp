@@ -19,10 +19,17 @@ class SUser(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class SUserRegister(BaseModel):
+    username: str
+    email: EmailStr
+    hashed_password: str
+
+
 class SUserAuth(BaseModel):
     username: str
     email: EmailStr
     password: str
+
 
 class SUserAuthViaTelegram(BaseModel):
     username: str

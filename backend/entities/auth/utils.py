@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from fastapi import Response
 from jose import jwt
@@ -43,7 +44,7 @@ def create_access_token(user_id: int) -> str:
     return _create_access_token_with_data({"user_id": user_id})
 
 
-def _create_access_token_with_data(data: dict) -> str:
+def _create_access_token_with_data(data: dict[str, Any]) -> str:
     """
     Создать access token.
 
@@ -90,12 +91,31 @@ def set_auth_cookies(
         httponly=True,
         samesite="none",
         secure=True,
-        path="/auth/refresh",
+        # path="/auth/refresh",
     )
 
     logger.info("Auth cookies set", extra={
         "access_token_set": True,
         "refresh_token_set": True
+    })
+
+
+def delete_auth_cookies(
+    response: Response
+) -> None:
+    """
+    Удалить cookies для аутентификации.
+
+    Args:
+        response: HTTP response объект
+    """
+    # Удаляем access token cookie
+    response.delete_cookie(settings.ACCESS_TOKEN_COOKIE_NAME)
+    response.delete_cookie(settings.REFRESH_TOKEN_COOKIE_NAME)
+
+    logger.info("Auth cookies deleted", extra={
+        "access_token_deleted": True,
+        "refresh_token_deleted": True
     })
 
 

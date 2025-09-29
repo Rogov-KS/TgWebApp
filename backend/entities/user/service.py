@@ -1,10 +1,10 @@
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Any
 
 from fastapi import Depends
 
 from backend.core.logger import get_logger
 from backend.entities.user.dao import UserDAODep, UserDAO
-from backend.entities.assemblers.schemas import SUser, SUserAuth
+from backend.entities.assemblers.schemas import SUser, SUserAuth, SUserRegister
 
 logger = get_logger(__name__)
 
@@ -28,20 +28,7 @@ class UserService:
         logger.info("Retrieved users", extra={"count": len(users)})
         return [SUser.model_validate(user) for user in users]
 
-    async def get_user_by_id(self, user_id: int) -> Optional[SUser]:
-        """
-        Получить пользователя по ID.
-
-        Args:
-            user_id (int): ID пользователя
-
-        Returns:
-            Optional[SUser]: Пользователь или None, если не найден
-        """
-        user = await self.user_dao.get_one_or_none(id=user_id)
-        return SUser.model_validate(user) if user else None
-
-    async def get_user_by(self, **filter_by) -> Optional[SUser]:
+    async def get_user_by(self, **filter_by: Any) -> SUser | None:
         """
         Получить пользователя по фильтру.
 
@@ -49,12 +36,24 @@ class UserService:
             **filter_by: Фильтр
 
         Returns:
-            Optional[SUser]: Пользователь или None, если не найден
+            SUser | None: Пользователь или None, если не найден
         """
         user = await self.user_dao.get_one_or_none(**filter_by)
         return SUser.model_validate(user) if user else None
 
-    async def create_user(self, user_data: SUserAuth) -> SUser:
+    async def get_user_by_id(self, user_id: int) -> SUser | None:
+        """
+        Получить пользователя по ID.
+
+        Args:
+            user_id (int): ID пользователя
+
+        Returns:
+            SUser | None: Пользователь или None, если не найден
+        """
+        return await self.get_user_by(id=user_id)
+
+    async def create_user(self, user_data: SUserRegister) -> SUser:
         """
         Создать пользователя.
         """
@@ -64,7 +63,26 @@ class UserService:
         )
         user = await self.user_dao.create(
             username=user_data.username,
-            hashed_password=None,
+            email=user_data.email,
+            hashed_password=user_data.hashed_password,
+        )
+        logger.info(
+            "User created",
+            extra={"user": user}
+        )
+        return SUser.model_validate(user)
+
+    async def create_telegram_user(self, user_data: SUserAuth) -> SUser:
+        """
+        Создать пользователя.
+        """
+        logger.info(
+            "Try to create telegram user",
+            extra={"user_data": user_data}
+        )
+        user = await self.user_dao.create(
+            username=user_data.username,
+            # hashed_password=user_data.hashed_password,
             telegram_id=user_data.telegram_id,
         )
         logger.info(
@@ -72,6 +90,7 @@ class UserService:
             extra={"user": user}
         )
         return SUser.model_validate(user)
+
 
 def get_user_service(user_dao: UserDAODep) -> UserService:
     """Dependency для получения UserService."""

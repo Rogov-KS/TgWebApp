@@ -15,6 +15,19 @@ router = APIRouter(
 )
 
 
+@router.post("/logout")
+@version(1)
+async def logout(
+    response: Response,
+    user: CurrentUserDep,
+    auth_service: AuthServiceDep,
+) -> dict[str, str]:
+    """Выйти из системы."""
+    return await auth_service.logout_user(
+        user, response
+    )
+
+
 @router.post("/register")
 @version(1)
 async def register(
@@ -60,19 +73,6 @@ async def refresh(
     refresh токена."""
     return await auth_service.refresh_tokens(
         request, response
-    )
-
-
-@router.post("/logout")
-@version(1)
-async def logout(
-    response: Response,
-    user: CurrentUserDep,
-    auth_service: AuthServiceDep,
-) -> dict[str, str]:
-    """Выйти из системы."""
-    return await auth_service.logout_user(
-        user, response
     )
 
 

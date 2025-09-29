@@ -1,7 +1,5 @@
 """Схемы для Telegram авторизации."""
 
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -12,17 +10,17 @@ class TelegramUserData(BaseModel):
         ..., description="Уникальный идентификатор пользователя в Telegram"
     )
     first_name: str = Field(..., description="Имя пользователя")
-    last_name: Optional[str] = Field(None, description="Фамилия пользователя")
-    username: Optional[str] = Field(
+    last_name: str | None = Field(None, description="Фамилия пользователя")
+    username: str | None = Field(
         None, description="Имя пользователя в Telegram"
     )
-    language_code: Optional[str] = Field(
+    language_code: str | None = Field(
         None, description="Код языка пользователя"
     )
-    is_premium: Optional[bool] = Field(
+    is_premium: bool | None = Field(
         None, description="Является ли пользователь Premium"
     )
-    photo_url: Optional[str] = Field(
+    photo_url: str | None = Field(
         None, description="URL фотографии пользователя"
     )
 
@@ -30,13 +28,13 @@ class TelegramUserData(BaseModel):
 class TelegramInitData(BaseModel):
     """Данные инициализации Telegram Mini App."""
 
-    user: Optional[TelegramUserData] = Field(
+    user: TelegramUserData | None = Field(
         None, description="Данные пользователя"
     )
-    chat_instance: Optional[str] = Field(
+    chat_instance: str | None = Field(
         None, description="Идентификатор чата"
     )
-    chat_type: Optional[str] = Field(None, description="Тип чата")
+    chat_type: str | None = Field(None, description="Тип чата")
     auth_date: int = Field(
         ..., description="Время авторизации (Unix timestamp)"
     )

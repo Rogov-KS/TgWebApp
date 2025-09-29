@@ -166,7 +166,7 @@ def extract_user_data_from_init_data(
         init_data: Строка initData от Telegram
 
     Returns:
-        Optional[Dict]: Данные пользователя или None
+        Dict | None: Данные пользователя или None
     """
     try:
         logger.info("Try to urllib.parse from init data")

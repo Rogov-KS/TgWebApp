@@ -44,19 +44,19 @@ class BaseDAO(Generic[ModelType]):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_all(self, **filter_by) -> list[ModelType]:
+    async def get_all(self, **filter_by: Any) -> list[ModelType]:
         """Получить все записи."""
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def get_one_or_none(self, **filter_by) -> ModelType | None:
+    async def get_one_or_none(self, **filter_by: Any) -> ModelType | None:
         """Получить запись по ID."""
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
-    async def create(self, **data) -> ModelType | None:
+    async def create(self, **data: Any) -> ModelType | None:
         """Создать новую запись."""
         try:
             query = insert(self.model).values(**data).returning(self.model)
@@ -75,7 +75,7 @@ class BaseDAO(Generic[ModelType]):
             )
             raise
 
-    async def delete(self, **filter_by) -> bool:
+    async def delete(self, **filter_by: Any) -> bool:
         """Удалить запись."""
         query = delete(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
@@ -84,8 +84,8 @@ class BaseDAO(Generic[ModelType]):
 
     async def update(
         self,
-        filters: dict,  # Условия для выбора записи (например, {"id": 1})
-        update_data: dict,  # Данные для обновления
+        filters: dict[str, Any],  # Условия для выбора записи (например, {"id": 1})
+        update_data: dict[str, Any],  # Данные для обновления
     ) -> ModelType | None:
         """
         Обновляет запись по фильтру и возвращает обновленный объект.

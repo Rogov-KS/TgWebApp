@@ -17,16 +17,16 @@ from backend.entities.auth.utils import (
     is_valid_email,
     create_access_token,
     set_auth_cookies,
+    delete_auth_cookies,
 )
-from backend.entities.user.dao import UserDAODep
 from backend.entities.assemblers.schemas import (
-    SUserAuth, SUserLogin, SUser
+    SUserAuth, SUserLogin, SUser, SUserRegister
 )
 from backend.entities.refresh_token.service import (
     RefreshTokenServiceDep,
 )
 from backend.entities.refresh_token.service import RefreshTokenService
-from backend.entities.user.dao import UserDAO
+from backend.entities.user.service import UserService, UserServiceDep
 from backend.core.config import settings
 
 
@@ -38,10 +38,10 @@ class AuthService:
 
     def __init__(
         self,
-        user_dao: UserDAO,
+        user_service: UserService,
         refresh_service: RefreshTokenService,
     ):
-        self.user_dao = user_dao
+        self.user_service = user_service
         self.refresh_service = refresh_service
 
     async def authenticate_user(
@@ -66,10 +66,10 @@ class AuthService:
         # Проверяем, является ли введенная строка email
         if is_valid_email(username_or_email):
             # Если это email, ищем пользователя по email
-            user = await self.user_dao.get_one_or_none(email=username_or_email)
+            user = await self.user_service.get_user_by(email=username_or_email)
         else:
             # Если это не email, ищем по username
-            user = await self.user_dao.get_one_or_none(
+            user = await self.user_service.get_user_by(
                 username=username_or_email
             )
 
@@ -129,7 +129,7 @@ class AuthService:
             raise InvalidEmailException
 
         # Проверяем, существует ли пользователь с таким email
-        existing_user = await self.user_dao.get_one_or_none(
+        existing_user = await self.user_service.get_user_by(
             email=user_data.email
         )
         if existing_user:
@@ -139,7 +139,7 @@ class AuthService:
             raise UserAlreadyExistsException
 
         # Проверяем, существует ли пользователь с таким username
-        existing_user = await self.user_dao.get_one_or_none(
+        existing_user = await self.user_service.get_user_by(
             username=user_data.username
         )
         if existing_user:
@@ -151,15 +151,17 @@ class AuthService:
 
         # Хешируем пароль
         hashed_password = get_password_hash(user_data.password)
-
+        user_reg_data = SUserRegister(
+            username=user_data.username,
+            email=user_data.email,
+            hashed_password=hashed_password,
+        )
         # Создаем пользователя
         try:
-            model_user = await self.user_dao.create(
-                username=user_data.username,
-                email=user_data.email,
-                hashed_password=hashed_password,
+            schema_user = await self.user_service.create_user(
+                user_data=user_reg_data
             )
-            if not model_user:
+            if not schema_user:
                 logger.error("Failed to create user - returned None")
                 raise UserAlreadyExistsException
         except Exception as e:
@@ -167,9 +169,9 @@ class AuthService:
             raise UserAlreadyExistsException from e
 
         logger.info(
-            "User registered successfully", extra={"user_id": model_user.id}
+            "User registered successfully", extra={"user_id": schema_user.id}
         )
-        return SUser.model_validate(model_user)
+        return schema_user
 
     async def login_user(
         self,
@@ -204,13 +206,13 @@ class AuthService:
             raise InvalidCredentialsException
 
         # Получаем модель пользователя для set_tokens_to_cookies
-        user_model = await self.user_dao.get_one_or_none(id=user_schema.id)
-        if not user_model:
+        schema_user = await self.user_service.get_user_by(id=user_schema.id)
+        if not schema_user:
             raise InvalidCredentialsException
 
-        access_token = create_access_token(user_model.id)
+        access_token = create_access_token(schema_user.id)
         refresh_token = await self.refresh_service.create_refresh_token(
-            user_model.id
+            schema_user.id
         )
 
         set_auth_cookies(
@@ -270,6 +272,11 @@ class AuthService:
         refresh_token = await self.refresh_service.create_refresh_token(
             user.id
         )
+
+        # Удаляем cookies
+        delete_auth_cookies(response)
+
+        # Устанавливаем новые cookies
         set_auth_cookies(
             response=response,
             access_token=access_token,
@@ -295,7 +302,6 @@ class AuthService:
         Returns:
             dict: сообщение об успешном выходе
         """
-        from backend.core.config import settings
 
         logger.info("Logging out user", extra={"user_id": user.id})
 
@@ -303,19 +309,18 @@ class AuthService:
         await self.refresh_service.revoke_all_user_tokens(user.id)
 
         # Удаляем cookies
-        response.delete_cookie(settings.ACCESS_TOKEN_COOKIE_NAME)
-        response.delete_cookie(settings.REFRESH_TOKEN_COOKIE_NAME)
+        delete_auth_cookies(response)
 
         logger.info("User logged out successfully", extra={"user_id": user.id})
         return {"message": "Successfully logged out"}
 
 
 def get_auth_service(
-    user_dao: UserDAODep,
+    user_service: UserServiceDep,
     refresh_service: RefreshTokenServiceDep
 ) -> AuthService:
     """Dependency для получения AuthService."""
-    return AuthService(user_dao, refresh_service)
+    return AuthService(user_service, refresh_service)
 
 
 # Тип для использования в роутерах

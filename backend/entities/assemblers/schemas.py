@@ -9,7 +9,7 @@ from backend.ows.auth.schemas import (
     SOAuth2TokenData,
     SOAuth2UserData,
 )
-from backend.entities.user.schemas import SUser, SUserAuth, SUserLogin, SUserAuthViaTelegram
+from backend.entities.user.schemas import SUser, SUserAuth, SUserLogin, SUserAuthViaTelegram, SUserRegister
 from backend.entities.leaderboard.schemas import SLeaderboardPlace
 from backend.entities.refresh_token.schemas import SRefreshToken
 
@@ -24,6 +24,7 @@ __all__ = [
     "SOAuth2UserData",
     "SUser",
     "SUserAuth",
+    "SUserRegister",
     "SUserLogin",
     "SLeaderboardPlace",
     "SRefreshToken",

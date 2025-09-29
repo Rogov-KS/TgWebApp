@@ -29,7 +29,7 @@ class RefreshTokenService:
         self.refresh_token_dao: RefreshTokenDAO = refresh_token_dao
         self.user_dao: UserDAO = user_dao
 
-    async def get_token_by_value(self, token: str) -> Optional[SRefreshToken]:
+    async def get_token_by_value(self, token: str) -> SRefreshToken | None:
         """
         Получить refresh token по значению токена.
 
@@ -37,7 +37,7 @@ class RefreshTokenService:
             token (str): Значение токена
 
         Returns:
-            Optional[RefreshToken]: Токен или None, если не найден
+            RefreshToken | None: Токен или None, если не найден
         """
         logger.info("Getting refresh token by value")
 
@@ -156,7 +156,7 @@ class RefreshTokenService:
 
         return token_value
 
-    async def verify_refresh_token(self, token: str) -> Optional[SUser]:
+    async def verify_refresh_token(self, token: str) -> SUser | None:
         """
         Верифицировать refresh token и вернуть пользователя.
 
@@ -164,7 +164,7 @@ class RefreshTokenService:
             token (str): Значение токена
 
         Returns:
-            Optional[User]: Пользователь, если токен валиден, иначе None
+            SUser | None: Пользователь, если токен валиден, иначе None
         """
         logger.info("Verifying refresh token")
 
