@@ -23,8 +23,7 @@ class TestUserDAO:
                 username="John_4",
                 is_admin=False,
                 is_bot=False,
-                is_active=True,
-                max_score=10
+                is_active=True
             )
             assert user is not None
 

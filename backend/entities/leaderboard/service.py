@@ -50,13 +50,13 @@ class LeaderboardService:
 
         # Валидация параметров
         if limit <= 0:
-            limit = 10
+            raise ValueError("Limit must be greater than 0")
         if limit > 100:  # Ограничиваем максимальное количество записей
-            limit = 100
+            raise ValueError("Limit must be less than 100")
         if offset < 0:
-            offset = 0
+            raise ValueError("Offset must be greater than 0")
         if sort_order not in ["desc", "asc"]:
-            sort_order = "desc"
+            raise ValueError("Sort order must be 'desc' or 'asc'")
 
         game_sessions = await self.game_session_service.get_all_game_sessions_sorted(
             limit=limit,

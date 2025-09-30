@@ -96,7 +96,6 @@ class GameSessionService:
             "Retrieving game sessions With Pagination and Sorting",
             extra={
                 "filter_by": filter_by,
-                "user_id": user.id,
                 "limit": limit,
                 "offset": offset,
                 "sort_order": sort_order
@@ -289,7 +288,7 @@ class GameSessionService:
         """
         Получить максимальный счет пользователя.
         """
-        return await self.game_session_dao.get_max_score(user.id)
+        return await self.game_session_dao.get_user_max_score(user.id)
 
 
 def get_game_session_service(

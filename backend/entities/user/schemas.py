@@ -12,7 +12,6 @@ class SUser(BaseModel):
     is_admin: bool = False
     is_bot: bool = False
     is_active: bool = True
-    max_score: int = 0
     created_at: datetime
     updated_at: datetime | None = None
 

@@ -101,7 +101,7 @@ class Settings(BaseSettings):
         extra="ignore",  # Игнорирует неизвестные переменные
     )
 
-    def get_cors_attrs(self) -> dict[str, str | list[str]]:
+    def get_cors_attrs(self) -> dict[str, str | bool | list[str]]:
         return {
             "allow_origins": self.CORS_ORIGINS,
             "allow_credentials": self.CORS_ALLOW_CREDENTIALS,
@@ -109,7 +109,7 @@ class Settings(BaseSettings):
             "allow_headers": self.CORS_ALLOW_HEADERS,
         }
 
-    def get_smtp_attrs(self) -> dict:
+    def get_smtp_attrs(self) -> dict[str, str | int]:
         return {
             "host": self.SMTP_HOST,
             "port": self.SMTP_PORT,
@@ -117,7 +117,7 @@ class Settings(BaseSettings):
             "pass": self.SMTP_PASS,
         }
 
-    def get_telegram_attrs(self) -> dict:
+    def get_telegram_attrs(self) -> dict[str, str]:
         return {
             "bot_token": self.TG_BOT_TOKEN,
         }

@@ -35,12 +35,12 @@
 - `test_delete_game_session_not_found` - тест удаления несуществующей сессии
 
 #### TestGetMaxScore
-- `test_get_max_score_success` - тест получения максимального счета
-- `test_get_max_score_user_with_no_sessions` - тест для пользователя без сессий
-- `test_get_max_score_invalid_user_id_zero` - тест с user_id = 0
-- `test_get_max_score_invalid_user_id_negative` - тест с отрицательным user_id
-- `test_get_max_score_invalid_user_id_type` - тест с неправильным типом user_id
-- `test_get_max_score_multiple_users` - тест для нескольких пользователей
+- `test_get_user_max_score_success` - тест получения максимального счета
+- `test_get_user_max_score_user_with_no_sessions` - тест для пользователя без сессий
+- `test_get_user_max_score_invalid_user_id_zero` - тест с user_id = 0
+- `test_get_user_max_score_invalid_user_id_negative` - тест с отрицательным user_id
+- `test_get_user_max_score_invalid_user_id_type` - тест с неправильным типом user_id
+- `test_get_user_max_score_multiple_users` - тест для нескольких пользователей
 
 ## Запуск тестов
 
@@ -71,7 +71,7 @@ python -m pytest tests/backend/unit/entities/game_session/test_dao.py --cov=back
 
 Тесты покрывают:
 - ✅ Все базовые методы CRUD (create, read, update, delete)
-- ✅ Специфичный метод `get_max_score`
+- ✅ Специфичный метод `get_user_max_score`
 - ✅ Валидацию входных данных
 - ✅ Обработку ошибок
 - ✅ Граничные случаи

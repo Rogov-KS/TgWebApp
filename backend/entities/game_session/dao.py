@@ -19,7 +19,7 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
 
     model = GameSessionDB
 
-    async def get_max_score(self, user_id: int) -> int | None:
+    async def get_user_max_score(self, user_id: int) -> int | None:
         """
         Получить максимальный счет пользователя.
 

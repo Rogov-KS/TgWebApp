@@ -1,5 +1,5 @@
 # mypy: ignore-errors
-from typing import Any, Generic, List, Protocol, Sequence, TypeVar
+from typing import Any, Generic, Sequence, TypeVar
 
 from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -27,10 +27,15 @@ class BaseDAO(Generic[ModelType]):
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def get_all_sorted(self, limit: int = 10, offset: int = 0, sort_order: str = "desc", **filter_by: Any) -> list[ModelType]:
+    async def get_all_sorted(self,
+                             limit: int = 10,
+                             offset: int = 0,
+                             sort_order: str = "desc",
+                             order_by: str = "id",
+                             **filter_by: Any) -> Sequence[ModelType]:
         """Получить все записи с сортировкой."""
         query = select(self.model).filter_by(**filter_by)
-        query = query.order_by(self.model.id.desc() if sort_order == "desc" else self.model.id.asc())
+        query = query.order_by(getattr(self.model, order_by).desc() if sort_order == "desc" else getattr(self.model, order_by).asc())
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
         return result.scalars().all()

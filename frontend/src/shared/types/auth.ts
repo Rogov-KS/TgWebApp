@@ -9,7 +9,6 @@ export interface User {
   language_code: string | null;
   is_bot: boolean;
   is_active: boolean;
-  max_score: number;
   created_at: string;
   updated_at: string | null;
 }

@@ -33,7 +33,7 @@ async def test_db_connection(get_async_test_db_session: AsyncSession):
         print("users:", *users, sep="\n")
 
         # Пользователи
-        await get_async_test_db_session.execute(text("INSERT INTO users (username, is_admin, is_bot, is_active, max_score) VALUES ('John_3', false, false, true, 10)"))
+        await get_async_test_db_session.execute(text("INSERT INTO users (username, is_admin, is_bot, is_active) VALUES ('John_3', false, false, true)"))
         await get_async_test_db_session.commit()
 
         # Создаем пользователя
@@ -42,8 +42,7 @@ async def test_db_connection(get_async_test_db_session: AsyncSession):
             username="John_4",
             is_admin=False,
             is_bot=False,
-            is_active=True,
-            max_score=10
+            is_active=True
         )
         print(f"Создан пользователь: {user}")
 

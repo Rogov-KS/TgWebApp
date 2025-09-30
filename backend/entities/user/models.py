@@ -30,9 +30,6 @@ class UserDB(Base):
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     is_bot: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    max_score: Mapped[int] = mapped_column(
-        Integer, default=0
-    )  # Максимальное количество очков
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

@@ -211,47 +211,47 @@ class TestGameSessionDAO:
             assert result is False
 
     class TestGetMaxScore:
-        """Тесты для специфичного метода get_max_score."""
+        """Тесты для специфичного метода get_user_max_score."""
 
-        async def test_get_max_score_success(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+        async def test_get_user_max_score_success(self, dao, insert_test_game_sessions: list[GameSessionDB]):
             """Тест успешного получения максимального счета."""
             user_id = 1
-            result = await dao.get_max_score(user_id)
+            result = await dao.get_user_max_score(user_id)
 
             # В тестовых данных у пользователя с id=1 максимальный счет 250
             assert result == 250
 
-        async def test_get_max_score_user_with_no_sessions(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+        async def test_get_user_max_score_user_with_no_sessions(self, dao, insert_test_game_sessions: list[GameSessionDB]):
             """Тест получения максимального счета для пользователя без сессий."""
             user_id = 999
-            result = await dao.get_max_score(user_id)
+            result = await dao.get_user_max_score(user_id)
 
             assert result is None
 
-        async def test_get_max_score_invalid_user_id_zero(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+        async def test_get_user_max_score_invalid_user_id_zero(self, dao, insert_test_game_sessions: list[GameSessionDB]):
             """Тест получения максимального счета с user_id = 0."""
             with pytest.raises(
                 ValueError,
                 match="user_id должен быть положительным целым числом"
             ):
-                await dao.get_max_score(0)
+                await dao.get_user_max_score(0)
 
-        async def test_get_max_score_invalid_user_id_negative(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+        async def test_get_user_max_score_invalid_user_id_negative(self, dao, insert_test_game_sessions: list[GameSessionDB]):
             """Тест получения максимального счета с отрицательным user_id."""
             with pytest.raises(ValueError, match="user_id должен быть положительным целым числом"):
-                await dao.get_max_score(-1)
+                await dao.get_user_max_score(-1)
 
-        async def test_get_max_score_invalid_user_id_type(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+        async def test_get_user_max_score_invalid_user_id_type(self, dao, insert_test_game_sessions: list[GameSessionDB]):
             """Тест получения максимального счета с неправильным типом user_id."""
             with pytest.raises(ValueError, match="user_id должен быть положительным целым числом"):
-                await dao.get_max_score("invalid")
+                await dao.get_user_max_score("invalid")
 
-        async def test_get_max_score_multiple_users(self, dao, insert_test_game_sessions: list[GameSessionDB]):
+        async def test_get_user_max_score_multiple_users(self, dao, insert_test_game_sessions: list[GameSessionDB]):
             """Тест получения максимального счета для разных пользователей."""
             # У пользователя с id=1 максимальный счет 250
-            max_score_user1 = await dao.get_max_score(1)
+            max_score_user1 = await dao.get_user_max_score(1)
             assert max_score_user1 == 250
 
             # У пользователя с id=2 максимальный счет 300
-            max_score_user2 = await dao.get_max_score(2)
+            max_score_user2 = await dao.get_user_max_score(2)
             assert max_score_user2 == 300
