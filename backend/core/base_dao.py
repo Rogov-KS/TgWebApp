@@ -1,5 +1,6 @@
 # mypy: ignore-errors
-from typing import Any, Generic, Sequence, TypeVar
+from collections.abc import Sequence
+from typing import Any, Generic, TypeVar
 
 from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -27,15 +28,14 @@ class BaseDAO(Generic[ModelType]):
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def get_all_sorted(self,
-                             limit: int = 10,
-                             offset: int = 0,
-                             sort_order: str = "desc",
-                             order_by: str = "id",
-                             **filter_by: Any) -> Sequence[ModelType]:
+    async def get_all_sorted(
+        self, limit: int = 10, offset: int = 0, sort_order: str = "desc", order_by: str = "id", **filter_by: Any
+    ) -> Sequence[ModelType]:
         """Получить все записи с сортировкой."""
         query = select(self.model).filter_by(**filter_by)
-        query = query.order_by(getattr(self.model, order_by).desc() if sort_order == "desc" else getattr(self.model, order_by).asc())
+        query = query.order_by(
+            getattr(self.model, order_by).desc() if sort_order == "desc" else getattr(self.model, order_by).asc()
+        )
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
         return result.scalars().all()
@@ -60,9 +60,7 @@ class BaseDAO(Generic[ModelType]):
             elif isinstance(e, Exception):
                 msg = "Unknown Exc: Cannot insert data into table"
 
-            logger.exception(
-                msg, extra={"table": self.model.__tablename__}, exc_info=True
-            )
+            logger.exception(msg, extra={"table": self.model.__tablename__}, exc_info=True)
             raise
 
     async def delete(self, **filter_by: Any) -> bool:
@@ -96,21 +94,14 @@ class BaseDAO(Generic[ModelType]):
 
         try:
             # Формируем условие WHERE из фильтров
-            where_clause = and_(
-                *[
-                    getattr(self.model, key) == value
-                    for key, value in filters.items()
-                ]
-            )
+            where_clause = and_(*[getattr(self.model, key) == value for key, value in filters.items()])
 
             # Выполняем обновление
             query = (
                 update(self.model)
                 .where(where_clause)
                 .values(**update_data)
-                .returning(
-                    self.model
-                )  # Возвращаем обновленную запись (если СУБД поддерживает)
+                .returning(self.model)  # Возвращаем обновленную запись (если СУБД поддерживает)
             )
 
             result = await self.session.execute(query)
@@ -122,7 +113,5 @@ class BaseDAO(Generic[ModelType]):
         except SQLAlchemyError:
             await self.session.rollback()
             msg = "Error updating record"
-            logger.exception(
-                msg, extra={"table": self.model.__tablename__}, exc_info=True
-            )
+            logger.exception(msg, extra={"table": self.model.__tablename__}, exc_info=True)
             raise

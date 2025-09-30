@@ -1,7 +1,7 @@
 # tests/backend/test_db_connection.py
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.entities.user.dao import UserDAO
 
@@ -23,7 +23,9 @@ async def test_db_connection(get_async_test_db_session: AsyncSession):
         print(f"{row=}")
 
         # Созданные таблицы
-        result = await get_async_test_db_session.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"))
+        result = await get_async_test_db_session.execute(
+            text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+        )
         tables = result.fetchall()
         print(f"{tables=}")
 
@@ -33,17 +35,14 @@ async def test_db_connection(get_async_test_db_session: AsyncSession):
         print("users:", *users, sep="\n")
 
         # Пользователи
-        await get_async_test_db_session.execute(text("INSERT INTO users (username, is_admin, is_bot, is_active) VALUES ('John_3', false, false, true)"))
+        await get_async_test_db_session.execute(
+            text("INSERT INTO users (username, is_admin, is_bot, is_active) VALUES ('John_3', false, false, true)")
+        )
         await get_async_test_db_session.commit()
 
         # Создаем пользователя
         user_dao = UserDAO(get_async_test_db_session)
-        user = await user_dao.create(
-            username="John_4",
-            is_admin=False,
-            is_bot=False,
-            is_active=True
-        )
+        user = await user_dao.create(username="John_4", is_admin=False, is_bot=False, is_active=True)
         print(f"Создан пользователь: {user}")
 
         result = await get_async_test_db_session.execute(text("SELECT * FROM users"))

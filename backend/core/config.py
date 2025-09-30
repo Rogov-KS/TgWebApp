@@ -75,18 +75,12 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:  # noqa
-        return (
-            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}"
-            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        )
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @property
     def REDIS_URL(self) -> str:  # noqa
         if self.REDIS_PASSWORD:
-            return (
-                f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:"
-                f"{self.REDIS_PORT}/{self.REDIS_DB}"
-            )
+            return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     @property
