@@ -50,10 +50,11 @@ async def get_game_session(
     game_session_id: int,
     user: CurrentUserDep,
     game_session_service: GameSessionServiceDep,
-) -> SGameSession:
+) -> SGameSession | None:
     """Получить игровую сессию по ID."""
     return await game_session_service.get_game_session_by_id(
-        game_session_id, user
+        game_session_id=game_session_id,
+        user=user
     )
 
 

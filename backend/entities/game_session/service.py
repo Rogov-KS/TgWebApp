@@ -106,7 +106,19 @@ class GameSessionService:
         Raises:
             HTTPException: Если сессия не найдена или нет доступа
         """
-        return await self.get_game_session_by(id=game_session_id, user=user)
+        game_session = await self.get_game_session_by(id=game_session_id, user=user)
+        if not game_session:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Game session not found",
+            )
+        if game_session.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not allowed to access this game session",
+            )
+
+        return SGameSession.model_validate(game_session)
 
     async def create_game_session(self, game_session_data: SGameSessionCreate, user: SUser) -> SGameSession:
         """
