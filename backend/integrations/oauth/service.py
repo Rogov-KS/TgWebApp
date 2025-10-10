@@ -8,16 +8,15 @@ from fastapi import HTTPException, Response
 
 from backend.celery_app.tasks.email import send_welcome_email_task
 from backend.core.logger import get_logger
-
-from backend.ows.auth.dao import OAuth2TokenDAO
-from backend.entities.refresh_token.dao import RefreshTokenDAO
-from backend.entities.refresh_token.service import RefreshTokenService
 from backend.entities.assemblers.schemas import (
     SCloudFile,
     SOAuth2TokenData,
     SOAuth2UserData,
 )
+from backend.entities.refresh_token.dao import RefreshTokenDAO
+from backend.entities.refresh_token.service import RefreshTokenService
 from backend.entities.user.dao import UserDAO
+from backend.integrations.oauth.dao import OAuth2TokenDAO
 
 logger = get_logger(__name__)
 
@@ -32,7 +31,7 @@ class OAuth2Service(ABC):
         provider_name: str,
         oauth2_token_dao: OAuth2TokenDAO,
         user_dao: UserDAO,
-        refresh_token_dao: RefreshTokenDAO
+        refresh_token_dao: RefreshTokenDAO,
     ):
         self.provider_name = provider_name
         self._processing_requests: dict[str, bool] = {}
@@ -84,9 +83,7 @@ class OAuth2Service(ABC):
         """Парсинг данных пользователя из ответа провайдера"""
 
     @abstractmethod
-    async def get_cloud_files(
-        self, access_token: str
-    ) -> list[SCloudFile]:
+    async def get_cloud_files(self, access_token: str) -> list[SCloudFile]:
         """Получение списка файлов из облачного хранилища провайдера"""
 
     @contextmanager
@@ -96,10 +93,7 @@ class OAuth2Service(ABC):
         обрабатывается только один раз.
         """
         if request_key in self._processing_requests:
-            logger.warning(
-                "Request already being processed",
-                extra={"request_key": request_key}
-            )
+            logger.warning("Request already being processed", extra={"request_key": request_key})
             raise HTTPException(
                 status_code=429,
                 detail="Request is already being processed",
@@ -132,10 +126,7 @@ class OAuth2Service(ABC):
                     )
                     raise HTTPException(
                         status_code=response.status,
-                        detail=(
-                            f"Failed to get access token from "
-                            f"{self.provider_name}: {error_text}"
-                        ),
+                        detail=(f"Failed to get access token from {self.provider_name}: {error_text}"),
                     )
 
                 data = await response.json()
@@ -152,9 +143,7 @@ class OAuth2Service(ABC):
     async def get_user_data(self, access_token: str) -> SOAuth2UserData | None:
         """Получение данных пользователя через API провайдера"""
         if not self.user_info_url:
-            raise NotImplementedError(
-                f"User info URL not implemented for {self.provider_name}"
-            )
+            raise NotImplementedError(f"User info URL not implemented for {self.provider_name}")
 
         async with aiohttp.ClientSession() as session:
             headers = {"Authorization": f"Bearer {access_token}"}
@@ -183,20 +172,15 @@ class OAuth2Service(ABC):
                     )
                     raise HTTPException(
                         status_code=response.status,
-                        detail=(
-                            f"Failed to get user data from "
-                            f"{self.provider_name}: {error_text}"
-                        ),
+                        detail=(f"Failed to get user data from {self.provider_name}: {error_text}"),
                     )
 
                 data = await response.json()
                 return await self.parse_user_data(data)
 
-    async def get_oauth2_user_data(
-        self, code: str, state: str
-    ) -> SOAuth2UserData | None:
+    async def get_oauth2_user_data(self, code: str, state: str) -> SOAuth2UserData | None:
         """Полный процесс аутентификации"""
-        from backend.ows.auth.state_storage import state_storage
+        from backend.integrations.oauth.state_storage import state_storage
 
         request_key = f"{state}_{code}"
         with self._single_processing_request(request_key):
@@ -212,36 +196,25 @@ class OAuth2Service(ABC):
                 user_data = await self.parse_user_data(token_data.raw_data or {})
             else:
                 # Для других провайдеров делаем запрос к API
-                user_data = await self.get_user_data(
-                    token_data.access_token
-                )
+                user_data = await self.get_user_data(token_data.access_token)
 
             # Получаем файлы из облачного хранилища
             # Чисто для примера, в будущем будет использоваться для получения файлов
             # из облачного хранилища по сторонему АПИ и токену
             try:
-                cloud_files = await self.get_cloud_files(
-                    token_data.access_token
-                )
-                logger.info(
-                    "Found cloud files", extra={"count": len(cloud_files)}
-                )
+                cloud_files = await self.get_cloud_files(token_data.access_token)
+                logger.info("Found cloud files", extra={"count": len(cloud_files)})
             except Exception as e:
                 logger.warning(
                     "Failed to get cloud files",
                     exc_info=True,
-                    extra={
-                        "provider_name": self.provider_name,
-                        "error": str(e)
-                    },
+                    extra={"provider_name": self.provider_name, "error": str(e)},
                 )
                 cloud_files = []
 
             return user_data
 
-    async def authenticate_by_user_data(
-        self, user_data: SOAuth2UserData | None, response: Response
-    ) -> dict[str, str]:
+    async def authenticate_by_user_data(self, user_data: SOAuth2UserData | None, response: Response) -> dict[str, str]:
         """Аутентификация пользователя"""
 
         if not user_data:
@@ -262,21 +235,13 @@ class OAuth2Service(ABC):
 
             # Отправляем приветственное письмо для новых пользователей
             if user_data.email:
-                logger.info(
-                    "Try to send welcome email",
-                    extra={"email": user_data.email}
-                )
+                logger.info("Try to send welcome email", extra={"email": user_data.email})
                 await send_welcome_email_task(
                     user_email=user_data.email,
-                    username=(
-                        user_data.username or user_data.email
-                    ),
+                    username=(user_data.username or user_data.email),
                 )
-        refresh_service = RefreshTokenService(self.refresh_token_dao,
-                                              self.user_dao)
-        tokens = await refresh_service.set_tokens_to_cookies(
-            response, user
-        )
+        refresh_service = RefreshTokenService(self.refresh_token_dao, self.user_dao)
+        tokens = await refresh_service.set_tokens_to_cookies(response, user)
         access_token, refresh_token = tokens
         return {
             "access_token": access_token,

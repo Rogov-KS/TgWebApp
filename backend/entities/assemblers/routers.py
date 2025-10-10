@@ -2,11 +2,11 @@ from fastapi import FastAPI
 
 from backend.core import test_router
 from backend.entities.auth.router import router as auth_router
-from backend.entities.telegram import telegram_router
 from backend.entities.game_session.router import router as game_session_router
 from backend.entities.leaderboard.router import router as leaderboard_router
+from backend.entities.telegram import telegram_router
 from backend.entities.user.router import router as user_router
-from backend.ows.auth.router import router as oauth2_router
+from backend.integrations.oauth.router import router as oauth2_router
 from backend.prometheus import router as prometheus_router
 
 

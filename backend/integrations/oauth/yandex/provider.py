@@ -3,14 +3,13 @@ from typing import Annotated, Any
 from fastapi import Depends
 
 from backend.core.config import settings
-from backend.core.database import get_async_session
 from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAODep, get_user_dao
-from backend.entities.refresh_token.dao import RefreshTokenDAODep, get_refresh_token_dao
-from backend.ows.auth.dao import OAuth2TokenDAODep, get_oauth2_token_dao
 from backend.entities.assemblers.schemas import SCloudFile, SOAuth2UserData
-from backend.ows.auth.service import OAuth2Service
-from backend.ows.cloud_storage.yandex.disk import YandexDiskIntegration
+from backend.entities.refresh_token.dao import RefreshTokenDAODep
+from backend.entities.user.dao import UserDAODep
+from backend.integrations.oauth.dao import OAuth2TokenDAODep
+from backend.integrations.oauth.service import OAuth2Service
+from backend.integrations.storage.yandex.disk import YandexDiskIntegration
 
 logger = get_logger(__name__)
 
@@ -97,18 +96,12 @@ class YandexOAuth2Service(OAuth2Service):
 
 
 def get_yandex_oauth2_service(
-    oauth2_token_dao: OAuth2TokenDAODep,
-    user_dao: UserDAODep,
-    refresh_token_dao: RefreshTokenDAODep
+    oauth2_token_dao: OAuth2TokenDAODep, user_dao: UserDAODep, refresh_token_dao: RefreshTokenDAODep
 ) -> YandexOAuth2Service:
     return YandexOAuth2Service(
-        oauth2_token_dao=oauth2_token_dao,
-        user_dao=user_dao,
-        refresh_token_dao=refresh_token_dao
+        oauth2_token_dao=oauth2_token_dao, user_dao=user_dao, refresh_token_dao=refresh_token_dao
     )
 
 
 # Тип для использования в роутерах
-YandexOAuth2ServiceDep = Annotated[
-    YandexOAuth2Service, Depends(get_yandex_oauth2_service)
-]
+YandexOAuth2ServiceDep = Annotated[YandexOAuth2Service, Depends(get_yandex_oauth2_service)]

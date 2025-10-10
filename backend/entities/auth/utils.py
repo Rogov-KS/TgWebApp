@@ -1,9 +1,11 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from fastapi import Response
 from jose import jwt
 from passlib.context import CryptContext
+
 # import bcrypt
 from pydantic import EmailStr
 
@@ -56,17 +58,13 @@ def _create_access_token_with_data(data: dict[str, Any]) -> str:
     """
     to_encode = data.copy()
     expire_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    expire = datetime.now(UTC) + timedelta(minutes=expire_minutes)
+    expire = datetime.now(ZoneInfo("UTC")) + timedelta(minutes=expire_minutes)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
-    )
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return str(encoded_jwt)
 
 
-def set_auth_cookies(
-    response: Response, access_token: str, refresh_token: str
-) -> None:
+def set_auth_cookies(response: Response, access_token: str, refresh_token: str) -> None:
     """
     Установить cookies для аутентификации.
 
@@ -94,15 +92,10 @@ def set_auth_cookies(
         # path="/auth/refresh",
     )
 
-    logger.info("Auth cookies set", extra={
-        "access_token_set": True,
-        "refresh_token_set": True
-    })
+    logger.info("Auth cookies set", extra={"access_token_set": True, "refresh_token_set": True})
 
 
-def delete_auth_cookies(
-    response: Response
-) -> None:
+def delete_auth_cookies(response: Response) -> None:
     """
     Удалить cookies для аутентификации.
 
@@ -113,10 +106,7 @@ def delete_auth_cookies(
     response.delete_cookie(settings.ACCESS_TOKEN_COOKIE_NAME)
     response.delete_cookie(settings.REFRESH_TOKEN_COOKIE_NAME)
 
-    logger.info("Auth cookies deleted", extra={
-        "access_token_deleted": True,
-        "refresh_token_deleted": True
-    })
+    logger.info("Auth cookies deleted", extra={"access_token_deleted": True, "refresh_token_deleted": True})
 
 
 if __name__ == "__main__":

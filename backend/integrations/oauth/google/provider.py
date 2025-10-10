@@ -1,17 +1,17 @@
 from typing import Annotated, Any
-from fastapi import Depends
 
 import aiohttp
+from fastapi import Depends
 import jwt
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAODep, get_user_dao
-from backend.entities.refresh_token.dao import RefreshTokenDAODep, get_refresh_token_dao
-from backend.ows.auth.dao import OAuth2TokenDAODep, get_oauth2_token_dao
 from backend.entities.assemblers.schemas import SCloudFile, SOAuth2UserData
-from backend.ows.auth.service import OAuth2Service
-from backend.ows.cloud_storage.google.drive import GoogleDriveIntegration
+from backend.entities.refresh_token.dao import RefreshTokenDAODep
+from backend.entities.user.dao import UserDAODep
+from backend.integrations.oauth.dao import OAuth2TokenDAODep
+from backend.integrations.oauth.service import OAuth2Service
+from backend.integrations.storage.google.drive import GoogleDriveIntegration
 
 logger = get_logger(__name__)
 
@@ -54,9 +54,7 @@ class GoogleOAuth2Service(OAuth2Service):
         if self._public_keys is None:
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(
-                        "https://www.googleapis.com/oauth2/v1/certs", ssl=False
-                    ) as response:
+                    async with session.get("https://www.googleapis.com/oauth2/v1/certs", ssl=False) as response:
                         if response.status == 200:
                             self._public_keys = await response.json()
                         else:
@@ -104,9 +102,7 @@ class GoogleOAuth2Service(OAuth2Service):
             return payload
 
         except jwt.InvalidTokenError as e:
-            logger.exception(
-                "Invalid Google id_token", exc_info=True, extra={"id_token": id_token}
-            )
+            logger.exception("Invalid Google id_token", exc_info=True, extra={"id_token": id_token})
             raise ValueError(f"Invalid Google id_token: {e}")
         except Exception as e:
             logger.exception(
@@ -183,22 +179,17 @@ class GoogleOAuth2Service(OAuth2Service):
         files = await self._drive_integration.get_files(access_token)
         return files
 
+
 def get_google_oauth2_service(
-    oauth2_token_dao: OAuth2TokenDAODep,
-    user_dao: UserDAODep,
-    refresh_token_dao: RefreshTokenDAODep
+    oauth2_token_dao: OAuth2TokenDAODep, user_dao: UserDAODep, refresh_token_dao: RefreshTokenDAODep
 ) -> GoogleOAuth2Service:
     return GoogleOAuth2Service(
-        oauth2_token_dao=oauth2_token_dao,
-        user_dao=user_dao,
-        refresh_token_dao=refresh_token_dao
+        oauth2_token_dao=oauth2_token_dao, user_dao=user_dao, refresh_token_dao=refresh_token_dao
     )
 
 
 # Тип для использования в роутерах
-GoogleOAuth2ServiceDep = Annotated[
-    GoogleOAuth2Service, Depends(get_google_oauth2_service)
-]
+GoogleOAuth2ServiceDep = Annotated[GoogleOAuth2Service, Depends(get_google_oauth2_service)]
 
 # def get_google_oauth2_service_instance() -> GoogleOAuth2Service:
 #     session = get_async_session()

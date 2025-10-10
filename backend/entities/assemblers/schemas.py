@@ -4,15 +4,14 @@ from backend.entities.game_session.schemas import (
     SGameSessionCreate,
     SGameSessionUpdate,
 )
-from backend.ows.auth.schemas import (
+from backend.entities.leaderboard.schemas import SLeaderboardPlace
+from backend.entities.refresh_token.schemas import SRefreshToken
+from backend.entities.user.schemas import SUser, SUserAuth, SUserAuthViaTelegram, SUserLogin, SUserRegister
+from backend.integrations.oauth.schemas import (
     SCloudFile,
     SOAuth2TokenData,
     SOAuth2UserData,
 )
-from backend.entities.user.schemas import SUser, SUserAuth, SUserLogin, SUserAuthViaTelegram, SUserRegister
-from backend.entities.leaderboard.schemas import SLeaderboardPlace
-from backend.entities.refresh_token.schemas import SRefreshToken
-
 
 __all__ = [
     "SCloudFile",
@@ -20,13 +19,13 @@ __all__ = [
     "SGameSessionBase",
     "SGameSessionCreate",
     "SGameSessionUpdate",
+    "SLeaderboardPlace",
     "SOAuth2TokenData",
     "SOAuth2UserData",
+    "SRefreshToken",
     "SUser",
     "SUserAuth",
-    "SUserRegister",
-    "SUserLogin",
-    "SLeaderboardPlace",
-    "SRefreshToken",
     "SUserAuthViaTelegram",
+    "SUserLogin",
+    "SUserRegister",
 ]

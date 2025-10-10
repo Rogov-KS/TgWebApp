@@ -1,0 +1,20 @@
+# Dockerfile для frontend в dev-режиме
+FROM node:20-alpine
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем package.json и package-lock.json для кэширования зависимостей
+COPY package*.json ./
+
+# Устанавливаем зависимости
+RUN npm ci
+
+# Копируем остальные файлы проекта
+COPY . .
+
+# Открываем порт для Vite dev server
+EXPOSE 5173
+
+# Запускаем Vite dev server с host 0.0.0.0 для доступа извне контейнера
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

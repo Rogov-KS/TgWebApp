@@ -1,24 +1,24 @@
 """Сервис для авторизации через Telegram."""
 
-from fastapi import HTTPException, Response, status
-from fastapi import Depends
 from typing import Annotated
+
+from fastapi import Depends, HTTPException, Response, status
+
 # from backend.entities.telegram.schemas import (
 # )
 from backend.core.logger import get_logger
+from backend.entities.assemblers.schemas import SUser, SUserAuthViaTelegram
+from backend.entities.auth.utils import (
+    create_access_token,
+    set_auth_cookies,
+)
+from backend.entities.refresh_token.service import RefreshTokenService, RefreshTokenServiceDep
 from backend.entities.telegram.utils import (
     is_telegram_data_fresh,
     parse_telegram_init_data,
     validate_telegram_init_data,
 )
-from backend.entities.assemblers.schemas import SUser, SUserAuthViaTelegram
 from backend.entities.user.service import UserService, UserServiceDep
-from backend.entities.refresh_token.service import RefreshTokenService, RefreshTokenServiceDep
-
-from backend.entities.auth.utils import (
-    create_access_token,
-    set_auth_cookies,
-)
 
 logger = get_logger(__name__)
 
@@ -49,66 +49,36 @@ class TelegramAuthService:
         Raises:
             HTTPException: Если авторизация не удалась
         """
-        logger.info(
-            "Telegram auth request received",
-            extra={"init_data_length": len(init_data)}
-        )
+        logger.info("Telegram auth request received", extra={"init_data_length": len(init_data)})
         try:
             # Валидируем данные Telegram
             if not validate_telegram_init_data(init_data):
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Невалидные данные Telegram"
-                )
-            logger.info(
-                "Telegram init data validated",
-                extra={"init_data": init_data}
-            )
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Невалидные данные Telegram")
+            logger.info("Telegram init data validated", extra={"init_data": init_data})
             # Парсим данные
             init_data_obj = parse_telegram_init_data(init_data)
-            logger.info(
-                "GET Telegram init data parsed",
-                extra={"init_data": init_data_obj}
-            )
+            logger.info("GET Telegram init data parsed", extra={"init_data": init_data_obj})
 
             # Проверяем свежесть данных (не старше 24 часов)
             if not is_telegram_data_fresh(init_data_obj.auth_date):
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Данные авторизации устарели"
-                )
-            logger.info(
-                "success validate telegram auth date"
-            )
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Данные авторизации устарели")
+            logger.info("success validate telegram auth date")
             # Извлекаем данные пользователя
             if not init_data_obj.user:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Данные пользователя не найдены"
-                )
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Данные пользователя не найдены")
 
             telegram_user = init_data_obj.user
 
-            logger.info(
-                "telegram_user",
-                extra={"telegram_user": telegram_user}
-            )
+            logger.info("telegram_user", extra={"telegram_user": telegram_user})
 
             # Ищем или создаем пользователя
-            user = await self._get_or_create_telegram_user(
-                telegram_user
-            )
+            user = await self._get_or_create_telegram_user(telegram_user)
 
-            logger.info(
-                "GET User found or created",
-                extra={"user": user}
-            )
+            logger.info("GET User found or created", extra={"user": user})
 
             # Создаем токены
             access_token = create_access_token(user.id)
-            refresh_token = await self.refresh_service.create_refresh_token(
-                user.id
-            )
+            refresh_token = await self.refresh_service.create_refresh_token(user.id)
             logger.info("before setting tokens to cookies")
             set_auth_cookies(
                 response=response,
@@ -118,7 +88,7 @@ class TelegramAuthService:
 
             logger.info(
                 "Telegram auth after getted tokens",
-                extra={"access_token": access_token, "refresh_token": refresh_token}
+                extra={"access_token": access_token, "refresh_token": refresh_token},
             )
 
             return {
@@ -130,8 +100,7 @@ class TelegramAuthService:
             raise
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Ошибка авторизации через Telegram: {str(e)}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Ошибка авторизации через Telegram: {e!s}"
             ) from e
 
     async def _get_or_create_telegram_user(
@@ -148,37 +117,24 @@ class TelegramAuthService:
         Returns:
             SUser: Пользователь
         """
-        logger.info(
-            "Try to get or create telegram user",
-            extra={"telegram_user": telegram_user}
-        )
+        logger.info("Try to get or create telegram user", extra={"telegram_user": telegram_user})
         # Ищем пользователя по telegram_id
-        user = await self.user_service.get_user_by(
-            telegram_id=telegram_user.id
-        )
-        logger.info(
-            "User found by telegram_id",
-            extra={"user": user}
-        )
+        user = await self.user_service.get_user_by(telegram_id=telegram_user.id)
+        logger.info("User found by telegram_id", extra={"user": user})
 
         if user:
             # Обновляем данные пользователя если нужно
             logger.info(
                 "Try to update user from telegram data",
             )
-            await self._update_user_from_telegram_data(
-                user, telegram_user
-            )
+            await self._update_user_from_telegram_data(user, telegram_user)
         else:
             logger.info(
                 "Try to create user from telegram data",
             )
             user = await self._create_telegram_user(telegram_user)
 
-        logger.info(
-            "User found or created",
-            extra={"user": user}
-        )
+        logger.info("User found or created", extra={"user": user})
 
         # Создаем нового пользователя
         return user
@@ -213,10 +169,9 @@ class TelegramAuthService:
         """
         # Генерируем уникальный username если его нет
         logger.info(
-            "Try to create user from telegram data",
-            extra={"telegram_user": telegram_user, "type": type(telegram_user)}
+            "Try to create user from telegram data", extra={"telegram_user": telegram_user, "type": type(telegram_user)}
         )
-        username = telegram_user.username or f"tg_user_{telegram_user.telegram_id}"
+        username = telegram_user.username or f"tg_user_{telegram_user.id}"
 
         # Создаем пользователя
         user_data = {
@@ -224,16 +179,10 @@ class TelegramAuthService:
             "telegram_id": telegram_user.id,
         }
         user_data = SUserAuthViaTelegram(**user_data)
-        logger.info(
-            "Try to create user from telegram data",
-            extra={"user_data": user_data}
-        )
+        logger.info("Try to create user from telegram data", extra={"user_data": user_data})
 
         created_user = await self.user_service.create_user(user_data)
-        logger.info(
-            "User created",
-            extra={"user": created_user}
-        )
+        logger.info("User created", extra={"user": created_user})
         return created_user
 
 

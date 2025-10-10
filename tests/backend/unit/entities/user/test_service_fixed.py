@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from backend.entities.assemblers.schemas import SUser, SUserAuthViaTelegram
+from backend.entities.assemblers.schemas import SUser, SUserAuth, SUserAuthViaTelegram
 from backend.entities.user.dao import UserDAO
 from backend.entities.user.service import UserService
 
@@ -61,13 +61,7 @@ class TestUserService:
         mock_user_dao.create.return_value = sample_user
 
         # Подготовка данных
-        from backend.entities.assemblers.schemas import SUserRegister
-
-        user_data = SUserRegister(
-            username="testuser",
-            email="test@example.com",
-            hashed_password="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2K5K5K5K5K5",
-        )
+        user_data = SUserAuth(username="testuser", email="test@example.com", password="password123")
 
         # Вызов метода
         result = await user_service.create_user(user_data)
@@ -251,4 +245,4 @@ class TestUserService:
 
         # Проверки
         assert result == updated_user
-        mock_user_dao.update.assert_called_once_with(filters={"id": 1}, update_data={"username": "updated_user"})
+        mock_user_dao.update.assert_called_once_with(filter_by={"id": 1}, update_data={"username": "updated_user"})

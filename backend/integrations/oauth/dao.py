@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from backend.core.base_dao import BaseDAO
 from backend.core.database import AsyncSessionDep
-from backend.ows.auth.models import OAuth2TokenDB
+from backend.integrations.oauth.models import OAuth2TokenDB
 
 
 class OAuth2TokenDAO(BaseDAO[OAuth2TokenDB]):

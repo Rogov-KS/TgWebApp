@@ -1,6 +1,6 @@
 import asyncio
-import secrets
 from datetime import UTC, datetime, timedelta
+import secrets
 
 from fastapi import HTTPException
 
@@ -79,27 +79,23 @@ class StateStorage:
     def validate_state_or_raise(self, state: str, provider: str) -> None:
         """Валидирует state, выбрасывает HTTPException при ошибке."""
         if not self.validate_state(state, provider):
-            logger.exception(
-                "Invalid state parameter", extra={"state": state}, exc_info=True
-            )
+            logger.exception("Invalid state parameter", extra={"state": state}, exc_info=True)
             raise HTTPException(status_code=400, detail="Invalid state parameter")
 
     def cleanup_expired_states(self) -> None:
         """Очищает истекшие state"""
         now = datetime.now(UTC)
         expired_states = [
-            state
-            for state, data in self._states.items()
-            if now - data["created_at"] > timedelta(minutes=10)
+            state for state, data in self._states.items() if now - data["created_at"] > timedelta(minutes=10)
         ]
         for state in expired_states:
             del self._states[state]
             # Также очищаем из множества обрабатываемых
             self._processing_states.discard(state)
         # if expired_states:
-            # logger.info(
-            #     "Cleaned up expired states", extra={"count": len(expired_states)}
-            # )
+        # logger.info(
+        #     "Cleaned up expired states", extra={"count": len(expired_states)}
+        # )
 
 
 async def cleanup_oauth_data() -> None:

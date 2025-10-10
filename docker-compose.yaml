@@ -63,10 +63,36 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/ping"]
       interval: 30s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
+
+
+  # Frontend Layer - React + Vite (dev mode)
+  frontend_app:
+    image: tg_web_app_frontend
+    container_name: tg_web_app_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - backend_app
+    environment:
+      - VITE_API_URL=http://localhost:9000/api
+      - VITE_BACKEND_URL=http://backend_app:8000/api
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/tsconfig.node.json:/app/tsconfig.node.json
+    networks:
+      - app-network
     restart: unless-stopped
 
 

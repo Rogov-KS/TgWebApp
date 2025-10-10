@@ -10,8 +10,8 @@ from backend.cache_redis.main import init_cache
 from backend.core.database import engine
 from backend.core.logger import get_logger, setup_logging
 from backend.entities.assemblers.routers import include_routers_into_app
+from backend.integrations.oauth.state_storage import start_cleanup_task
 from backend.middlewares import add_middlewares
-from backend.ows.auth.state_storage import start_cleanup_task
 from backend.prometheus import init_prometheus
 from backend.sentry import init_sentry
 
@@ -48,6 +48,14 @@ app = VersionedFastAPI(
     prefix_format="/api/v{major}",
     lifespan=lifespan,
 )
+
+
+# Добавляем health endpoint после версионирования (без версионирования)
+@app.get("/health")
+async def health() -> dict[str, str]:
+    """Health check endpoint для Docker."""
+    return {"status": "healthy"}
+
 
 # Добавляем middlewares
 add_middlewares(app)

@@ -8,7 +8,7 @@ from backend.core.database import Base
 if TYPE_CHECKING:
     from backend.entities.game_session.models import GameSessionDB
     from backend.entities.refresh_token.models import RefreshTokenDB
-    from backend.ows.auth.models import OAuth2TokenDB
+    from backend.integrations.oauth.models import OAuth2TokenDB
 
 
 class UserDB(Base):
