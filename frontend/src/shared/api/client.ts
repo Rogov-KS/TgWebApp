@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { backendUrl as manualConfigBackendUrl } from '~/manual.config.ts';
 import type {
   User,
   UserAuth,
@@ -13,35 +12,16 @@ import type {
 
 // Динамический baseURL в зависимости от окружения
 export const getBaseURL = () => {
-  let coutCount = 0;
-  // Используем manualConfigBackendUrl
-  if (coutCount === 0) {
-    console.log('manualConfigBackendUrl:', manualConfigBackendUrl);
-  }
-  if (manualConfigBackendUrl && manualConfigBackendUrl !== '') {
-    console.log('baseURL:', manualConfigBackendUrl);
-    coutCount++;
-    return manualConfigBackendUrl;
-  }
-
   // Используем Vite environment variable
-  // Если есть переменная окружения, используем её
-  if (coutCount === 0) {
-    console.log('import.meta.env:', import.meta.env);
-  }
-  const backendUrl = import.meta.env.VITE_NGROK_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   if (backendUrl && backendUrl !== '') {
-    console.log('baseURL:', backendUrl);
-    coutCount++;
+    console.log('Backend URL from env:', backendUrl);
     return backendUrl;
   }
 
   // По умолчанию localhost
   const baseUrl = 'http://localhost:8000/api/v1';
-  if (coutCount === 0) {
-    console.log('baseURL:', baseUrl);
-    coutCount++;
-  }
+  console.log('Using default backend URL:', baseUrl);
   return baseUrl;
 };
 
