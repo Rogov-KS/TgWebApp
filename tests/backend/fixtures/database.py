@@ -1,18 +1,20 @@
 """
 Фикстуры для работы с базой данных в тестах
 """
-from typing import AsyncGenerator
+
+from collections.abc import AsyncGenerator
+
 import pytest_asyncio
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy import text
+
 from backend.core.config import get_settings
 from backend.core.database import Base
-
 
 settings = get_settings(env_files=["configs/envs/.env-base", "configs/envs/.env-test"])
 
@@ -31,16 +33,13 @@ async def truncate_tables(engine: AsyncEngine):
     затем из основных таблиц.
     """
     async with engine.begin() as conn:
-
         # Получаем все таблицы из метаданных
         tables = Base.metadata.tables.values()
 
         # Очищаем все таблицы
         for table in tables:
             try:
-                await conn.execute(
-                    text(f"TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE;")
-                )
+                await conn.execute(text(f"TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE;"))
             except Exception as e:
                 print(f"Ошибка при очистке таблицы {table.name}: {e}")
 
@@ -57,9 +56,7 @@ async def drop_tables(engine: AsyncEngine) -> None:
             # Очищаем все таблицы
             for table in tables:
                 try:
-                    await conn.execute(
-                        text(f"DROP TABLE {table.name} CASCADE;")
-                    )
+                    await conn.execute(text(f"DROP TABLE {table.name} CASCADE;"))
                 except Exception as e:
                     print(f"Ошибка при удалении таблицы {table.name}: {e}")
             print("🗑️ Все таблицы удалены успешно")
@@ -108,9 +105,7 @@ async def get_async_test_db_session_maker(
     Фикстура для создания тестового движка базы данных.
     Запускается один раз в начале сессии тестов.
     """
-    session_maker = async_sessionmaker(
-        get_async_test_db_engine, expire_on_commit=False
-    )
+    session_maker = async_sessionmaker(get_async_test_db_engine, expire_on_commit=False)
     return session_maker
 
 
@@ -128,6 +123,7 @@ async def get_async_test_db_session(
         except Exception:
             await session.rollback()
             raise
+
 
 # Здесь будут дополнительные фикстуры:
 # - clean_db (очистка БД между тестами)

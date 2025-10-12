@@ -1,7 +1,6 @@
 """
 End-to-end тесты для игрового процесса
 """
-import pytest
 
 # Здесь будут тесты:
 # - test_complete_game_session_flow

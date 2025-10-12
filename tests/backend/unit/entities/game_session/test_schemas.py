@@ -1,7 +1,6 @@
 """
 Unit тесты для game_session schemas
 """
-import pytest
 
 # Здесь будут тесты:
 # - test_game_session_create_validation

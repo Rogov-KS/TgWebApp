@@ -1,11 +1,13 @@
 """
 Фикстуры для игровых сессий в тестах
 """
+
 import pytest
 import pytest_asyncio
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.entities.game_session.dao import GameSessionDAO
 from backend.entities.game_session.models import GameSessionDB
-from sqlalchemy.ext.asyncio import AsyncSession
 from backend.entities.user.models import UserDB
 
 
@@ -78,9 +80,7 @@ async def insert_test_game_session(
     assert insert_test_user.id == get_game_session_data["user_id"], msg
 
     dao = get_game_session_dao
-    game_session = await dao.create(
-        **get_game_session_data
-    )
+    game_session = await dao.create(**get_game_session_data)
     return game_session
 
 
@@ -95,8 +95,6 @@ async def insert_test_game_sessions(
     dao = get_game_session_dao
     game_sessions = []
     for session_data in get_multiple_game_sessions_data:
-        game_session = await dao.create(
-            **session_data
-        )
+        game_session = await dao.create(**session_data)
         game_sessions.append(game_session)
     return game_sessions

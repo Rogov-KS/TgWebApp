@@ -1,34 +1,31 @@
 from typing import Annotated
 
-from fastapi import Depends, Request, Response, HTTPException, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from pydantic import ValidationError
 
+from backend.core.config import settings
 from backend.core.exception import (
     IncorrectTokenFormatException,
     InvalidCredentialsException,
     InvalidEmailException,
-    UserAlreadyExistsException,
     InvalidOAuth2TokenException,
+    UserAlreadyExistsException,
 )
 from backend.core.logger import get_logger
+from backend.entities.assemblers.schemas import SUser, SUserAuth, SUserLogin, SUserRegister
 from backend.entities.auth.utils import (
-    verify_password,
+    create_access_token,
+    delete_auth_cookies,
     get_password_hash,
     is_valid_email,
-    create_access_token,
     set_auth_cookies,
-    delete_auth_cookies,
-)
-from backend.entities.assemblers.schemas import (
-    SUserAuth, SUserLogin, SUser, SUserRegister
+    verify_password,
 )
 from backend.entities.refresh_token.service import (
+    RefreshTokenService,
     RefreshTokenServiceDep,
 )
-from backend.entities.refresh_token.service import RefreshTokenService
 from backend.entities.user.service import UserService, UserServiceDep
-from backend.core.config import settings
-
 
 logger = get_logger(__name__)
 
@@ -44,11 +41,7 @@ class AuthService:
         self.user_service = user_service
         self.refresh_service = refresh_service
 
-    async def authenticate_user(
-        self,
-        username_or_email: str,
-        password: str
-    ) -> SUser | None:
+    async def authenticate_user(self, username_or_email: str, password: str) -> SUser | None:
         """
         Аутентификация пользователя по username или email.
 
@@ -69,9 +62,7 @@ class AuthService:
             user = await self.user_service.get_user_by(email=username_or_email)
         else:
             # Если это не email, ищем по username
-            user = await self.user_service.get_user_by(
-                username=username_or_email
-            )
+            user = await self.user_service.get_user_by(username=username_or_email)
 
         if not user or not verify_password(password, user.hashed_password):
             return None
@@ -83,11 +74,7 @@ class AuthService:
 
         return schema_user
 
-    async def authenticate_admin_user(
-        self,
-        username_or_email: str,
-        password: str
-    ) -> SUser | None:
+    async def authenticate_admin_user(self, username_or_email: str, password: str) -> SUser | None:
         """
         Аутентификация администратора по username или email.
 
@@ -119,9 +106,7 @@ class AuthService:
             InvalidEmailException: если email невалидный
             UserAlreadyExistsException: если пользователь уже существует
         """
-        logger.info(
-            "Registering user", extra={"user_data": user_data.model_dump()}
-        )
+        logger.info("Registering user", extra={"user_data": user_data.model_dump()})
 
         # Проверяем валидность email
         if not is_valid_email(user_data.email):
@@ -129,24 +114,15 @@ class AuthService:
             raise InvalidEmailException
 
         # Проверяем, существует ли пользователь с таким email
-        existing_user = await self.user_service.get_user_by(
-            email=user_data.email
-        )
+        existing_user = await self.user_service.get_user_by(email=user_data.email)
         if existing_user:
-            logger.info(
-                "User already exists", extra={"email": user_data.email}
-            )
+            logger.info("User already exists", extra={"email": user_data.email})
             raise UserAlreadyExistsException
 
         # Проверяем, существует ли пользователь с таким username
-        existing_user = await self.user_service.get_user_by(
-            username=user_data.username
-        )
+        existing_user = await self.user_service.get_user_by(username=user_data.username)
         if existing_user:
-            logger.info(
-                "Username already exists",
-                extra={"username": user_data.username}
-            )
+            logger.info("Username already exists", extra={"username": user_data.username})
             raise UserAlreadyExistsException
 
         # Хешируем пароль
@@ -158,9 +134,7 @@ class AuthService:
         )
         # Создаем пользователя
         try:
-            schema_user = await self.user_service.create_user(
-                user_data=user_reg_data
-            )
+            schema_user = await self.user_service.create_user(user_data=user_reg_data)
             if not schema_user:
                 logger.error("Failed to create user - returned None")
                 raise UserAlreadyExistsException
@@ -168,9 +142,7 @@ class AuthService:
             logger.exception("Error creating user", exc_info=True)
             raise UserAlreadyExistsException from e
 
-        logger.info(
-            "User registered successfully", extra={"user_id": schema_user.id}
-        )
+        logger.info("User registered successfully", extra={"user_id": schema_user.id})
         return schema_user
 
     async def login_user(
@@ -192,17 +164,10 @@ class AuthService:
         Raises:
             InvalidCredentialsException: если учетные данные неверны
         """
-        logger.info(
-            "Logging in user", extra={"user_data": user_data.model_dump()}
-        )
-        user_schema = await self.authenticate_user(
-            user_data.username_or_email, user_data.password
-        )
+        logger.info("Logging in user", extra={"user_data": user_data.model_dump()})
+        user_schema = await self.authenticate_user(user_data.username_or_email, user_data.password)
         if not user_schema:
-            logger.info(
-                "Invalid credentials",
-                extra={"user_data": user_data.model_dump()}
-            )
+            logger.info("Invalid credentials", extra={"user_data": user_data.model_dump()})
             raise InvalidCredentialsException
 
         # Получаем модель пользователя для set_tokens_to_cookies
@@ -211,9 +176,7 @@ class AuthService:
             raise InvalidCredentialsException
 
         access_token = create_access_token(schema_user.id)
-        refresh_token = await self.refresh_service.create_refresh_token(
-            schema_user.id
-        )
+        refresh_token = await self.refresh_service.create_refresh_token(schema_user.id)
 
         set_auth_cookies(
             response=response,
@@ -269,9 +232,7 @@ class AuthService:
         )
 
         access_token = create_access_token(user.id)
-        refresh_token = await self.refresh_service.create_refresh_token(
-            user.id
-        )
+        refresh_token = await self.refresh_service.create_refresh_token(user.id)
 
         # Удаляем cookies
         delete_auth_cookies(response)
@@ -289,9 +250,7 @@ class AuthService:
             "token_type": "bearer",
         }
 
-    async def logout_user(
-        self, user: SUser, response: Response
-    ) -> dict[str, str]:
+    async def logout_user(self, user: SUser, response: Response) -> dict[str, str]:
         """
         Выход пользователя из системы.
 
@@ -321,8 +280,7 @@ class AuthService:
         refresh_token = await self.refresh_service.create_refresh_token(user.id)
         if not refresh_token:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create refresh token"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create refresh token"
             )
 
         access_token = create_access_token(user.id)
@@ -334,10 +292,7 @@ class AuthService:
         return access_token, refresh_token
 
 
-def get_auth_service(
-    user_service: UserServiceDep,
-    refresh_service: RefreshTokenServiceDep
-) -> AuthService:
+def get_auth_service(user_service: UserServiceDep, refresh_service: RefreshTokenServiceDep) -> AuthService:
     """Dependency для получения AuthService."""
     return AuthService(user_service, refresh_service)
 

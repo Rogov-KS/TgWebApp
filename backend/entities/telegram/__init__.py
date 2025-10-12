@@ -14,12 +14,12 @@ from backend.entities.telegram.utils import (
 )
 
 __all__ = [
-    "telegram_router",
     "TelegramAuthService",
     "TelegramInitData",
     "TelegramUserData",
-    "parse_telegram_init_data",
-    "validate_telegram_init_data",
-    "is_telegram_data_fresh",
     "extract_user_data_from_init_data",
+    "is_telegram_data_fresh",
+    "parse_telegram_init_data",
+    "telegram_router",
+    "validate_telegram_init_data",
 ]

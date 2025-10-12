@@ -1,8 +1,6 @@
 """
 Фикстуры для OAuth в тестах
 """
-import pytest
-from typing import AsyncGenerator, Generator
 
 # Здесь будут фикстуры:
 # - oauth_provider_mock (мок OAuth провайдера)

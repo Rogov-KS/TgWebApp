@@ -1,11 +1,13 @@
 """
 Фикстуры для пользователей в тестах
 """
+
 import pytest
 import pytest_asyncio
-from backend.entities.user.models import UserDB
-from backend.entities.user.dao import UserDAO
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from backend.entities.user.dao import UserDAO
+from backend.entities.user.models import UserDB
 
 
 @pytest.fixture
@@ -55,9 +57,7 @@ def get_multiple_users_data() -> list[dict]:
 
 
 @pytest_asyncio.fixture
-async def insert_test_user(
-    get_user_dao: UserDAO, get_user_data: dict
-) -> UserDB:
+async def insert_test_user(get_user_dao: UserDAO, get_user_data: dict) -> UserDB:
     """Создает тестового пользователя в БД."""
 
     dao = get_user_dao

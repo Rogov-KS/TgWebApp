@@ -1,7 +1,6 @@
 """
 Unit тесты для базы данных
 """
-import pytest
 
 # Здесь будут тесты:
 # - test_database_connection

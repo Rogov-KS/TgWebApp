@@ -63,7 +63,23 @@ export default defineConfig(({ mode }) => {
     envDir: '../configs/envs',
     define: createDefineObject(customEnv),
     server: {
-      allowedHosts: "all", // Разрешить все хосты для ngrok
+      host: "0.0.0.0",
+      port: 5173,
+      strictPort: true,
+      allowedHosts: [
+        "localhost",
+        "127.0.0.1",
+        ".ngrok-free.app",
+        ".ngrok.io"
+      ],
+      cors: true,
+      proxy: {
+        '/api': {
+          target: 'http://tg_web_app_backend:8000',
+          changeOrigin: true,
+          secure: false
+        }
+      }
     },
   }
 })

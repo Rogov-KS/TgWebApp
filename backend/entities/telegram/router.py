@@ -15,8 +15,6 @@ router = APIRouter(
 )
 
 
-
-
 @router.post("/")
 @version(1)
 async def telegram_auth(
@@ -44,28 +42,16 @@ async def telegram_auth(
     """
     logger.info(
         "Telegram auth request received",
-        extra={"init_data_length": len(request.init_data),
-               "init_data": request.init_data}
+        extra={"init_data_length": len(request.init_data), "init_data": request.init_data},
     )
     try:
-        result = await telegram_service.authenticate_telegram_user(
-            request.init_data, response
-        )
-        logger.info(
-            "Telegram auth result",
-            extra={"result": result}
-        )
+        result = await telegram_service.authenticate_telegram_user(request.init_data, response)
+        logger.info("Telegram auth result", extra={"result": result})
 
-        logger.info(
-            "Telegram auth successful",
-            extra={"user_id": result.get("user_id")}
-        )
+        logger.info("Telegram auth successful", extra={"user_id": result.get("user_id")})
 
         return result
 
     except Exception as e:
-        logger.error(
-            "Telegram auth failed",
-            extra={"error": str(e)}
-        )
+        logger.error("Telegram auth failed", extra={"error": str(e)})
         raise

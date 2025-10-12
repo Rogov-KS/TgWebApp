@@ -29,9 +29,7 @@ async def create_game_session(
     game_session_service: GameSessionServiceDep,
 ) -> SGameSession:
     """Создать новую игровую сессию."""
-    return await game_session_service.create_game_session(
-        game_session_data, user
-    )
+    return await game_session_service.create_game_session(game_session_data, user)
 
 
 @router.get("/user_game_sessions", response_model=list[SGameSession])
@@ -52,10 +50,7 @@ async def get_game_session(
     game_session_service: GameSessionServiceDep,
 ) -> SGameSession | None:
     """Получить игровую сессию по ID."""
-    return await game_session_service.get_game_session_by_id(
-        game_session_id=game_session_id,
-        user=user
-    )
+    return await game_session_service.get_game_session_by_id(game_session_id=game_session_id, user=user)
 
 
 @router.put("/{game_session_id}", response_model=SGameSession)
@@ -68,9 +63,7 @@ async def complete_game_session(
 ) -> SGameSession:
     """Завершить игровую сессию."""
     return await game_session_service.update_game_session(
-        filter_by={"id": game_session_id},
-        update_data=game_session_update.model_dump(),
-        user=user
+        filter_by={"id": game_session_id}, update_data=game_session_update.model_dump(), user=user
     )
 
 

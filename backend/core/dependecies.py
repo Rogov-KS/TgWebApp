@@ -15,8 +15,8 @@ from backend.core.exception import (
     UserNotFoundException,
 )
 from backend.core.logger import get_logger
-from backend.entities.user.dao import UserDAODep
 from backend.entities.assemblers.schemas import SUser
+from backend.entities.user.dao import UserDAODep
 
 logger = get_logger(__name__)
 
@@ -37,9 +37,7 @@ async def get_current_user(
 ) -> SUser:
     logger.debug("Getting current user", extra={"token": token})
     try:
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         if payload is None:
             raise NotAuthenticatedException
     except JWTError as err:
@@ -67,6 +65,7 @@ async def get_current_user(
 
     return schema_user
 
+
 CurrentUserDep = Annotated[SUser, Depends(get_current_user)]
 
 
@@ -76,6 +75,7 @@ async def get_current_admin_user(
     if not user or not user.is_admin:
         raise ForbiddenException
     return user
+
 
 CurrentAdminUserDep = Annotated[SUser, Depends(get_current_admin_user)]
 
@@ -88,5 +88,6 @@ async def get_current_admin_user_by_token(
     if not user or not user.is_admin:
         raise ForbiddenException
     return user
+
 
 CurrentAdminUserByTokenDep = Annotated[SUser, Depends(get_current_admin_user_by_token)]

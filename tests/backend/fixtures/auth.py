@@ -1,8 +1,6 @@
 """
 Фикстуры для аутентификации в тестах
 """
-import pytest
-from typing import AsyncGenerator, Generator
 
 # Здесь будут фикстуры:
 # - test_user (тестовый пользователь)

@@ -32,8 +32,6 @@ class ProcessTimeMiddleware(BaseHTTPMiddleware):
         process_time = time.time() - start_time
 
         # Логируем время обработки запроса
-        logger.info(
-            "Request handling time", extra={"process_time": round(process_time, 4)}
-        )
+        logger.info("Request handling time", extra={"process_time": round(process_time, 4)})
 
         return response

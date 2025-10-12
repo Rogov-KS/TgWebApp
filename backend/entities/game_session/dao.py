@@ -1,5 +1,5 @@
-from typing import Annotated, Any
 from collections.abc import Sequence
+from typing import Annotated, Any
 
 from fastapi import Depends
 from sqlalchemy import func, select
@@ -52,25 +52,20 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
             msg = "Ошибка при получении максимального счета"
             raise ValueError(msg) from e
 
-    async def get_leaderboard(self,
-                              limit: int = 10,
-                              offset: int = 0,
-                              sort_order: str = "desc",
-                              **filter_by: Any) -> Sequence[tuple[int, int]]:
+    async def get_leaderboard(
+        self, limit: int = 10, offset: int = 0, sort_order: str = "desc", **filter_by: Any
+    ) -> Sequence[tuple[int, int]]:
         """
         Получить лидеров.
         """
         query = (
             select(
                 self.model.user_id,
-                func.max(self.model.score).label('score'),
+                func.max(self.model.score).label("score"),
             )
             .filter_by(**filter_by)
             .group_by(self.model.user_id)
-            .order_by(
-                func.max(self.model.score).desc() if sort_order == "desc"
-                else func.max(self.model.score).asc()
-            )
+            .order_by(func.max(self.model.score).desc() if sort_order == "desc" else func.max(self.model.score).asc())
             .offset(offset)
             .limit(limit)
         )
@@ -93,13 +88,10 @@ class GameSessionDAO(BaseDAO[GameSessionDB]):
         )
 
         # ранжируем агрегаты по убыванию max_score
-        ranked = (
-            select(
-                subq.c.user_id,
-                func.dense_rank().over(order_by=subq.c.max_score.desc()).label("place"),
-            )
-            .subquery()
-        )
+        ranked = select(
+            subq.c.user_id,
+            func.dense_rank().over(order_by=subq.c.max_score.desc()).label("place"),
+        ).subquery()
 
         # выбираем место конкретного пользователя
         query = select(ranked.c.place).where(ranked.c.user_id == user_id)

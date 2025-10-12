@@ -81,7 +81,7 @@ services:
       - backend_app
     environment:
       - VITE_API_URL=http://localhost:9000/api
-      - VITE_BACKEND_URL=http://backend_app:8000/api
+      - VITE_BACKEND_URL=http://backend_app:8000/api/v1
     ports:
       - "5173:5173"
     volumes:

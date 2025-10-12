@@ -1,6 +1,6 @@
 from sqladmin import Admin
-from backend.admin_page.auth import authentication_backend
 
+from backend.admin_page.auth import authentication_backend
 from backend.admin_page.view import (
     GameSessionsAdmin,
     OAuth2TokenAdmin,

@@ -1,11 +1,11 @@
 import json
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
 from backend.middlewares.process_time import ProcessTimeMiddleware
-
 
 logger = get_logger(__name__)
 

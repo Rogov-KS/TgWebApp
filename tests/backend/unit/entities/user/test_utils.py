@@ -1,7 +1,6 @@
 """
 Unit тесты для user utils
 """
-import pytest
 
 # Здесь будут тесты:
 # - test_validate_email

@@ -1,17 +1,16 @@
 from datetime import UTC, datetime, timedelta
 import secrets
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import Depends, HTTPException, Response, status
 from pydantic import ValidationError
 
 from backend.core.config import settings
 from backend.core.logger import get_logger
-from backend.entities.auth import utils as auth_utils
-from backend.entities.refresh_token.dao import RefreshTokenDAODep, RefreshTokenDAO
-from backend.entities.user.service import UserService, UserServiceDep
 from backend.entities.assemblers.schemas import SRefreshToken, SUser
-
+from backend.entities.auth import utils as auth_utils
+from backend.entities.refresh_token.dao import RefreshTokenDAO, RefreshTokenDAODep
+from backend.entities.user.service import UserService, UserServiceDep
 
 logger = get_logger(__name__)
 
@@ -21,11 +20,7 @@ class RefreshTokenService:
     Сервисный слой для работы с refresh токенами.
     """
 
-    def __init__(
-        self,
-        refresh_token_dao: RefreshTokenDAO,
-        user_service: UserService
-    ):
+    def __init__(self, refresh_token_dao: RefreshTokenDAO, user_service: UserService):
         self.refresh_token_dao: RefreshTokenDAO = refresh_token_dao
         self.user_service: UserService = user_service
 
@@ -46,16 +41,10 @@ class RefreshTokenService:
             try:
                 return SRefreshToken.model_validate(refresh_token)
             except ValidationError as e:
-                logger.error(
-                    "Error validating refresh token",
-                    extra={"error": str(e)},
-                    exc_info=True
-                )
+                logger.error("Error validating refresh token", extra={"error": str(e)}, exc_info=True)
         return None
 
-    async def get_active_tokens_by_user_id(
-        self, user_id: int
-    ) -> List[SRefreshToken]:
+    async def get_active_tokens_by_user_id(self, user_id: int) -> list[SRefreshToken]:
         """
         Получить все активные refresh токены пользователя.
 
@@ -65,26 +54,16 @@ class RefreshTokenService:
         Returns:
             List[RefreshToken]: Список активных токенов
         """
-        logger.info(
-            "Getting active refresh tokens for user",
-            extra={"user_id": user_id}
-        )
+        logger.info("Getting active refresh tokens for user", extra={"user_id": user_id})
 
         tokens = await self.refresh_token_dao.get_active_by_user_id(user_id)
-        logger.info(
-            "Retrieved active refresh tokens",
-            extra={"user_id": user_id, "count": len(tokens)}
-        )
+        logger.info("Retrieved active refresh tokens", extra={"user_id": user_id, "count": len(tokens)})
         if tokens:
             try:
                 tokens_list = [SRefreshToken.model_validate(token) for token in tokens]
                 return tokens_list
             except ValidationError as e:
-                logger.error(
-                    "Error validating refresh tokens",
-                    extra={"error": str(e)},
-                    exc_info=True
-                )
+                logger.error("Error validating refresh tokens", extra={"error": str(e)}, exc_info=True)
         return []
 
     async def create_refresh_token(self, user_id: int) -> str:
@@ -100,32 +79,21 @@ class RefreshTokenService:
         Raises:
             HTTPException: Если превышено максимальное количество токенов
         """
-        logger.info(
-            "Creating refresh token for user",
-            extra={"user_id": user_id}
-        )
+        logger.info("Creating refresh token for user", extra={"user_id": user_id})
 
         # Проверяем количество активных токенов
-        active_count = await self.refresh_token_dao.count_active_by_user_id(
-            user_id
-        )
+        active_count = await self.refresh_token_dao.count_active_by_user_id(user_id)
 
         max_tokens = settings.MAX_REFRESH_TOKENS_PER_USER
         if active_count >= max_tokens:
             logger.info(
                 "Max refresh tokens limit reached, revoking oldest",
-                extra={
-                    "user_id": user_id,
-                    "active_count": active_count,
-                    "limit": max_tokens
-                }
+                extra={"user_id": user_id, "active_count": active_count, "limit": max_tokens},
             )
             # Удаляем самый старый токен
             active_tokens = await self.get_active_tokens_by_user_id(user_id)
             if active_tokens:
-                oldest_token = min(
-                    active_tokens, key=lambda t: t.created_at
-                )
+                oldest_token = min(active_tokens, key=lambda t: t.created_at)
                 await self.revoke_token(oldest_token.token)
 
         # Создаем новый токен
@@ -134,25 +102,16 @@ class RefreshTokenService:
 
         # Сохраняем в базу
         created_token = await self.refresh_token_dao.create_refresh_token(
-            user_id=user_id,
-            token=token_value,
-            expires_at=expires_at
+            user_id=user_id, token=token_value, expires_at=expires_at
         )
 
         if not created_token:
-            logger.error(
-                "Failed to create refresh token",
-                extra={"user_id": user_id}
-            )
+            logger.error("Failed to create refresh token", extra={"user_id": user_id})
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create refresh token"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create refresh token"
             )
 
-        logger.info(
-            "Created refresh token",
-            extra={"user_id": user_id, "token_id": created_token.id}
-        )
+        logger.info("Created refresh token", extra={"user_id": user_id, "token_id": created_token.id})
 
         return token_value
 
@@ -180,8 +139,8 @@ class RefreshTokenService:
                 "token_id": refresh_token.id,
                 "user_id": refresh_token.user_id,
                 "is_revoked": refresh_token.is_revoked,
-                "expires_at": refresh_token.expires_at.isoformat()
-            }
+                "expires_at": refresh_token.expires_at.isoformat(),
+            },
         )
 
         # Проверяем, что токен активен и не истек
@@ -197,16 +156,10 @@ class RefreshTokenService:
         user = await self.user_service.get_user_by(id=refresh_token.user_id)
 
         if not user:
-            logger.warning(
-                "User not found for refresh token",
-                extra={"user_id": refresh_token.user_id}
-            )
+            logger.warning("User not found for refresh token", extra={"user_id": refresh_token.user_id})
             return None
 
-        logger.info(
-            "Refresh token verified successfully",
-            extra={"user_id": user.id}
-        )
+        logger.info("Refresh token verified successfully", extra={"user_id": user.id})
 
         return user
 
@@ -230,10 +183,7 @@ class RefreshTokenService:
 
         await self.refresh_token_dao.revoke_by_token(token)
 
-        logger.info(
-            "Refresh token revoked",
-            extra={"token_id": existing_token.id, "user_id": existing_token.user_id}
-        )
+        logger.info("Refresh token revoked", extra={"token_id": existing_token.id, "user_id": existing_token.user_id})
 
         return True
 
@@ -247,10 +197,7 @@ class RefreshTokenService:
         Returns:
             int: Количество отозванных токенов
         """
-        logger.info(
-            "Revoking all refresh tokens for user",
-            extra={"user_id": user_id}
-        )
+        logger.info("Revoking all refresh tokens for user", extra={"user_id": user_id})
 
         # Получаем активные токены для подсчета
         active_tokens = await self.get_active_tokens_by_user_id(user_id)
@@ -259,10 +206,7 @@ class RefreshTokenService:
         # Отзываем все токены
         await self.refresh_token_dao.revoke_all_by_user_id(user_id)
 
-        logger.info(
-            "Revoked all refresh tokens for user",
-            extra={"user_id": user_id, "count": count}
-        )
+        logger.info("Revoked all refresh tokens for user", extra={"user_id": user_id, "count": count})
 
         return count
 
@@ -277,11 +221,7 @@ class RefreshTokenService:
             await self.refresh_token_dao.delete_expired()
             logger.info("Completed cleanup of expired refresh tokens")
         except Exception as e:
-            logger.error(
-                "Error during cleanup of expired refresh tokens",
-                extra={"error": str(e)},
-                exc_info=True
-            )
+            logger.error("Error during cleanup of expired refresh tokens", extra={"error": str(e)}, exc_info=True)
             raise
 
     async def get_user_token_count(self, user_id: int) -> int:
@@ -296,10 +236,7 @@ class RefreshTokenService:
         """
         count = await self.refresh_token_dao.count_active_by_user_id(user_id)
 
-        logger.info(
-            "Retrieved user token count",
-            extra={"user_id": user_id, "count": count}
-        )
+        logger.info("Retrieved user token count", extra={"user_id": user_id, "count": count})
 
         return count
 
@@ -327,9 +264,7 @@ class RefreshTokenService:
         expire = self._calculate_expiration()
         return token, expire
 
-    async def set_tokens_to_cookies(
-        self, response: Response, user: SUser
-    ) -> tuple[str, str]:
+    async def set_tokens_to_cookies(self, response: Response, user: SUser) -> tuple[str, str]:
         """
         Создать токены и установить их в cookies.
 
@@ -341,9 +276,7 @@ class RefreshTokenService:
             tuple[str, str]: access_token, refresh_token
         """
         # Создаем access token
-        access_token = auth_utils.create_access_token(
-            data={"sub": str(user.id)}
-        )
+        access_token = auth_utils.create_access_token(data={"sub": str(user.id)})
 
         # Создаем refresh token
         refresh_token = await self.create_refresh_token(user.id)
@@ -358,8 +291,7 @@ class RefreshTokenService:
 
 
 def get_refresh_token_service(
-    refresh_token_dao: RefreshTokenDAODep,
-    user_service: UserServiceDep
+    refresh_token_dao: RefreshTokenDAODep, user_service: UserServiceDep
 ) -> RefreshTokenService:
     """Dependency для получения RefreshTokenService."""
     return RefreshTokenService(refresh_token_dao, user_service)

@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlalchemy import and_, select
 
 from backend.core.base_dao import BaseDAO
-from backend.core.database import async_session_maker, AsyncSessionDep
+from backend.core.database import AsyncSessionDep
 from backend.core.logger import get_logger
 from backend.entities.refresh_token.models import RefreshTokenDB
 
@@ -48,9 +48,7 @@ class RefreshTokenDAO(BaseDAO[RefreshTokenDB]):
 
     async def delete_expired(self) -> None:
         """Удалить истекшие refresh токены."""
-        stmt = select(self.model).where(
-            self.model.expires_at <= datetime.now(UTC)
-        )
+        stmt = select(self.model).where(self.model.expires_at <= datetime.now(UTC))
         result = await self.session.execute(stmt)
         expired_tokens = result.scalars().all()
 
@@ -70,12 +68,7 @@ class RefreshTokenDAO(BaseDAO[RefreshTokenDB]):
         expires_at: datetime,
     ) -> RefreshTokenDB | None:
         """Создать новый refresh token."""
-        return await self.create(
-            user_id=user_id,
-            token=token,
-            expires_at=expires_at,
-            is_revoked=False
-        )
+        return await self.create(user_id=user_id, token=token, expires_at=expires_at, is_revoked=False)
 
 
 def get_refresh_token_dao(session: AsyncSessionDep) -> RefreshTokenDAO:

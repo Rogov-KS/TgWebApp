@@ -24,14 +24,10 @@ class AdminAuth(AuthenticationBackend):
         async with async_session_maker() as session:
             user_dao = UserDAO(session)
             auth_service = AuthService(user_dao)
-            user = await auth_service.authenticate_admin_user(
-                username_or_email, password
-            )
+            user = await auth_service.authenticate_admin_user(username_or_email, password)
 
             if user:
-                access_token = auth_utils.create_access_token(
-                    {"sub": str(user.id)}
-                )
+                access_token = auth_utils.create_access_token({"sub": str(user.id)})
                 request.session.update({"token": access_token})
 
         return True

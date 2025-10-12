@@ -1,7 +1,6 @@
 """
 Интеграционные тесты для OAuth
 """
-import pytest
 
 # Здесь будут тесты:
 # - test_oauth_providers_list

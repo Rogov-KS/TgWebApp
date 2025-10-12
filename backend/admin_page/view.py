@@ -4,9 +4,7 @@ from backend.entities.assemblers.models import *
 
 
 class UsersAdmin(ModelView, model=UserDB):
-    column_list = [
-        c.name for c in UserDB.__table__.columns if c.name != "hashed_password"
-    ]
+    column_list = [c.name for c in UserDB.__table__.columns if c.name != "hashed_password"]
     column_details_exclude_list = [UserDB.hashed_password]
     can_delete = False
     name = "Пользователь"
@@ -33,11 +31,7 @@ class RefreshTokenAdmin(ModelView, model=RefreshTokenDB):
 
 
 class OAuth2TokenAdmin(ModelView, model=OAuth2TokenDB):
-    column_list = [
-        c.name
-        for c in OAuth2TokenDB.__table__.columns
-        if c.name not in ["access_token", "refresh_token"]
-    ]
+    column_list = [c.name for c in OAuth2TokenDB.__table__.columns if c.name not in ["access_token", "refresh_token"]]
     column_details_exclude_list = [OAuth2TokenDB.access_token, OAuth2TokenDB.refresh_token]
     can_delete = False
     can_create = False

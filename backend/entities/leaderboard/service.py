@@ -54,7 +54,9 @@ class LeaderboardService:
         )
         logger.info("Retrieved top game sessions", extra={"top_game_sessions": top_game_sessions})
         leaderboard = [
-            SLeaderboardPlace(user_id=game_session["user_id"], max_score=game_session["score"], place=index + offset + 1)
+            SLeaderboardPlace(
+                user_id=game_session["user_id"], max_score=game_session["score"], place=index + offset + 1
+            )
             for index, game_session in enumerate(top_game_sessions)
         ]
         leaderboard = sorted(leaderboard, key=lambda x: x.max_score, reverse=(sort_order == "desc"))

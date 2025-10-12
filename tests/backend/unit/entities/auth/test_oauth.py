@@ -1,7 +1,6 @@
 """
 Unit тесты для OAuth функциональности
 """
-import pytest
 
 # Здесь будут тесты:
 # - test_google_oauth_provider

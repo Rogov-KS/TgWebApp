@@ -20,14 +20,10 @@ class GameSessionDB(Base):
     score: Mapped[int] = mapped_column(Integer, default=0)
     duration: Mapped[int] = mapped_column(Integer, default=0)  # в секундах
     level: Mapped[int] = mapped_column(Integer, default=1)
-    started_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    started_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     ended_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True))
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
-    game_data: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON
-    )  # дополнительные данные игры
+    game_data: Mapped[dict[str, Any] | None] = mapped_column(JSON)  # дополнительные данные игры
 
     # Связь с пользователем
     user: Mapped["UserDB"] = relationship("UserDB", back_populates="game_sessions")

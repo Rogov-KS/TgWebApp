@@ -1,7 +1,6 @@
 """
 Unit тесты для конфигурации
 """
-import pytest
 
 # Здесь будут тесты:
 # - test_database_url_validation
